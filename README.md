@@ -1,31 +1,27 @@
 # smart-web-messaging
-SMART Web Messaging Specification Development
+SMART Web Messaging enables tight UI integration between EHRs and embedded SMART apps via HTML5's Web Messaging. Use SMART Web Messaging to push unsigned orders, note snippets, risk scores or UI suggestions directly to the clinician's EHR session. Built  on the browser's javascript `window.postMessage` function, SMART Web Messaging is a simple, native API for health apps embedded within the user's workflow. 
 
 # Why
 
-Within an EHR, SMART apps can be launched automatically at specific points in the workflow, or on demand in response to a user interaction, including clicking on a suggestion from a CDS Hooks service. Once launched, a web app is typically embedded within a patient’s chart and communicates with the EHR via RESTful FHIR APIs. These RESTful APIs are great for CRUD operations on a database, but don’t enable tight workflow integration or access to draft FHIR resources that may only exist in memory on the EHR client.
+Within a clinical workflow system (such as an EHR), SMART apps can be launched automatically at specific points in the workflow, or on demand in response to a user interaction, including clicking on a suggestion from a CDS Hooks service. Once launched, a web app is typically embedded within a patient’s chart and communicates with the EHR via RESTful FHIR APIs. These RESTful APIs are great for CRUD operations on a database, but don’t enable tight workflow integration or access to draft FHIR resources that may only exist in memory on the EHR client.
 
 For these embedded apps, there are some key use cases that SMART and CDS Hooks don't address today:
 
-* Communicate a decision made by the clinician within the SMART app, such as placing an order, annotating a procedure with a appropriateness score or radiation count, or adding a diagnosis or condition to the patient’s chart.
-
-* Interrogate the orders scratchpad / shopping cart, currently only known within the prescriber's EHR session.
-
+* Communicate a decision made by the clinician within the SMART app, such as placing an order, annotating a procedure with a appropriateness score or radiation count, transmitting a textual note snippet or suggesting a diagnosis or condition to the patient’s chart.
+* Interrogate the orders scratchpad / shopping cart, currently only known within the ordering provider's CPOE session.
 * Allow an app to communicate UX-relevant results back to the EHR, for example, navigate to a native EHR activity, or an "I'm done signal".
 
 Additionally, there are interesting capabilities enabled by tighter integration, for example:
-
-* Make available text snippets for easy inclusion within a provider's note or the after visit summary.
-
 * Save an app specific session or state identifier to the EHR for later retrieval.
-
 * Interact with the EHR’s FHIR server directly through this messaging channel (rather than through the REST API, thereby keeping the FHIR server off of the internet).
 
-# SMART Messaging
+# SMART Web Messaging
 
 SMART Messaging builds on HTML 5’s [Web Messaging](https://www.w3.org/TR/webmessaging), which allows web pages to communicate across domains. Javascript’s `window.postMessage` API passes `MessageEvent` objects between windows.
 
-A [`postMessage`-based messaging](https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage) allows flexible, standards-based integration that works across windows, frames and domains, and should be readily supportable in browser controls for thick-client EHRs.
+A [`postMessage`-based messaging](https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage) allows flexible, standards-based integration that works across windows, frames and domains, and should be readily supportable in browser controls for thin or thick-client EHRs.
+
+![SMART Web Messaging launch](img/web messaging launch.png)
 
 ```js
 // App needs to know EHR's origin.
