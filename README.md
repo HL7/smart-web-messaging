@@ -100,8 +100,11 @@ SMART.messaging.send(
 
 SMART Messaging is designed to be compatible with CDS Hooks, and to implement the CDS Hooks decisions flow. For any CDS Hooks Actions array, you can create a list of SMART.messaging API calls:
 
-* Suggestion type: used to populate the payload's `.messageType` ("create" -> "scratchpad.create", "update"->"scratchpad.update", delete->"scratchpad.delete")
-* Resource body: used to populate the the payload's `.payload.resource`
+* CDS Hooks suggestion type is used to populate the payload's `.messageType`
+  * `create` → `scratchpad.create`
+  * `update`→ `cratchpad.update`
+  * `delete`→ `scratchpad.delete`
+* CDS Hooks suggestion body: used to populate the the payload's `.payload.resource`
 
 For example, a proposal to update a draft prescription in the context of a CS Hooks request might look like:
 
