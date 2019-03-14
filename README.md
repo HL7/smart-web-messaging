@@ -48,7 +48,7 @@ appWindow.postMessage({
 }, targetOrigin)
 ```
 
-**For subsequent code samples, we abstract away some of the messaging details via a (theoretical) simple SMART Messaging layer, which accepts a messageType and payload and returns a promise that resolves with the response payload.**
+**For subsequent code samples, we abstract away some of the messaging details via a (theoretical) simple SMART Messaging javascript library, which accepts a messageType and payload and returns a promise that resolves with the response payload.**
 
 ## `messageType == ui.*`: Influence EHR UI
 
