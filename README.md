@@ -164,7 +164,7 @@ The use of web messaging requires the app to be a web application, which is eith
 SMART messaging is not a context synchronization specification (see http://fhircast.org for that). Rather, it’s a collection of functions available to a web app embedded within an EHR which supports tight workflow integration.   
 
 ## Alternatives considered
-See [alternatives-considered.md](./alternatives-consideered.md)
+See [alternatives-considered.md](./alternatives-considered.md)
 
 ## Open Questions
 
