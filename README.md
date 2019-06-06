@@ -35,7 +35,7 @@ A [`postMessage`-based messaging](https://developer.mozilla.org/en-US/docs/Web/A
 }, targetOrigin)
 ```
 
-In response, EHR sends a response like:
+In response, EHR may send one return message like:
 ```js
 appWindow.postMessage({
   "messageId": <some new guid>,
@@ -47,6 +47,8 @@ appWindow.postMessage({
   }
 }, targetOrigin)
 ```
+
+This enables a request/reply pattern; applications should be prepared to see at most one incoming message with a given `responseToMessageId`. (If message streams are needed, this can be accomplished by having the server send "unsolicited" messages, i.e., messages with no `responseToMessageId`, after a client's initial request.)
 
 **For subsequent code samples, we abstract away some of the messaging details via a (theoretical) simple SMART Messaging javascript library, which accepts a messageType and payload and returns a promise that resolves with the response payload.**
 
