@@ -54,14 +54,26 @@ This enables a request/response pattern; applications should be prepared to see 
 
 ## `messageType == ui.*`: Influence EHR UI
 
-An embedded SMART app improves the clinician’s user experience by closing itself or requesting the EHR to navigate the user to an appropriate activity. The `ui.done` messageType instructs the EHR to close the activity hosting the SMART app, and optionally navigates the user to an alternate activity:
+An embedded SMART app improves the clinician’s user experience by closing itself or requesting the EHR to navigate the user to an appropriate activity.
+
+All `ui.done` and `ui.launchActivity` messages may include an `activityType`
+such as `problem-add` or `order-sign`. These named activity types are drawn
+from the SMART Web Messaging [Activity Catalog](./activity-catalog.md).  In
+general, these activities follow the same naming conventions as entries in the
+CDS Hooks catalog, and will align with CDS Hooks catalog entries where
+feasible.
+
+The `ui.done` messageType instructs the EHR to close the activity hosting the SMART app, and optionally navigates the user to an alternate activity:
 
 ```js
 SMART.messaging.send("ui.done", {
-  "activityType": "problem-list" | "scratchpad" | ...,
+  "activityType": "problem-add",
   "activityParameters": {
     // Each ui activity defines its optional+required params
-    "patient": "123", 
+    "problem": {
+      "resourceType": "Condition",
+      "patient": "123",
+    }
   }
 }).then((responsePayload) => {...})
 ```
@@ -70,10 +82,13 @@ Similarly, the SMART app can use the `ui.LaunchActivity` messageType to request 
 
 ```js
 SMART.messaging.send("ui.launchActivity", {
-  "activityType": "problem-list" | "scratchpad" | ...,
+  "activityType": "problem-add",
   "activityParameters": {
-    // Each activity defines its optional+required params
-    "patient": "123", 
+    // Each ui activity defines its optional+required params
+    "problem": {
+      "resourceType": "Condition",
+      "patient": "123",
+    }
   }
 }).then((responsePayload) => {...})
 ```
