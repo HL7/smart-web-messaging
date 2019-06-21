@@ -15,6 +15,6 @@ align with the actual names of existing CDS Hooks activities where feasible.
 
 |Activity Name|Description|Parameters|
 |---|---|---|
-|`order-sign`|See [CDS Hooks](https://cds-hooks.org/hooks/order-sign/)|`orderIds`: array of IDs, as a hint to the EHR about what draft orders should be displayed / scrolled into focus within the order entry screen. An app should first create/update orders using the `scratchpad.*` SMART Web Messaging API before navigating to this activity.|
-|`appointment-book`|See [CDS Hooks](https://cds-hooks.org/hooks/appointment-book/)|`appointments`: FHIR Bundle of Appointment resources in draft status, and any other supporting data|
+|`order-sign`|See [CDS Hooks](https://cds-hooks.org/hooks/order-sign/)|N/A. An app should first create/update orders using the `scratchpad.*` SMART Web Messaging API before navigating to this activity.|
+|`appointment-book`|See [CDS Hooks](https://cds-hooks.org/hooks/appointment-book/)|`appointments`: FHIR Bundle of Appointment resources in `proposed` status, and any other supporting data|
 |`problem-add`|Add  a new problem to the patient's problem list|`problem`: FHIR Condition resource, to pre-populate the data entry screen|
