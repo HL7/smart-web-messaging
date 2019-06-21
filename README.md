@@ -56,6 +56,7 @@ This enables a request/response pattern; applications should be prepared to see 
 
 An embedded SMART app improves the clinician’s user experience by closing itself or requesting the EHR to navigate the user to an appropriate activity.
 
+
 All `ui.done` and `ui.launchActivity` messages may include an `activityType`
 such as `problem-add` or `order-sign`. These named activity types are drawn
 from the SMART Web Messaging [Activity Catalog](./activity-catalog.md).  In
@@ -64,6 +65,11 @@ CDS Hooks catalog, and will align with CDS Hooks catalog entries where
 feasible.
 
 The `ui.done` messageType instructs the EHR to close the activity hosting the SMART app, and optionally navigates the user to an alternate activity:
+
+*Note:* A SMART app launched in the context of CDS Hooks should generally not
+need to specify an `activityType` with the `ui.done` message, because the EHR
+tracks the context in which the app was launched (e.g., order entry) and can
+navigate to the appropriate follow-up screen based on this context.
 
 ```js
 SMART.messaging.send("ui.done", {
