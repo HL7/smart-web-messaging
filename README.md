@@ -115,9 +115,11 @@ While interacting with an embedded SMART app, a clinician may make decisions tha
 SMART.messaging.send(
   // "create"| "update"| "read" | "search" | "delete"
   "scratchpad.[interaction-name]", {
-    "resourceType": "ServiceRequest", 
-    "status": "draft", 
-    ...
+    "resource": {
+      "resourceType": "ServiceRequest", 
+      "status": "draft", 
+      ...
+    }
   })
 ```
 
