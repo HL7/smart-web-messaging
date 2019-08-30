@@ -27,7 +27,10 @@ A [`postMessage`-based messaging](https://developer.mozilla.org/en-US/docs/Web/A
 // App needs to know EHR's origin.
 // Add a smart_messaging_origin launch context parameter alongside the access_token
 // to tell the app what the EHR's origin will be
-(window.parent || window.opener).postMessage({
+
+const targetWindow = window.parent !== window.self ? window.parent : window.opener;
+
+targetWindow.postMessage({
   "authentication": {// maybe }
   "messageId": <some guid>,
   "messageType": "scratchpad.create",
