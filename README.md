@@ -25,14 +25,12 @@ A [`postMessage`-based messaging](https://developer.mozilla.org/en-US/docs/Web/A
 
 ```js
 // App needs to know EHR's origin.
-// Add a smart_web_messaging_token launch context parameter alongside the access_token
 // Add a smart_messaging_origin launch context parameter alongside the access_token
 // to tell the app what the EHR's origin will be
 
 const targetWindow = window.parent !== window.self ? window.parent : window.opener;
 
 targetWindow.postMessage({
-  "authentication": "<smart_web_messaging_token> from SMART launch context",
   "messageId": <some guid>,
   "messageType": "scratchpad.create",
   "payload": // see below
@@ -156,12 +154,10 @@ SMART Messaging enables capabilities outside of simple FHIR CRUD operations and 
 * `­patient/MedicationRequest.read`
 * `messaging/ui.launchActivity`
 
-At the time of launch, the app receives a `smart_web_messaging_token` alongside the OAuth `access_token`. This
-`smart_web_messaging_token` is used to tie `postMessage` requests to the authorization context. We define this
-as a distinct parameter from the access token itself because in many app architectures, the access token will
-only live server-side, and the `smart_web_messaging_token` is explicitly designed to be safely pushed up to
-the browser environment. (It confers limited permissions, entirely focued on the Web Messaging interactions
-without enabling full REST API access.)
+Note that the EHR has a responsibility to enfore access control on all incoming `postMessage` requests from a
+SMART app launched in this fashion. No explicit authentication token is passed over the wire, but the EHR
+should maintain a list of active application authorizations associated with a given app window, and should
+restrict Web Messaging API access accordingly.
 
 ### Scope examples
 
@@ -176,7 +172,7 @@ without enabling full REST API access.)
   aud=https://ehr/fhir
 ```
 
-Following the OAuth 2.0 handshake, the authorization server returns the authorized SMART launch parameters alongside the access_token. Note the `scope`, `smart_web_messaging_token`, and `smart_messaging_origin` values:
+Following the OAuth 2.0 handshake, the authorization server returns the authorized SMART launch parameters alongside the access_token. Note the `scope`, and `smart_messaging_origin` values:
 
 ```
  {
@@ -184,7 +180,6 @@ Following the OAuth 2.0 handshake, the authorization server returns the authoriz
   "token_type": "bearer",
   "expires_in": 3600,
   "scope": "patient/Observation.read patient/Patient.read messaging/ui.launchActivity",
-  "smart_web_messaging_token": "bws8YCbyBtCYi5mWVgUDRqX8xcjiudCo",
   "smart_messaging_origin": "https://ehr.example.org",
   "state": "98wrghuwuogerg97",
   "patient":  "123",
