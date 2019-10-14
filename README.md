@@ -153,15 +153,17 @@ SMART.messaging.send("scratchpad.update", {
 SMART Messaging uses OAuth 2.0 scopes. While a simple `MedicationRequest.read` scope authorizes a SMART app to not only query for a patient's prescriptions from the RESTful FHIR server, the same scope also authorizes an app to query the EHR's SMART container for a list of unsigned, draft orders that only exist in the memory of the EHR client.
 SMART Messaging enables capabilities outside of simple FHIR CRUD operations and are treated simply as additional scopes within the newly introduced SMART `messaging` scope category. For example, a SMART app could read the patient's prescribed medications, the list of not yet prescribed medications and also launch the native problem-list activity by requesting the following scopes:
 
-* `­patient/MedicationRequest.read`
+* `patient/MedicationRequest.read`
 * `messaging/ui.launchActivity`
 
-At the time of launch, the app receives a `smart_web_messaging_token` alongside the OAuth `access_token`. This
-`smart_web_messaging_token` is used to tie `postMessage` requests to the authorization context. We define this
+At the time of launch, the app receives a `smart_web_messaging_handle` alongside the OAuth `access_token`. This
+`smart_web_messaging_handle` is used to tie `postMessage` requests to the authorization context. We define this
 as a distinct parameter from the access token itself because in many app architectures, the access token will
-only live server-side, and the `smart_web_messaging_token` is explicitly designed to be safely pushed up to
+only live server-side, and the `smart_web_messaging_handle` is explicitly designed to be safely pushed up to
 the browser environment. (It confers limited permissions, entirely focued on the Web Messaging interactions
-without enabling full REST API access.)
+without enabling full REST API access.) A server should restrict the use of a single `smart_web_messaging_handle`
+to requests from a single app window, and should implement logic to expire the handle when appropriate (e.g.,
+the server might expire the handle when the user session ends).
 
 ### Scope examples
 
@@ -206,4 +208,5 @@ See [alternatives-considered.md](./alternatives-considered.md)
 ## Open Questions
 
 
-* Does (3) above need to be an initial handshake postMessage? Do scopes in access_token already meet this need? Or do we need something like added details in a well-known/smart-configuration.json / documentation?
+* Do we want to introduce an initial handshake postMessage before other messages can be sent
+* Do we need an in-band way to advertise which message types (and possibly which parameters) a server supports (e.g. via added details in a well-known/smart-configuration.json) or just defer to out-of-band server documentation?
