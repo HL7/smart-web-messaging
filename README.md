@@ -25,14 +25,14 @@ A [`postMessage`-based messaging](https://developer.mozilla.org/en-US/docs/Web/A
 
 ```js
 // App needs to know EHR's origin.
-// Add a smart_web_messaging_token launch context parameter alongside the access_token
+// Add a smart_web_messaging_handle launch context parameter alongside the access_token
 // Add a smart_messaging_origin launch context parameter alongside the access_token
 // to tell the app what the EHR's origin will be
 
 const targetWindow = window.parent !== window.self ? window.parent : window.opener;
 
 targetWindow.postMessage({
-  "authentication": "<smart_web_messaging_token> from SMART launch context",
+  "authentication": "<smart_web_messaging_handle> from SMART launch context",
   "messageId": <some guid>,
   "messageType": "scratchpad.create",
   "payload": // see below
@@ -178,7 +178,7 @@ the server might expire the handle when the user session ends).
   aud=https://ehr/fhir
 ```
 
-Following the OAuth 2.0 handshake, the authorization server returns the authorized SMART launch parameters alongside the access_token. Note the `scope`, `smart_web_messaging_token`, and `smart_messaging_origin` values:
+Following the OAuth 2.0 handshake, the authorization server returns the authorized SMART launch parameters alongside the access_token. Note the `scope`, `smart_web_messaging_handle`, and `smart_messaging_origin` values:
 
 ```
  {
@@ -186,7 +186,7 @@ Following the OAuth 2.0 handshake, the authorization server returns the authoriz
   "token_type": "bearer",
   "expires_in": 3600,
   "scope": "patient/Observation.read patient/Patient.read messaging/ui.launchActivity",
-  "smart_web_messaging_token": "bws8YCbyBtCYi5mWVgUDRqX8xcjiudCo",
+  "smart_web_messaging_handle": "bws8YCbyBtCYi5mWVgUDRqX8xcjiudCo",
   "smart_messaging_origin": "https://ehr.example.org",
   "state": "98wrghuwuogerg97",
   "patient":  "123",
