@@ -131,7 +131,7 @@ SMART Messaging is designed to be compatible with CDS Hooks, and to implement th
 
 * CDS Hooks suggestion type is used to populate the payload's `.messageType`
   * `create` → `scratchpad.create`
-  * `update`→ `cratchpad.update`
+  * `update`→ `scratchpad.update`
   * `delete`→ `scratchpad.delete`
 * CDS Hooks suggestion body: used to populate the the payload's `.payload.resource`
 
@@ -151,10 +151,12 @@ SMART.messaging.send("scratchpad.update", {
 ## Authorization with SMART scopes
 
 SMART Messaging uses OAuth 2.0 scopes. While a simple `MedicationRequest.read` scope authorizes a SMART app to not only query for a patient's prescriptions from the RESTful FHIR server, the same scope also authorizes an app to query the EHR's SMART container for a list of unsigned, draft orders that only exist in the memory of the EHR client.
-SMART Messaging enables capabilities outside of simple FHIR CRUD operations and are treated simply as additional scopes within the newly introduced SMART `messaging` scope category. For example, a SMART app could read the patient's prescribed medications, the list of not yet prescribed medications and also launch the native problem-list activity by requesting the following scopes:
+SMART Messaging enables capabilities outside of simple FHIR CRUD operations and are treated simply as additional scopes within the newly introduced SMART `messaging` scope category. Authorization is at the level of message groups (e.g., `messaging/ui`) rather than specific messages (e.g., `launchActivity`). For example, a SMART app could read the patient's prescribed medications, the list of not yet prescribed medications and also launch the native problem-list activity by requesting the following scopes:
 
-* `patient/MedicationRequest.read`
-* `messaging/ui.launchActivity`
+* `patient/MedicationRequest.read`: required to read prescribed medication
+* `messaging/scratchpad`: required to read medications from EHR scratchpad
+* `messaging/ui`: required to invoke in-EHR navigation
+
 
 At the time of launch, the app receives a `smart_web_messaging_handle` alongside the OAuth `access_token`. This
 `smart_web_messaging_handle` is used to tie `postMessage` requests to the authorization context. We define this
@@ -163,7 +165,9 @@ only live server-side, and the `smart_web_messaging_handle` is explicitly design
 the browser environment. (It confers limited permissions, entirely focued on the Web Messaging interactions
 without enabling full REST API access.) A server should restrict the use of a single `smart_web_messaging_handle`
 to requests from a single app window, and should implement logic to expire the handle when appropriate (e.g.,
-the server might expire the handle when the user session ends).
+the server might expire the handle when the user session ends). 
+
+*Note on security goals: We include a `smart_web_messaging_handle` in the request to ensure that a SMART app launch has been completed prior to any SMART Web Messaging API calls. Requiring this parameter also prevents a class of cross-site-scripting (XSS) attacks in which the attacker injects malicious code into arbitrary pages within the app's origin.*
 
 ### Scope examples
 
