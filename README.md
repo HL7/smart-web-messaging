@@ -25,13 +25,14 @@ A [`postMessage`-based messaging](https://developer.mozilla.org/en-US/docs/Web/A
 
 ```js
 // App needs to know EHR's origin.
+// Add a smart_web_messaging_handle launch context parameter alongside the access_token
 // Add a smart_messaging_origin launch context parameter alongside the access_token
 // to tell the app what the EHR's origin will be
 
 const targetWindow = window.parent !== window.self ? window.parent : window.opener;
 
 targetWindow.postMessage({
-  "authentication": {// maybe }
+  "messagingHandle": "<smart_web_messaging_handle> from SMART launch context",
   "messageId": <some guid>,
   "messageType": "scratchpad.create",
   "payload": // see below
@@ -70,7 +71,7 @@ feasible.
 The `ui.done` messageType instructs the EHR to close the activity hosting the SMART app, and optionally navigates the user to an alternate activity:
 
 *Note:* A SMART app launched in the context of CDS Hooks should generally not
-need to specify an `activityType` with the `ui.done` message, because the EHR
+need to specify an `activityType` or `activityParameters` with the `ui.done` message, because the EHR
 tracks the context in which the app was launched (e.g., order entry) and can
 navigate to the appropriate follow-up screen based on this context.
 
@@ -130,11 +131,11 @@ SMART Messaging is designed to be compatible with CDS Hooks, and to implement th
 
 * CDS Hooks suggestion type is used to populate the payload's `.messageType`
   * `create` → `scratchpad.create`
-  * `update`→ `cratchpad.update`
+  * `update`→ `scratchpad.update`
   * `delete`→ `scratchpad.delete`
 * CDS Hooks suggestion body: used to populate the the payload's `.payload.resource`
 
-For example, a proposal to update a draft prescription in the context of a CS Hooks request might look like:
+For example, a proposal to update a draft prescription in the context of a CDS Hooks request might look like:
 
 ```js
 // Update to a better, cheaper alternative prescription
@@ -147,13 +148,34 @@ SMART.messaging.send("scratchpad.update", {
 }).then((responsePayload) => {...})
 ```
 
+The EHR responds to all `scratchpad` messageTypes with a payload that matches FHIR's [`Bundle.entry.response`](http://build.fhir.org/bundle-definitions.html#Bundle.entry.response.location) data model. For instance the response to a `scratchpad.create` that adds a new prescription to the scratchpad (and assigns id `456` to this draft resource) might look like:
+
+```js
+{
+  "status": "200 OK",
+  "location": "MedicationRequest/456"
+}
+```
+
 ## Authorization with SMART scopes
 
-SMART Messaging uses OAuth 2.0 scopes. While a simple `MedicationRequest.read` scope authorizes a SMART app to not only query for a patient's prescriptions from the RESTful FHIR server, the same scope also authorizes an app to query the EHR's SMART container for a list of unsigned, draft orders that only exist in the memory of the EHR client.
-SMART Messaging enables capabilities outside of simple FHIR CRUD operations and are treated simply as additional scopes within the newly introduced SMART `messaging` scope category. For example, a SMART app could read the patient's prescribed medications, the list of not yet prescribed medications and also launch the native problem-list activity by requesting the following scopes:
+SMART Messaging enables capabilities that can be authorized via OAuth scopes, within the `messaging/` category. Authorization is at the level of message groups (e.g., `messaging/ui`) rather than specific messages (e.g., `launchActivity`). For example, a SMART app that performs dosage adjustments to in-progress orders might request the following scopes:
 
-* `­patient/MedicationRequest.read`
-* `messaging/ui.launchActivity`
+* `patient/MedicationRequest.read`: enable access to existing prescribed medications
+* `messaging/scratchpad`: enable access to draft orders (including meds) on the EHR scratchpad
+* `messaging/ui`: enable access to EHR navigation (e.g., to signal when the app is "done")
+
+At the time of launch, the app receives a `smart_web_messaging_handle` alongside the OAuth `access_token`. This
+`smart_web_messaging_handle` is used to correlate `postMessage` requests back with the authorization context. We define this
+as a distinct parameter from the access token itself because in many app architectures, the access token will
+only live server-side, and the `smart_web_messaging_handle` is explicitly designed to be safely pushed up to
+the browser environment. (It confers limited permissions, entirely focued on the Web Messaging interactions
+without enabling full REST API access.) A server MAY restrict the use of a single `smart_web_messaging_handle`
+to requests from a single app window, and should SHOULD logic to expire the handle when appropriate (e.g.,
+the server might expire the handle when the user session ends).
+
+*Note on security goals: We include a `smart_web_messaging_handle` in the request to ensure that a SMART app launch has been completed prior to any SMART Web Messaging API calls. Requiring this parameter is part of a defense-in-depth strategoy to mitigate some cross-site-scripting (XSS) attacks.*
+
 
 ### Scope examples
 
@@ -168,7 +190,7 @@ SMART Messaging enables capabilities outside of simple FHIR CRUD operations and 
   aud=https://ehr/fhir
 ```
 
-Following the OAuth 2.0 handshake, the authorization server returns the authorized SMART launch parameters alongside the access_token. Note the `scope` and `smart_messaging_origin` values:
+Following the OAuth 2.0 handshake, the authorization server returns the authorized SMART launch parameters alongside the access_token. Note the `scope`, `smart_web_messaging_handle`, and `smart_messaging_origin` values:
 
 ```
  {
@@ -176,6 +198,7 @@ Following the OAuth 2.0 handshake, the authorization server returns the authoriz
   "token_type": "bearer",
   "expires_in": 3600,
   "scope": "patient/Observation.read patient/Patient.read messaging/ui.launchActivity",
+  "smart_web_messaging_handle": "bws8YCbyBtCYi5mWVgUDRqX8xcjiudCo",
   "smart_messaging_origin": "https://ehr.example.org",
   "state": "98wrghuwuogerg97",
   "patient":  "123",
@@ -196,16 +219,6 @@ See [alternatives-considered.md](./alternatives-considered.md)
 
 ## Open Questions
 
-1. Does the app authenticate in the the postMessage body? Should the app pass the access_token in the postmessage to authenticate itself? 
 
-* Currently, we don’t have this in the above, because of the concern around bringing the access_token to the client in javascript, and because the host having launched the app is what authenticates the app.
-Should there be something that is exchanged between the app and the host to authenticate the app at all? Or is the host having launched the app enough authorization for the app? 
-
-2. Does access expire with SMART access_tokens?
-
-3. How does the app know what messageTypes are supported? 
-There are two aspects to this:
-* Does the container at all support messaging?
-* What messages are supported in this context?
-
-4. Does (3) above need to be an initial handshake postMessage? Do scopes in access_token already meet this need? Or do we need something like added details in a well-known/smart-configuration.json / documentation?
+* Do we want to introduce an initial handshake postMessage before other messages can be sent
+* Do we need an in-band way to advertise which message types (and possibly which parameters) a server supports (e.g. via added details in a well-known/smart-configuration.json) or just defer to out-of-band server documentation?
