@@ -1,0 +1,21 @@
+﻿SmartWebMessaging : Validation Results
+=========================================
+
+err = 1, warn = 2, info = 2
+IG Publisher Version: v1.1.1 Out of date - current version is v1.0.101-SNAPSHOT
+Generated Mon Jul 06 23:44:47 CDT 2020. FHIR version 4.0.1 for hl7.fhir.smart-web-messaging#1.0.0 (canonical = http://hl7.org/fhir/smart-web-messaging)
+
+ Build Errors : 3 / 1
+ /Users/can/code/smart-web-messaging/ig/build/input/ImplementationGuide-hl7.fhir.smart-web-messaging : 0 / 2
+ /Users/can/code/smart-web-messaging/ig/build/input/examples/Resource-example : 0 / 1
+</table>
+== n/a ==
+WARNING: Unable to find ImplementationGuide.definition.resource.description for the resource Resource/example.  Descriptions are strongly encouraged if they cannot be inferred from the resource to allow proper population of the artifact list.
+ERROR: /Users/can/code/smart-web-messaging/ig/build/output/index.html#/html/body/div/div/div/div/div/p/img at Line 157, column 5: The image source 'img/web messaging launch.png' cannot be resolved
+ERROR: /Users/can/code/smart-web-messaging/ig/build/output/index.html#/html/body/div/div/div/div/div/p/a at Line 192, column 31: The link './activity-catalog.md' for "Activity Catalog" cannot be resolved
+ERROR: /Users/can/code/smart-web-messaging/ig/build/output/index.html#/html/body/div/div/div/div/div/p/a at Line 322, column 9: The link './alternatives-considered.md' for "alternatives-considered.md" cannot be resolved
+== /Users/can/code/smart-web-messaging/ig/build/input/ImplementationGuide-hl7.fhir.smart-web-messaging.json ==
+INFORMATION: ImplementationGuide/hl7.fhir.smart-web-messaging: ImplementationGuide: Validate resource against profile http://hl7.org/fhir/StructureDefinition/ImplementationGuide
+WARNING: ImplementationGuide.jurisdiction: The resource should declare its jurisdiction to match the package id (hl7.fhir.smart-web-messaging, jurisdiction = urn:iso:std:iso:3166#SMART-WEB-MESSAGING)
+== /Users/can/code/smart-web-messaging/ig/build/input/examples/Resource-example.json ==
+INFORMATION: Resource/example: Resource: Validate resource against profile http://hl7.org/fhir/StructureDefinition/Resource

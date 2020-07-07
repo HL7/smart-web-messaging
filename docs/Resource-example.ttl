@@ -1,0 +1,19 @@
+@prefix fhir: <http://hl7.org/fhir/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# - resource -------------------------------------------------------------------
+
+<http://hl7.org/fhir/smart-web-messaging/Resource/example> a fhir:Resource;
+  fhir:nodeRole fhir:treeRoot;
+  fhir:Resource.id [ fhir:value "example"] .
+
+# - ontology header ------------------------------------------------------------
+
+<http://hl7.org/fhir/smart-web-messaging/Resource/example.ttl> a owl:Ontology;
+  owl:imports fhir:fhir.ttl;
+  owl:versionIRI <http://build.fhir.org/smart-web-messaging/Resource/example.ttl> .
+
+# -------------------------------------------------------------------------------------
+

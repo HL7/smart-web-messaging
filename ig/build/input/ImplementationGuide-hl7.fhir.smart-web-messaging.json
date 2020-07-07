@@ -1,0 +1,81 @@
+{
+  "resourceType": "ImplementationGuide",
+  "id": "hl7.fhir.smart-web-messaging",
+  "url": "http://hl7.org/fhir/smart-web-messaging/ImplementationGuide/hl7.fhir.smart-web-messaging",
+  "version": "1.0.0",
+  "name": "SmartWebMessaging",
+  "title": "SMART Web Messaging Implementation Guide: Release 1",
+  "status": "active",
+  "publisher": "The Argonaut Project",
+  "contact": [
+    {
+      "name": "The Argonaut Project",
+      "telecom": [
+        {
+          "system": "url",
+          "value": "https://argonautwiki.hl7.org"
+        }
+      ]
+    },
+    {
+      "name": "Carl Anderson",
+      "telecom": [
+        {
+          "system": "email",
+          "value": "mailto:carl.anderson@microsoft.com"
+        }
+      ]
+    }
+  ],
+  "description": "The SMART Web Messaging Implementation Guide enables SMART-launched apps a standard way to communicate with the fixture that launched the app.",
+  "packageId": "hl7.fhir.smart-web-messaging",
+  "license": "Apache-2.0",
+  "fhirVersion": [
+    "4.0.1"
+  ],
+  "definition": {
+    "resource": [
+      {
+        "reference": {
+          "reference": "Resource/example"
+        },
+        "name": "example",
+        "exampleBoolean": true
+      }
+    ],
+    "page": {
+      "nameUrl": "toc.html",
+      "title": "Table of Contents",
+      "generation": "html",
+      "page": [
+        {
+          "nameUrl": "index.html",
+          "title": "Home",
+          "generation": "markdown"
+        }
+      ]
+    },
+    "parameter": [
+      {
+        "code": "copyrightyear",
+        "value": "2020+"
+      },
+      {
+        "code": "releaselabel",
+        "value": "Build CI"
+      },
+      {
+        "code": "show-inherited-invariants",
+        "value": "false"
+      },
+      {
+        "code": "usage-stats-opt-out",
+        "value": "true"
+      },
+      {
+        "code": "path-history",
+        "value": "http://hl7.org/fhir/smart-web-messaging/history.html"
+      }
+    ]
+  }
+}

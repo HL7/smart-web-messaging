@@ -1,0 +1,34 @@
+id: hl7.fhir.smart-web-messaging
+canonical: http://hl7.org/fhir/smart-web-messaging
+version: 1.0.0
+fhirVersion: 4.0.1
+license: Apache-2.0
+copyrightYear: 2020+
+releaseLabel: Build CI
+status: active
+
+name: SmartWebMessaging
+title: "SMART Web Messaging Implementation Guide: Release 1"
+description: The SMART Web Messaging Implementation Guide enables
+  SMART-launched apps a standard way to communicate with the fixture that
+  launched the app.
+
+publisher:
+  name: The Argonaut Project
+  url: https://argonautwiki.hl7.org
+
+contact:
+  - name: Carl Anderson
+    telecom:
+      - system: email
+        value: mailto:carl.anderson@microsoft.com
+
+parameters:
+  show-inherited-invariants: false
+  usage-stats-opt-out: true
+
+menu:
+  IG Home: index.html
+  TOC: toc.html
+
+

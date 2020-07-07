@@ -1,0 +1,12 @@
+{
+  "url": "http://hl7.org/fhir/smart-web-messaging/ImplementationGuide/hl7.fhir.smart-web-messaging",
+  "name": "SmartWebMessaging",
+  "package-id": "hl7.fhir.smart-web-messaging",
+  "ig-ver": "1.0.0",
+  "date": "Mon, 06 Jul, 2020 23:44:38 -0500",
+  "errs": 1,
+  "warnings": 2,
+  "hints": 2,
+  "version": "4.0.1",
+  "tool": "4.4.0 (3)"
+}

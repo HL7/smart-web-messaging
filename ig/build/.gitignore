@@ -1,0 +1,6 @@
+input-cache
+output
+temp
+template
+_*.sh
+_*.bat

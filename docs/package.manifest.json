@@ -1,0 +1,6 @@
+{
+  "version": "1.0.0",
+  "fhirVersion": "[4.0.1]",
+  "date": "20200706234428",
+  "name": "hl7.fhir.smart-web-messaging"
+}

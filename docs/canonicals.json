@@ -1,0 +1,9 @@
+[
+  {
+    "id": "hl7.fhir.smart-web-messaging",
+    "type": "ImplementationGuide",
+    "url": "http://hl7.org/fhir/smart-web-messaging/ImplementationGuide/hl7.fhir.smart-web-messaging",
+    "version": "1.0.0",
+    "name": "SmartWebMessaging"
+  }
+]
