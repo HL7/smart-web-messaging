@@ -1,4 +1,4 @@
-id: hl7.fhir.smart-web-messaging
+id: hl7.fhir.uv.smart-web-messaging
 canonical: https://hl7.org/fhir/smart-web-messaging
 version: 1.0.0
 fhirVersion: 4.0.1
@@ -14,8 +14,8 @@ description: The SMART Web Messaging Implementation Guide enables
   launched the app.
 
 publisher:
-  name: The Argonaut Project
-  url: https://argonautwiki.hl7.org
+  name: HL7 FHIR Infrastructure
+  url: http://hl7.org/Special/committees/fiwg/index.cfm
 
 contact:
   - name: Carl Anderson

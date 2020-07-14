@@ -1,19 +1,19 @@
 {
   "resourceType": "ImplementationGuide",
-  "id": "hl7.fhir.smart-web-messaging",
-  "url": "https://hl7.org/fhir/smart-web-messaging/ImplementationGuide/hl7.fhir.smart-web-messaging",
+  "id": "hl7.fhir.uv.smart-web-messaging",
+  "url": "https://hl7.org/fhir/smart-web-messaging/ImplementationGuide/hl7.fhir.uv.smart-web-messaging",
   "version": "1.0.0",
   "name": "SmartWebMessaging",
   "title": "SMART Web Messaging Implementation Guide: Release 1",
   "status": "active",
-  "publisher": "The Argonaut Project",
+  "publisher": "HL7 FHIR Infrastructure",
   "contact": [
     {
-      "name": "The Argonaut Project",
+      "name": "HL7 FHIR Infrastructure",
       "telecom": [
         {
           "system": "url",
-          "value": "https://argonautwiki.hl7.org"
+          "value": "http://hl7.org/Special/committees/fiwg/index.cfm"
         }
       ]
     },
@@ -28,7 +28,7 @@
     }
   ],
   "description": "The SMART Web Messaging Implementation Guide enables SMART-launched apps a standard way to communicate with the fixture that launched the app.",
-  "packageId": "hl7.fhir.smart-web-messaging",
+  "packageId": "hl7.fhir.uv.smart-web-messaging",
   "license": "Apache-2.0",
   "fhirVersion": [
     "4.0.1"
