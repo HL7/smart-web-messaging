@@ -10,10 +10,10 @@ More details on the autobuilder are here: <https://github.com/FHIR/auto-ig-build
 ## Latest
 You can view the latest published content here: <https://build.fhir.org/ig/HL7/smart-web-messaging/>
 
-If you don't see published content when you view that link, it means the autobuilder is failing to build and publish the IG.
-
 ## Troubleshooting
-The IG autobuilder populates a few files as it works.  When the IG is failing to publish, you can easily browse to them when visiting the link above.  However, you can also view them even when the publisher is working normally by visiting the links below.
+If you don't see published content when you view that link, it means the autobuilder may be failing to build and publish the IG.
+
+The IG autobuilder populates a few files as it works.  When the IG is failing to publish, you can easily browse to those when visiting the link above.  However, you can also view them when the publisher is working normally by visiting the links below.
 
 ### `build.log`
 The complete output of the autobuilder is saved here: <https://build.fhir.org/ig/HL7/smart-web-messaging/build.log>
@@ -21,6 +21,8 @@ The complete output of the autobuilder is saved here: <https://build.fhir.org/ig
 ### `qa.html`
 The publisher produces an html page containing publication warnings and errors.  View it here: <https://build.fhir.org/ig/HL7/smart-web-messaging/qa.html>
 
+### `builds.html`
+You can view all the auto published builds here: <https://fhir.github.io/auto-ig-builder/builds.html>.
 
 # Making Changes
 To update the published IG, it is recommended that you test it locally before pushing changes back to the repo.
