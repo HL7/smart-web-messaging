@@ -1,224 +1,51 @@
-# smart-web-messaging
-SMART Web Messaging enables tight UI integration between EHRs and embedded SMART apps via HTML5's Web Messaging. Use SMART Web Messaging to push unsigned orders, note snippets, risk scores or UI suggestions directly to the clinician's EHR session. Built  on the browser's javascript `window.postMessage` function, SMART Web Messaging is a simple, native API for health apps embedded within the user's workflow. 
+# SMART Web Messaging Implementation Guide
+The SMART Web Messaging Implementation Guide content has moved from this README to [fsh/ig-data/input/pagecontent/index.md](https://github.com/HL7/smart-web-messaging/blob/master/fsh/ig-data/input/pagecontent/index.md).  This document is used to feed the IG autopublisher, which populates: <https://build.fhir.org/ig/HL7/smart-web-messaging/>
 
-# Why
+# Published Content
+The IG autobuilder automatically publishes on pushes to the main branch of this repo via a GitHub Webhook.  It typically takes a few minutes for the build to detect changes and run.
 
-Within a clinical workflow system (such as an EHR), SMART apps can be launched automatically at specific points in the workflow, or on demand in response to a user interaction, including clicking on a suggestion from a CDS Hooks service. Once launched, a web app is typically embedded within a patient’s chart and communicates with the EHR via RESTful FHIR APIs. These RESTful APIs are great for CRUD operations on a database, but don’t enable tight workflow integration or access to draft FHIR resources that may only exist in memory on the EHR client.
+## Autobuilder
+More details on the autobuilder are here: <https://github.com/FHIR/auto-ig-builder#fhir-implementation-guide-auto-builder>
 
-For these embedded apps, there are some key use cases that SMART and CDS Hooks don't address today:
+## Latest
+You can view the latest published content here: <https://build.fhir.org/ig/HL7/smart-web-messaging/>
 
-* Communicate a decision made by the clinician within the SMART app, such as placing an order, annotating a procedure with a appropriateness score or radiation count, transmitting a textual note snippet or suggesting a diagnosis or condition to the patient’s chart.
-* Interrogate the orders scratchpad / shopping cart, currently only known within the ordering provider's CPOE session.
-* Allow an app to communicate UX-relevant results back to the EHR, for example, navigate to a native EHR activity, or an "I'm done signal".
+If you don't see published content when you view that link, it means the autobuilder is failing to build and publish the IG.
 
-Additionally, there are interesting capabilities enabled by tighter integration, for example:
-* Save an app specific session or state identifier to the EHR for later retrieval.
-* Interact with the EHR’s FHIR server directly through this messaging channel (rather than through the REST API, thereby keeping the FHIR server off of the internet).
+## Troubleshooting
+The IG autobuilder populates a few files as it works.  When the IG is failing to publish, you can easily browse to them when visiting the link above.  However, you can also view them even when the publisher is working normally by visiting the links below.
 
-# SMART Web Messaging
+### `build.log`
+The complete output of the autobuilder is saved here: <https://build.fhir.org/ig/HL7/smart-web-messaging/build.log>
 
-SMART Messaging builds on HTML 5’s [Web Messaging](https://www.w3.org/TR/webmessaging), which allows web pages to communicate across domains. Javascript’s `window.postMessage` API passes `MessageEvent` objects between windows.
+### `qa.html`
+The publisher produces an html page containing publication warnings and errors.  View it here: <https://build.fhir.org/ig/HL7/smart-web-messaging/qa.html>
 
-A [`postMessage`-based messaging](https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage) allows flexible, standards-based integration that works across windows, frames and domains, and should be readily supportable in browser controls for thin or thick-client EHRs.
 
-![SMART Web Messaging launch](img/web messaging launch.png)
+# Making Changes
+To update the published IG, it is recommended that you test it locally before pushing changes back to the repo.
 
-```js
-// App needs to know EHR's origin.
-// Add a smart_web_messaging_handle launch context parameter alongside the access_token
-// Add a smart_messaging_origin launch context parameter alongside the access_token
-// to tell the app what the EHR's origin will be
+## Prerequisites
+You must have `sushi` to generate the IG.  <https://github.com/FHIR/sushi#installation-for-sushi-users>
 
-const targetWindow = window.parent !== window.self ? window.parent : window.opener;
+To convert the IG into the pulishable HTML content, you will run the latest version of the publisher, which will automatically be downloaded by the build process below.  However, to view the content locally, you must have `jekyll` installed locally.  <https://jekyllrb.com/docs/installation/>
 
-targetWindow.postMessage({
-  "messagingHandle": "<smart_web_messaging_handle> from SMART launch context",
-  "messageId": <some guid>,
-  "messageType": "scratchpad.create",
-  "payload": // see below
-}, targetOrigin)
+## Testing Locally
+Please check out this repo and run the `build.sh` script (see below).  This will run sushi locally on the repo files, then apply the latest publisher to the sushi output to confirm that the publisher will work with the IG.  Once confirmed, you can check-in any changes made to [input/ImplementationGuide-hl7.fhir.uv.smart-web-messaging.json](https://github.com/HL7/smart-web-messaging/blob/master/input/ImplementationGuide-hl7.fhir.uv.smart-web-messaging.json).
+
+```shell
+# Check out the repo.
+mkdir -p ~/code/HL7
+cd $_
+git clone git@github.com:HL7/smart-web-messaging.git
+cd smart-web-messaging
+
+# Build and test the IG using a local sushi and publisher.jar.
+./build.sh
+
+# Check in any changes to input/ImplementationGuide-hl7.fhir.uv.smart-web-messaging.json
+git add input
+git commit
+git push
+# etc...
 ```
-
-In response, EHR may send one return message like:
-```js
-appWindow.postMessage({
-  "messageId": <some new guid>,
-  "responseToMessageId": <original guid>
-  "payload": { // as for FHIR's Bundle.entry.response
-    "status":,		// HTTP response codes, for simplicity, consistency
-    "location":,      // could be relative for scratchpad-like stuff?
-    "outcome":,       // include the resource as created
-  }
-}, targetOrigin)
-```
-
-This enables a request/response pattern; applications should be prepared to see at most one incoming message with a given `responseToMessageId`. (If message streams are needed, this can be accomplished by having the server send "unsolicited" messages, i.e., messages with no `responseToMessageId`, after a client's initial request.)
-
-**For subsequent code samples, we abstract away some of the messaging details via a (theoretical) simple SMART Messaging javascript library, which accepts a messageType and payload and returns a promise that resolves with the response payload.**
-
-## `messageType == ui.*`: Influence EHR UI
-
-An embedded SMART app improves the clinician’s user experience by closing itself or requesting the EHR to navigate the user to an appropriate activity.
-
-
-All `ui.done` and `ui.launchActivity` messages may include an `activityType`
-such as `problem-add` or `order-sign`. These named activity types are drawn
-from the SMART Web Messaging [Activity Catalog](./activity-catalog.md).  In
-general, these activities follow the same naming conventions as entries in the
-CDS Hooks catalog, and will align with CDS Hooks catalog entries where
-feasible.
-
-The `ui.done` messageType instructs the EHR to close the activity hosting the SMART app, and optionally navigates the user to an alternate activity:
-
-*Note:* A SMART app launched in the context of CDS Hooks should generally not
-need to specify an `activityType` or `activityParameters` with the `ui.done` message, because the EHR
-tracks the context in which the app was launched (e.g., order entry) and can
-navigate to the appropriate follow-up screen based on this context.
-
-```js
-SMART.messaging.send("ui.done", {
-  "activityType": "problem-add",
-  "activityParameters": {
-    // Each ui activity defines its optional+required params
-    "problem": {
-      "resourceType": "Condition",
-      "patient": "123",
-    }
-  }
-}).then((responsePayload) => {...})
-```
-
-Similarly, the SMART app can use the `ui.LaunchActivity` messageType to request navigation to an alternate activity without closing the app:
-
-```js
-SMART.messaging.send("ui.launchActivity", {
-  "activityType": "problem-add",
-  "activityParameters": {
-    // Each ui activity defines its optional+required params
-    "problem": {
-      "resourceType": "Condition",
-      "patient": "123",
-    }
-  }
-}).then((responsePayload) => {...})
-```
-
-The EHR responds to all `ui` messageTypes with a payload that includes a boolean success parameter and an optional `details` string:
-```js
-{
-  "success": true | false,
-  "details": string explanation for user (optionally)
-}
-```
-
-## `messageType == scratchpad.*`: FHIR API Interactions
-
-While interacting with an embedded SMART app, a clinician may make decisions that should be implemented in the EHR with minimal clicks. SMART Messaging exposes an API to the clinician’s scratchpad within the EHR, which may contain FHIR resources unavailable on the RESTful FHIR API. For example, the proposed CDS Hooks decision workflow can be implemented through SMART Messaging.  
-
-```js
-SMART.messaging.send(
-  // "create"| "update"| "read" | "search" | "delete"
-  "scratchpad.[interaction-name]", {
-    "resource": {
-      "resourceType": "ServiceRequest", 
-      "status": "draft", 
-      ...
-    }
-  })
-```
-
-SMART Messaging is designed to be compatible with CDS Hooks, and to implement the CDS Hooks decisions flow. For any CDS Hooks Actions array, you can create a list of SMART.messaging API calls:
-
-* CDS Hooks suggestion type is used to populate the payload's `.messageType`
-  * `create` → `scratchpad.create`
-  * `update`→ `scratchpad.update`
-  * `delete`→ `scratchpad.delete`
-* CDS Hooks suggestion body: used to populate the the payload's `.payload.resource`
-
-For example, a proposal to update a draft prescription in the context of a CDS Hooks request might look like:
-
-```js
-// Update to a better, cheaper alternative prescription
-SMART.messaging.send("scratchpad.update", {
-  "resource": {
-    "resourceType": "MedicationRequest", 
-    "id": "123",
-    "status": "draft" // more details below
-  }
-}).then((responsePayload) => {...})
-```
-
-The EHR responds to all `scratchpad` messageTypes with a payload that matches FHIR's [`Bundle.entry.response`](http://build.fhir.org/bundle-definitions.html#Bundle.entry.response.location) data model. For instance the response to a `scratchpad.create` that adds a new prescription to the scratchpad (and assigns id `456` to this draft resource) might look like:
-
-```js
-{
-  "status": "200 OK",
-  "location": "MedicationRequest/456"
-}
-```
-
-## Authorization with SMART scopes
-
-SMART Messaging enables capabilities that can be authorized via OAuth scopes, within the `messaging/` category. Authorization is at the level of message groups (e.g., `messaging/ui`) rather than specific messages (e.g., `launchActivity`). For example, a SMART app that performs dosage adjustments to in-progress orders might request the following scopes:
-
-* `patient/MedicationRequest.read`: enable access to existing prescribed medications
-* `messaging/scratchpad`: enable access to draft orders (including meds) on the EHR scratchpad
-* `messaging/ui`: enable access to EHR navigation (e.g., to signal when the app is "done")
-
-At the time of launch, the app receives a `smart_web_messaging_handle` alongside the OAuth `access_token`. This
-`smart_web_messaging_handle` is used to correlate `postMessage` requests back with the authorization context. We define this
-as a distinct parameter from the access token itself because in many app architectures, the access token will
-only live server-side, and the `smart_web_messaging_handle` is explicitly designed to be safely pushed up to
-the browser environment. (It confers limited permissions, entirely focued on the Web Messaging interactions
-without enabling full REST API access.) A server MAY restrict the use of a single `smart_web_messaging_handle`
-to requests from a single app window, and should SHOULD logic to expire the handle when appropriate (e.g.,
-the server might expire the handle when the user session ends).
-
-*Note on security goals: We include a `smart_web_messaging_handle` in the request to ensure that a SMART app launch has been completed prior to any SMART Web Messaging API calls. Requiring this parameter is part of a defense-in-depth strategoy to mitigate some cross-site-scripting (XSS) attacks.*
-
-
-### Scope examples
-
-```
- Location: https://ehr/authorize?
-  response_type=code&
-  client_id=app-client-id&
-  redirect_uri=https%3A%2F%2Fapp%2Fafter-auth&
-  launch=xyz123&
-  scope=+launch+patient%2FMedicationRequest.read+messaging%2Fui.launchActivity+openid+profile&
-  state=98wrghuwuogerg97&
-  aud=https://ehr/fhir
-```
-
-Following the OAuth 2.0 handshake, the authorization server returns the authorized SMART launch parameters alongside the access_token. Note the `scope`, `smart_web_messaging_handle`, and `smart_messaging_origin` values:
-
-```
- {
-  "access_token": "i8hweunweunweofiwweoijewiwe",
-  "token_type": "bearer",
-  "expires_in": 3600,
-  "scope": "patient/Observation.read patient/Patient.read messaging/ui.launchActivity",
-  "smart_web_messaging_handle": "bws8YCbyBtCYi5mWVgUDRqX8xcjiudCo",
-  "smart_messaging_origin": "https://ehr.example.org",
-  "state": "98wrghuwuogerg97",
-  "patient":  "123",
-  "encounter": "456",
-}
-```
-
-## Limitations
-
-Using a `postMessage`-based message allows flexible, standards-based integration that works across windows and frames, and should be readily supportable in browser controls for thick-client EHRs.
-
-The use of web messaging requires the app to be a web application, which is either embedded within an iframe or launched from a window.
-
-SMART messaging is not a context synchronization specification (see http://fhircast.org for that). Rather, it’s a collection of functions available to a web app embedded within an EHR which supports tight workflow integration.   
-
-## Alternatives considered
-See [alternatives-considered.md](./alternatives-considered.md)
-
-## Open Questions
-
-
-* Do we want to introduce an initial handshake postMessage before other messages can be sent
-* Do we need an in-band way to advertise which message types (and possibly which parameters) a server supports (e.g. via added details in a well-known/smart-configuration.json) or just defer to out-of-band server documentation?
