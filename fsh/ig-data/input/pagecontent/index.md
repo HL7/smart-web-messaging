@@ -54,9 +54,9 @@ This enables a request/response pattern; applications should be prepared to see 
 
 **For subsequent code samples, we abstract away some of the messaging details via a (theoretical) simple SMART Messaging javascript library, which accepts a messageType and payload and returns a promise that resolves with the response payload.**
 
-## `messageType == ui.*`: Influence EHR UI
+## Influence EHR UI
 
-An embedded SMART app improves the clinician’s user experience by closing itself or requesting the EHR to navigate the user to an appropriate activity.
+An embedded SMART app improves the clinician’s user experience by closing itself or requesting the EHR to navigate the user to an appropriate activity.  Messages that affect the EHR UI are prefixed with `ui.`.
 
 
 All `ui.done` and `ui.launchActivity` messages may include an `activityType`
@@ -109,9 +109,9 @@ The EHR responds to all `ui` messageTypes with a payload that includes a boolean
 }
 ```
 
-## `messageType == scratchpad.*`: FHIR API Interactions
+## FHIR API Interactions
 
-While interacting with an embedded SMART app, a clinician may make decisions that should be implemented in the EHR with minimal clicks. SMART Messaging exposes an API to the clinician’s scratchpad within the EHR, which may contain FHIR resources unavailable on the RESTful FHIR API. For example, the proposed CDS Hooks decision workflow can be implemented through SMART Messaging.  
+While interacting with an embedded SMART app, a clinician may make decisions that should be implemented in the EHR with minimal clicks.  SMART Messaging exposes an API to the clinician’s scratchpad within the EHR, which may contain FHIR resources unavailable on the RESTful FHIR API.  For example, the proposed CDS Hooks decision workflow can be implemented through SMART Messaging.  Messages affecting the scratchpad are prefixed with `scratchpad.`.
 
 ```js
 SMART.messaging.send(
