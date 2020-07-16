@@ -169,7 +169,7 @@ as a distinct parameter from the access token itself because in many app archite
 only live server-side, and the `smart_web_messaging_handle` is explicitly designed to be safely pushed up to
 the browser environment. (It confers limited permissions, entirely focued on the Web Messaging interactions
 without enabling full REST API access.) A server MAY restrict the use of a single `smart_web_messaging_handle`
-to requests from a single app window, and should SHOULD logic to expire the handle when appropriate (e.g.,
+to requests from a single app window, and SHOULD apply logic to expire the handle when appropriate (e.g.,
 the server might expire the handle when the user session ends).
 
 *Note on security goals: We include a `smart_web_messaging_handle` in the request to ensure that a SMART app launch has been completed prior to any SMART Web Messaging API calls. Requiring this parameter is part of a defense-in-depth strategoy to mitigate some cross-site-scripting (XSS) attacks.*
