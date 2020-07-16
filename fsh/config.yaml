@@ -45,7 +45,6 @@ parameters:
 
 menu:
   IG Home: index.html
-  History: history.html
   TOC: toc.html
 
 
