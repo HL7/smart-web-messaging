@@ -28,9 +28,6 @@ TOP="${PWD}"
 
 # Run sushi.
 sushi fsh -o "${SUSHI_OUT}"
-cp "${SUSHI_OUT}"/ig.ini .
-mkdir -p input
-cp "${SUSHI_OUT}"/input/ImplementationGuide*.json input
 
 # Build the IG.
 cd "${SUSHI_OUT}"

@@ -33,7 +33,7 @@ You must have `sushi` to generate the IG.  <https://github.com/FHIR/sushi#instal
 To convert the IG into the pulishable HTML content, you will run the latest version of the publisher, which will automatically be downloaded by the build process below.  However, to view the content locally, you must have `jekyll` installed locally.  <https://jekyllrb.com/docs/installation/>
 
 ## Testing Locally
-Please check out this repo and run the `build.sh` script (see below).  This will run sushi locally on the repo files, then apply the latest publisher to the sushi output to confirm that the publisher will work with the IG.  Once confirmed, you can check-in any changes made to [input/ImplementationGuide-hl7.fhir.uv.smart-web-messaging.json](https://github.com/HL7/smart-web-messaging/blob/master/input/ImplementationGuide-hl7.fhir.uv.smart-web-messaging.json).
+Please check out this repo and run the `build.sh` script (see below).  This will run sushi locally on the repo files, then apply the latest publisher to the sushi output to confirm that the publisher will work with the IG.
 
 ```shell
 # Check out the repo.
@@ -45,9 +45,6 @@ cd smart-web-messaging
 # Build and test the IG using a local sushi and publisher.jar.
 ./build.sh
 
-# Check in any changes to input/ImplementationGuide-hl7.fhir.uv.smart-web-messaging.json
-git add input
-git commit
-git push
-# etc...
+# The script will automatically open the local qa.html and index.html in your
+# default browser.
 ```
