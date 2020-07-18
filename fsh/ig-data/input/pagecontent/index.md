@@ -1,5 +1,5 @@
 # smart-web-messaging
-SMART Web Messaging enables tight UI integration between EHRs and embedded SMART apps via HTML5's Web Messaging. Use SMART Web Messaging to push unsigned orders, note snippets, risk scores or UI suggestions directly to the clinician's EHR session. Built  on the browser's javascript `window.postMessage` function, SMART Web Messaging is a simple, native API for health apps embedded within the user's workflow. 
+SMART Web Messaging enables tight UI integration between EHRs and embedded SMART apps via HTML5's Web Messaging. Use SMART Web Messaging to push unsigned orders, note snippets, risk scores or UI suggestions directly to the clinician's EHR session. Built  on the browser's javascript `window.postMessage` function, SMART Web Messaging is a simple, native API for health apps embedded within the user's workflow.
 
 # Why
 
@@ -54,19 +54,18 @@ This enables a request/response pattern; applications should be prepared to see 
 
 **For subsequent code samples, we abstract away some of the messaging details via a (theoretical) simple SMART Messaging javascript library, which accepts a messageType and payload and returns a promise that resolves with the response payload.**
 
-## Influence EHR UI
+# Influence EHR UI: `ui.*`
 
-An embedded SMART app improves the clinician’s user experience by closing itself or requesting the EHR to navigate the user to an appropriate activity.  Messages that affect the EHR UI are prefixed with `ui.`.
-
+An embedded SMART app improves the clinician’s user experience by closing itself or requesting the EHR to navigate the user to an appropriate activity.  Messages that affect the EHR UI match the pattern `ui.*`.
 
 All `ui.done` and `ui.launchActivity` messages may include an `activityType`
 such as `problem-add` or `order-sign`. These named activity types are drawn
-from the SMART Web Messaging [Activity Catalog](./activity-catalog.md).  In
+from the SMART Web Messaging [Activity Catalog](./activity-catalog.html).  In
 general, these activities follow the same naming conventions as entries in the
 CDS Hooks catalog, and will align with CDS Hooks catalog entries where
 feasible.
 
-The `ui.done` messageType instructs the EHR to close the activity hosting the SMART app, and optionally navigates the user to an alternate activity:
+The `ui.done` messageType instructs the EHR to close the activity hosting the SMART app, and optionally navigates the user to an alternate activity.
 
 *Note:* A SMART app launched in the context of CDS Hooks should generally not
 need to specify an `activityType` or `activityParameters` with the `ui.done` message, because the EHR
@@ -109,9 +108,9 @@ The EHR responds to all `ui` messageTypes with a payload that includes a boolean
 }
 ```
 
-## FHIR API Interactions
+# FHIR API Interactions: `scratchpad.*`
 
-While interacting with an embedded SMART app, a clinician may make decisions that should be implemented in the EHR with minimal clicks.  SMART Messaging exposes an API to the clinician’s scratchpad within the EHR, which may contain FHIR resources unavailable on the RESTful FHIR API.  For example, the proposed CDS Hooks decision workflow can be implemented through SMART Messaging.  Messages affecting the scratchpad are prefixed with `scratchpad.`.
+While interacting with an embedded SMART app, a clinician may make decisions that should be implemented in the EHR with minimal clicks.  SMART Messaging exposes an API to the clinician’s scratchpad within the EHR, which may contain FHIR resources unavailable on the RESTful FHIR API.  For example, the proposed CDS Hooks decision workflow can be implemented through SMART Messaging.  Messages affecting the scratchpad match the pattern `scratchpad.*`.
 
 ```js
 SMART.messaging.send(
@@ -155,7 +154,7 @@ The EHR responds to all `scratchpad` messageTypes with a payload that matches FH
 }
 ```
 
-## Authorization with SMART scopes
+# Authorization with SMART scopes
 
 SMART Messaging enables capabilities that can be authorized via OAuth scopes, within the `messaging/` category. Authorization is at the level of message groups (e.g., `messaging/ui`) rather than specific messages (e.g., `launchActivity`). For example, a SMART app that performs dosage adjustments to in-progress orders might request the following scopes:
 
@@ -175,9 +174,9 @@ the server might expire the handle when the user session ends).
 *Note on security goals: We include a `smart_web_messaging_handle` in the request to ensure that a SMART app launch has been completed prior to any SMART Web Messaging API calls. Requiring this parameter is part of a defense-in-depth strategoy to mitigate some cross-site-scripting (XSS) attacks.*
 
 
-### Scope examples
+## Scope examples
 
-```
+```text
  Location: https://ehr/authorize?
   response_type=code&
   client_id=app-client-id&
@@ -190,7 +189,7 @@ the server might expire the handle when the user session ends).
 
 Following the OAuth 2.0 handshake, the authorization server returns the authorized SMART launch parameters alongside the access_token. Note the `scope`, `smart_web_messaging_handle`, and `smart_messaging_origin` values:
 
-```
+```json
  {
   "access_token": "i8hweunweunweofiwweoijewiwe",
   "token_type": "bearer",
@@ -204,27 +203,27 @@ Following the OAuth 2.0 handshake, the authorization server returns the authoriz
 }
 ```
 
-## Limitations
+# Limitations
 
 Using a `postMessage`-based message allows flexible, standards-based integration that works across windows and frames, and should be readily supportable in browser controls for thick-client EHRs.
 
 The use of web messaging requires the app to be a web application, which is either embedded within an iframe or launched from a window.
 
-SMART messaging is not a context synchronization specification (see http://fhircast.org for that). Rather, it’s a collection of functions available to a web app embedded within an EHR which supports tight workflow integration.   
+SMART messaging is not a context synchronization specification (see http://fhircast.org for that). Rather, it’s a collection of functions available to a web app embedded within an EHR which supports tight workflow integration.
 
-## Alternatives considered
-See [alternatives-considered.md](./alternatives-considered.md)
+# Alternatives considered
+See [Alternatives Considered](./alternatives-considered.html)
 
-## Open questions for ballot feedback
+# Open questions for ballot feedback
 
-### Discovery of server capabilities
+## Discovery of server capabilities
 
 In the current proposal, we leave discovery out of band. For example, a client must consult server documentation to determine which message types a server supports.  We welcome ballot comments that consider whether we should define an in-band way to advertise which message types (and possibly which parameters) a server supports (e.g. via added details in a `.well-known/smart-configuration`).
 
-### Handshake protocol
+## Handshake protocol
 
 In the current proposal, we omit any initial handshake; a client can submit a Web Messaging request at any point, and can determine whether a connection is working based on a combination of responses and/or timeout logic. We welcome ballot comments that consider the utility of an explicit handshake, taking into account the fact that a initially working connection (e.g., at handshake time) can always degrade later.
 
-### Security considerations
+## Security considerations
 
 In the current proposal, we provide infrastructure for servers to correlate Web Messaging requests with a specific SMART App Launch context, through the `smart_web_messaging_handle`. However we do not require that servers make use of this property. We refer commenters to [discussion and rationale here](https://github.com/HL7/smart-web-messaging/pull/4) and welcome any additional feedback on this point.
