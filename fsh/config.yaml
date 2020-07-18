@@ -6,6 +6,7 @@ license: Apache-2.0
 copyrightYear: 2020+
 releaseLabel: Build CI
 status: active
+jurisdiction: http://unstats.un.org/unsd/methods/m49/m49.htm#001 "World"
 
 name: SmartWebMessaging
 title: "SMART Web Messaging Implementation Guide: Release 1"
