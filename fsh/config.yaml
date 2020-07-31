@@ -9,7 +9,7 @@ status: active
 jurisdiction: http://unstats.un.org/unsd/methods/m49/m49.htm#001 "World"
 
 name: SmartWebMessaging
-title: "SMART Web Messaging Implementation Guide: Release 1"
+title: "SMART Web Messaging Implementation Guide: STU1"
 description: The SMART Web Messaging Implementation Guide enables
   SMART-launched apps a standard way to communicate with the fixture that
   launched the app.

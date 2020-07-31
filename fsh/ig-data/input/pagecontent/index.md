@@ -1,34 +1,50 @@
 # smart-web-messaging
-SMART Web Messaging enables tight UI integration between EHRs and embedded SMART apps via HTML5's Web Messaging. Use SMART Web Messaging to push unsigned orders, note snippets, risk scores or UI suggestions directly to the clinician's EHR session. Built  on the browser's javascript `window.postMessage` function, SMART Web Messaging is a simple, native API for health apps embedded within the user's workflow.
+SMART Web Messaging enables tight UI integration between EHRs and embedded SMART apps via [HTML5's Web Messaging](https://www.w3.org/TR/webmessaging).  SMART Web Messaging allows applications to push unsigned orders, note snippets, risk scores, or UI suggestions directly to the clinician's EHR session.  Built on the browser's javascript `window.postMessage` function, SMART Web Messaging is a simple, native API for health apps embedded within the user's workflow.
+
+# Conformance Language
+The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this specification are to be interpreted as described in [RFC2119](https://tools.ietf.org/html/rfc2119).
 
 # Why
-
-Within a clinical workflow system (such as an EHR), SMART apps can be launched automatically at specific points in the workflow, or on demand in response to a user interaction, including clicking on a suggestion from a CDS Hooks service. Once launched, a web app is typically embedded within a patient’s chart and communicates with the EHR via RESTful FHIR APIs. These RESTful APIs are great for CRUD operations on a database, but don’t enable tight workflow integration or access to draft FHIR resources that may only exist in memory on the EHR client.
+Within a clinical workflow system (such as an EHR), [SMART applications](http://hl7.org/fhir/smart-app-launch/index.html) can be launched automatically at specific points in the workflow, or on demand in response to a user interaction, including clicking on a suggestion from a [CDS Hooks Service](https://cds-hooks.hl7.org/1.0/#cds-hooks-anatomy). Once launched, a web app is typically embedded within an iframe in proximity to a patient’s chart and it communicates with the EHR via [RESTful FHIR APIs](http://hl7.org/fhir/http.html). These RESTful APIs are great for [CRUD](https://en.wikipedia.org/wiki/Create,_read,_update_and_delete) operations on a database, but they don’t enable tight workflow integration or access to draft FHIR resources that may only exist in memory on the EHR client.
 
 For these embedded apps, there are some key use cases that SMART and CDS Hooks don't address today:
-
-* Communicate a decision made by the clinician within the SMART app, such as placing an order, annotating a procedure with a appropriateness score or radiation count, transmitting a textual note snippet or suggesting a diagnosis or condition to the patient’s chart.
-* Interrogate the orders scratchpad / shopping cart, currently only known within the ordering provider's CPOE session.
-* Allow an app to communicate UX-relevant results back to the EHR, for example, navigate to a native EHR activity, or an "I'm done signal".
+* Communicate a decision made by the clinician within the SMART app, such as placing an order, annotating a procedure with an appropriateness score or a radiation count, transmitting a textual note snippet, or suggesting a diagnosis or a condition to the patient’s chart.
+* Interrogate the orders scratchpad / shopping cart, currently only known within the ordering provider's [CPOE](https://en.wikipedia.org/wiki/Computerized_physician_order_entry) session.
+* Allow an app to communicate [UX](https://en.wikipedia.org/wiki/User_experience)-relevant results back to the EHR, for example, navigate to a native EHR activity, or an "I'm done signal".
 
 Additionally, there are interesting capabilities enabled by tighter integration, for example:
 * Save an app specific session or state identifier to the EHR for later retrieval.
-* Interact with the EHR’s FHIR server directly through this messaging channel (rather than through the REST API, thereby keeping the FHIR server off of the internet).
+* Interact with the EHR’s FHIR server directly through this messaging channel (rather than through the REST API, thereby supporting applications that cannot access the FHIR server directly, e.g. those hosted on the internet).
 
 # SMART Web Messaging
+SMART Messaging builds on HTML 5’s [Web Messaging](https://www.w3.org/TR/webmessaging), which allows web pages to communicate across domains. In JavaScript, calls to [`window.postMessage`](https://dev.w3.org/html5/postmsg/publish/LCWD-webmessaging-201103TBD.html#dom-window-postmessage) passes [`MessageEvent`](https://www.w3.org/TR/webmessaging/#messageevent) objects between windows.
 
-SMART Messaging builds on HTML 5’s [Web Messaging](https://www.w3.org/TR/webmessaging), which allows web pages to communicate across domains. Javascript’s `window.postMessage` API passes `MessageEvent` objects between windows.
+A `postMessage`-based messaging approach allows flexible, standards-based integration that works across windows, frames and domains, and should be readily supportable in browser controls for either thin or thick-client EHRs.
 
-A [`postMessage`-based messaging](https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage) allows flexible, standards-based integration that works across windows, frames and domains, and should be readily supportable in browser controls for thin or thick-client EHRs.
+For the purposes of SMART Web Messaging, a `window.postMessage` call SHALL containt a json object with the following fields:
+
+| Parameter      | Optionallity | Description                                                                                       |
+| -------------- | ------------ | ------------------------------------------------------------------------------------------------- |
+| messgingHandle | REQUIRED     | The content of the `smart_web_messaging_handle` field in the Oauth token (see section ... below). |
+| messageId      | REQUIRED     | An unguessable unique ID for this message generated by the application.                           |
+| messageType    | REQUIRED     | The message type and message.                                                                     |
+| payload        | REQUIRED     | The message content as specified by the `messageType`.                                            |
+
+The `targetOrigin` field SHOULD contain the contents of the `smart_messaging_origin` from the Oauth2 token.  Applications SHOULD refrain from using the `"*"` origin field.
+
+An example call from an app to the EHR client is presented below.
 
 ```js
+// When a SMART app is launched embedded in an iframe, window.parent and window.self
+// are different objects, with window.parent being the recipient of MessageEvents.
+// When a SMART app is launched standalone, window.parent and window.self are the same.
+// In this case, window.opener will be the one receiving MessageEvents.
+const targetWindow = window.parent !== window.self ? window.parent : window.opener;
+
 // App needs to know EHR's origin.
 // Add a smart_web_messaging_handle launch context parameter alongside the access_token
 // Add a smart_messaging_origin launch context parameter alongside the access_token
-// to tell the app what the EHR's origin will be
-
-const targetWindow = window.parent !== window.self ? window.parent : window.opener;
-
+// to tell the app what the EHR's origin will be.
 targetWindow.postMessage({
   "messagingHandle": "<smart_web_messaging_handle> from SMART launch context",
   "messageId": <some guid>,
@@ -37,20 +53,53 @@ targetWindow.postMessage({
 }, targetOrigin)
 ```
 
-In response, EHR may send one return message like:
+In the EHR, the message is received and is handled as shown below.
+```js
+window.addEventListener("message", function(event) {
+  if (event.origin != <targetOrigin>) {
+    return;  // Ignore unknown origins.
+  }
+  // handle message
+  // message back using event.source.postMessage(...)
+});
+```
+
+The EHR SHALL send a response with the following parameters:
+
+| Parameter      | Optionallity | Description                                                                                       |
+| -------------- | ------------ | ------------------------------------------------------------------------------------------------- |
+| messageId      | REQUIRED     | The messagId of the received message.                                                             |
+| status         | REQUIRED     | An HTTP-response code (reference).                                                                |
+
+In addition, the response can hold additional fields as specified by the message category of the original message.
+
+The `targetOrigin` field SHOULD contain the contents of the `smart_messaging_origin` launch context parameter, which was provided to the SMART launch api when first launching the app within the EHR.  Applications SHOULD refrain from using the `"*"` origin field.
+
+In response, the EHR may send one return message like:
 ```js
 appWindow.postMessage({
   "messageId": <some new guid>,
   "responseToMessageId": <original guid>
-  "payload": { // as for FHIR's Bundle.entry.response
-    "status":,		// HTTP response codes, for simplicity, consistency
-    "location":,      // could be relative for scratchpad-like stuff?
-    "outcome":,       // include the resource as created
+  "payload": {    // as for FHIR's Bundle.entry.response
+    "status":,    // HTTP response codes, for simplicity, consistency
+    "location":,  // could be relative for scratchpad-like stuff?
+    "outcome":,   // include the resource as created
   }
 }, targetOrigin)
 ```
 
-This enables a request/response pattern; applications should be prepared to see at most one incoming message with a given `responseToMessageId`. (If message streams are needed, this can be accomplished by having the server send "unsolicited" messages, i.e., messages with no `responseToMessageId`, after a client's initial request.)
+Then in the app, the message is received and is handled as shown below.
+```js
+window.addEventListener("message", function(event) {
+  if (event.origin != <targetOrigin>) {
+    return;  // Ignore unknown origins.
+  }
+  // handle message
+  // message back using event.source.postMessage(...)
+});
+```
+
+This enables a request/response pattern; applications SHOULD be prepared to see at most one incoming message with a given `responseToMessageId`. (If message streams are needed, this can be accomplished by having the server send "unsolicited" messages, i.e., messages with no `responseToMessageId`, after a client's initial request.)
 
 **For subsequent code samples, we abstract away some of the messaging details via a (theoretical) simple SMART Messaging javascript library, which accepts a messageType and payload and returns a promise that resolves with the response payload.**
 
@@ -58,12 +107,23 @@ This enables a request/response pattern; applications should be prepared to see 
 
 An embedded SMART app improves the clinician’s user experience by closing itself or requesting the EHR to navigate the user to an appropriate activity.  Messages that affect the EHR UI match the pattern `ui.*`.
 
+A ui.* message may contain an OPTIONAL `activityType` field.  These named activity types are drawn from
+the SMART Web Messaging [Activity Catalog](./activity-catalog.html).  In general, these activities follow
+the same naming conventions as entries in the CDS Hooks catalog, and will align with CDS Hooks catalog
+entries where feasible.
+
+This field indicates the navigation target the EHR should go to after the ui message has been handled.
+A activity may specify additional parameters that can be included in the call as additional fields.
+
+The ui category includes two messages: `launchActivity` and `done`.
 All `ui.done` and `ui.launchActivity` messages may include an `activityType`
 such as `problem-add` or `order-sign`. These named activity types are drawn
 from the SMART Web Messaging [Activity Catalog](./activity-catalog.html).  In
 general, these activities follow the same naming conventions as entries in the
 CDS Hooks catalog, and will align with CDS Hooks catalog entries where
 feasible.
+
+All `ui.launchActivity` messages SHALL include an `activityType`
 
 The `ui.done` messageType instructs the EHR to close the activity hosting the SMART app, and optionally navigates the user to an alternate activity.
 
@@ -72,6 +132,7 @@ need to specify an `activityType` or `activityParameters` with the `ui.done` mes
 tracks the context in which the app was launched (e.g., order entry) and can
 navigate to the appropriate follow-up screen based on this context.
 
+An example of a ui.done message is shown below:
 ```js
 SMART.messaging.send("ui.done", {
   "activityType": "problem-add",
