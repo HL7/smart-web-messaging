@@ -1,4 +1,4 @@
-# Activity Catalog
+### Activity Catalog
 
 These activites serve as navigation targets for `ui.launchActivity` messages.
 They are designed to describe navigation points within an EHR environment. We
