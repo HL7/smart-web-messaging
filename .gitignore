@@ -1,1 +1,13 @@
 build
+/input/
+/input-cache/
+/node_modules/
+/output/
+/temp/
+/template/
+/_gen*.bat
+/_gen*.sh
+/FHIR-smart-web-messaging.xml
+/ig.ini
+/package-*.json
+/SUSHI-GENERATED-FILES.md
