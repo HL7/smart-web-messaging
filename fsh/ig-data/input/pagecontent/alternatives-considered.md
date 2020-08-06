@@ -67,7 +67,7 @@ Details: This is similar to the standalone REST API endpoint option
   * Inconsistent/spotty browser support (?)
 
 
-#### SignalR, socket.io
+#### SignalR, `socket.io`
 Details: Rely on a full-fledged library that supports multiple modalities of exchange with fallbacks
 
 * **Pros**
@@ -80,10 +80,10 @@ Details: Rely on a full-fledged library that supports multiple modalities of exc
 #### FHIRCast
 Details: Same tech as HTTP API (+experimental Websockets)
 
-* **Pro**
+* **Pros**
   * handles context synchronization
 
-* **Con**
+* **Cons**
   * EHR needs to route messages from its server back to the frontend
   * EHR UI needs to understand inbound messages
   * Unsuitable for static apps (app needs a REST API endpoint for async responses or incoming messages)
