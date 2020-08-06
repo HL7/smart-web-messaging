@@ -111,8 +111,7 @@ window.addEventListener("message", function(event) {
 #### Workflow Summary
 This mechanism enables a full request/response pattern.  Applications SHOULD be prepared to see, at most, one incoming message with a given `responseToMessageId`.  If multiple response messages (e.g., streams) are needed, this can be accomplished by having the server send "unsolicited" messages, i.e., messages with no `responseToMessageId`, after a client's initial request.
 
-**For subsequent code samples, we abstract away some of the messaging details via a (theoretical) simple SMART Web Messaging javascript library, which accepts a messageType and payload and returns a promise that resolves with the response payload.**
-
+**For subsequent code samples, we abstract away some of the messaging details via a (theoretical) simple SMART Web Messaging javascript library, which accepts a `messageType` and `payload` and returns a promise that resolves with the response `payload`.**
 
 ### Influence the EHR UI: `ui.*`
 An embedded SMART app improves the clinician's user experience by closing itself or requesting the EHR to navigate the user to an appropriate activity.  Messages that affect the EHR UI match the pattern `ui.*`.
