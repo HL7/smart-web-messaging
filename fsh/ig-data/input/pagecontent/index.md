@@ -88,7 +88,8 @@ In response, the EHR may send one return message like:
 ```js
 appWindow.postMessage({
   "messageId": <some new guid>,
-  "responseToMessageId": <original guid>
+  "messageTye": <see message types below>,
+  "responseToMessageId": <original guid>,
   "payload": {    // as for FHIR's Bundle.entry.response
     "status":,    // HTTP response codes, for simplicity, consistency
     "location":,  // could be relative for scratchpad-like stuff?
@@ -110,8 +111,6 @@ window.addEventListener("message", function(event) {
 
 #### Workflow Summary
 This mechanism enables a full request/response pattern. Applications SHOULD be prepared to see, at most, one incoming message with a given `responseToMessageId`. If multiple response messages (e.g., streams) are needed, this can be accomplished by having the server send "unsolicited" messages, i.e., messages with no `responseToMessageId`, after a client's initial request.
-
-**For subsequent code samples, we abstract away some of the messaging details via a (theoretical) simple SMART Web Messaging javascript library, which accepts a messageType and payload and returns a promise that resolves with the response payload.**
 
 
 ### Influence the EHR UI: `ui.*`
@@ -143,32 +142,46 @@ tracks the context in which the app was launched (e.g., order entry) and can
 navigate to the appropriate follow-up screen based on this context.
 
 An example of a `ui.done` message is shown below:
+
+## TODO update 
 ```js
-SMART.messaging.send("ui.done", {
-  "activityType": "problem-add",
-  "activityParameters": {
-    // Each ui activity defines its optional+required params
-    "problem": {
-      "resourceType": "Condition",
-      "patient": "123",
+
+appWindow.postMessage({
+  "messageId": <some new guid>,
+  "messageType": "ui.done",
+  "payload": {
+    "activityType": "problem-add",
+    "activityParameters": {
+      // Each ui activity defines its optional+required params
+      "problem": {
+        "resourceType": "Condition",
+        "patient": "123",
+      }
     }
   }
-}).then((responsePayload) => {...})
+}, targetOrigin)
+
 ```
 
 Similarly, the SMART app can use the `ui.LaunchActivity` message type to request navigation to an alternate activity without closing the app:
 
 ```js
-SMART.messaging.send("ui.launchActivity", {
-  "activityType": "problem-add",
-  "activityParameters": {
-    // Each ui activity defines its optional+required params
-    "problem": {
-      "resourceType": "Condition",
-      "patient": "123",
+
+
+appWindow.postMessage({
+  "messageId": <some new guid>,
+  "messageType": "ui.launchActivity",
+  "payload": {
+    "activityType": "problem-add",
+    "activityParameters": {
+      // Each ui activity defines its optional+required params
+      "problem": {
+        "resourceType": "Condition",
+        "patient": "123",
+      }
     }
   }
-}).then((responsePayload) => {...})
+}, targetOrigin)
 ```
 
 The EHR SHALL respond to all `ui` message types with a payload that includes a boolean `success` parameter and an optional `details` string:
@@ -182,16 +195,21 @@ The EHR SHALL respond to all `ui` message types with a payload that includes a b
 ### EHR Scratchpad Interactions: `scratchpad.*`
 While interacting with an embedded SMART app, a clinician may make decisions that should be implemented in the EHR with minimal clicks.  SMART Web Messaging exposes an API to the clinician's scratchpad within the EHR, which may contain FHIR resources unavailable on the RESTful FHIR API.  For example, the proposed CDS Hooks decision workflow can be implemented through SMART Web Messaging.  Messages affecting the scratchpad match the pattern `scratchpad.*`.
 
+The following example adds a new `ServiceRequest` to the EHR's scratchpad:
+
 ```js
-SMART.messaging.send(
-  // "create"| "update"| "read" | "search" | "delete"
-  "scratchpad.[interaction-name]", {
+
+appWindow.postMessage({
+  "messageId": <some new guid>,
+  "messageType": "scratchpad.create",
+  "payload": {
     "resource": {
       "resourceType": "ServiceRequest",
       "status": "draft",
-      ...
-    }
-  })
+      // additional details as needed
+    }    
+  }
+}, targetOrigin);
 ```
 
 SMART Web Messaging is designed to be compatible with CDS Hooks, and to implement the CDS Hooks decisions flow. For any CDS Hooks Actions array, you can create a list of SMART.messaging API calls:
@@ -205,23 +223,36 @@ SMART Web Messaging is designed to be compatible with CDS Hooks, and to implemen
 For example, a proposal to update a draft prescription in the context of a CDS Hooks request might look like:
 
 ```js
+
+
 // Update to a better, cheaper alternative prescription
-SMART.messaging.send("scratchpad.update", {
-  "resource": {
-    "resourceType": "MedicationRequest", 
-    "id": "123",
-    "status": "draft" // more details below
+appWindow.postMessage({
+  "messageId": <some new guid>,
+  "messageType": "scratchpad.update",
+  "payload": {
+    "resource": {
+      "resourceType": "MedicationRequest", 
+      "id": "123",
+      "status": "draft"
+      // additional details as needed
+    }
   }
-}).then((responsePayload) => {...})
+}, targetOrigin);
+
+
 ```
 
 The EHR responds to all `scratchpad` messageTypes with a payload that matches FHIR's [`Bundle.entry.response`](http://hl7.org/fhir/bundle-definitions.html#Bundle.entry.response.location) data model. For instance the response to a `scratchpad.create` that adds a new prescription to the scratchpad (and assigns id `456` to this draft resource) might look like:
 
 ```js
-{
-  "status": "200 OK",
-  "location": "MedicationRequest/456"
-}
+clientAppWindow.postMessage({
+  "messageId": <some new guid>,
+  "responseToMessageId": <guid from the client's request>,
+  "payload": {
+    "status": "200 OK",
+    "location": "MedicationRequest/456"
+  }
+}, clientAppOrigin);
 ```
 
 ### Authorization with SMART Scopes
@@ -291,4 +322,4 @@ In the current proposal, we omit any initial handshake; a client can submit a We
 In the current proposal, we provide infrastructure for servers to correlate Web Messaging requests with a specific SMART App Launch context, through the `smart_web_messaging_handle`. However we do not require that servers make use of this property. We refer commenters to [discussion and rationale here](https://github.com/HL7/smart-web-messaging/pull/4) and welcome any additional feedback on this point.
 
 ### General FHIR API interactions
-In the current proposal, we limit message types to `ui` and `scratchpad` for messages sent from the app to the EHR client.  However, it might be convenient for apps if the SMART Web Messaging standard supported a `fhir` message type, which would signify messages meant to be relayed from the app, through the EHR client to the FHIR server.  This is a recent idea which has not yet been fully explored by the community.  We welcome ballot comments that speak to the merits or risks of this convenience capability, should there be enough interest to warrant further development of this feature.
+In the current proposal, we limit message types to `ui` and `scratchpad` for messages sent from the app to the EHR client.  However, it might be convenient for apps if the SMART Web Messaging standard supported a `fhir` message type, which would signify messages meant to be relayed from the app, through the EHR client to the FHIR server.  We welcome ballot comments that speak to the merits or risks of this capability; based on feedback we will consider introducing  a `fhir.*` message type.
