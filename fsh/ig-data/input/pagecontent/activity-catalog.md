@@ -1,4 +1,3 @@
-# Activity Catalog
 
 These activites serve as navigation targets for `ui.launchActivity` messages.
 They are designed to describe navigation points within an EHR environment. We
@@ -18,3 +17,4 @@ align with the actual names of existing CDS Hooks activities where feasible.
 |`order-sign`|See [CDS Hooks](https://cds-hooks.org/hooks/order-sign/)|`draftOrders`: array of draft orders to include in the scratchpad. (Note that for more fine-grained control, an app may query/create/update orders using the `scratchpad.*` SMART Web Messaging API before navigating to this activity. In this case, the `draftOrders` array may be omitted fom the activity parameters.)|
 |`appointment-book`|See [CDS Hooks](https://cds-hooks.org/hooks/appointment-book/)|`appointments`: FHIR Bundle of Appointment resources in draft status, and any other supporting data|
 |`problem-add`|Add  a new problem to the patieint's problem list|`problem`: FHIR Condition resource, to pre-populate the data entry screen|
+{:.grid}

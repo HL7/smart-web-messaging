@@ -48,3 +48,18 @@ cd smart-web-messaging
 # The script will automatically open the local qa.html and index.html in your
 # default browser.
 ```
+
+## Building on Windows
+
+### Prerequisites
+
+1. Install [Node](https://nodejs.org/en/download/)
+1. Install FHIR Shorthand
+    * Global: `npm install -g fsh-sushi`
+    * Local: `npm install fsh-sushi`
+1. Install Java (JDK 14 or later)
+
+### Building
+
+1. Run `_updatePublisher.bat` (answer `Y` to all questions)
+1. Run `_genonce.bat`
