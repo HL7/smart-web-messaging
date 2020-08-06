@@ -5,7 +5,7 @@ SMART Web Messaging enables tight UI integration between EHRs and embedded SMART
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this specification are to be interpreted as described in [RFC2119](https://tools.ietf.org/html/rfc2119).
 
 ### Why
-Clinical workflow systems (such as EHRs) can launch [SMART applications](http://hl7.org/fhir/smart-app-launch/index.html) in many ways: automatically at specific points in the workflow, by user interaction in the UI, or in response to a suggestion from a [CDS Hooks Service](https://cds-hooks.hl7.org/1.0/#cds-hooks-anatomy) - just to name a few. Once launched, web applications are often embedded within an iframe of the main UI. In this model, the new application appears in close proximity to a patient's chart and works with the EHR via [RESTful FHIR APIs](http://hl7.org/fhir/http.html). These RESTful APIs are great for [CRUD](https://en.wikipedia.org/wiki/Create,_read,_update_and_delete) operations on a database, but they don't enable tight workflow integration or access to draft FHIR resources that may only exist in memory on the EHR client.
+Clinical workflow systems (such as EHRs) can launch [SMART applications](http://hl7.org/fhir/smart-app-launch/index.html) in many ways: automatically at specific points in the workflow, by user interaction in the UI, or in response to a suggestion from a [CDS Hooks Service](https://cds-hooks.hl7.org/1.0/#cds-hooks-anatomy) - just to name a few. Once launched, web applications are often embedded within an iframe of the main UI. In this model, the new application appears in close proximity to a patient's chart and works with the EHR via [RESTful FHIR APIs](http://hl7.org/fhir/http.html).  These RESTful APIs are great for [CRUD](https://en.wikipedia.org/wiki/Create,_read,_update_and_delete) operations on a database, but they don't enable tight workflow integration or access to draft FHIR resources that may only exist in memory on the EHR client.
 
 For these embedded apps, there are some key use cases that SMART and CDS Hooks don't address today:
 * Communicating a decision made by the clinician within the SMART app, such as:
@@ -164,7 +164,7 @@ window.addEventListener("message", function(event) {
 #### Workflow Summary
 This mechanism enables a full request/response pattern. Applications SHOULD be prepared to see, at most, one incoming message with a given `responseToMessageId`. If multiple response messages (e.g., streams) are needed, this can be accomplished by having the server send "unsolicited" messages, i.e., messages with no `responseToMessageId`, after a client's initial request.
 
-**For subsequent code samples, we abstract away some of the messaging details via a (theoretical) simple SMART Messaging javascript library, which accepts a messageType and payload and returns a promise that resolves with the response payload.**
+**For subsequent code samples, we abstract away some of the messaging details via a (theoretical) simple SMART Web Messaging javascript library, which accepts a messageType and payload and returns a promise that resolves with the response payload.**
 
 
 ### Influence the EHR UI: `ui.*`
@@ -233,7 +233,7 @@ The EHR responds to all `ui` messageTypes with a payload that includes a boolean
 ```
 
 ### FHIR Resource Interactions: `scratchpad.*`
-While interacting with an embedded SMART app, a clinician may make decisions that should be implemented in the EHR with minimal clicks.  SMART Messaging exposes an API to the clinician's scratchpad within the EHR, which may contain FHIR resources unavailable on the RESTful FHIR API.  For example, the proposed CDS Hooks decision workflow can be implemented through SMART Messaging.  Messages affecting the scratchpad match the pattern `scratchpad.*`.
+While interacting with an embedded SMART app, a clinician may make decisions that should be implemented in the EHR with minimal clicks.  SMART Web Messaging exposes an API to the clinician's scratchpad within the EHR, which may contain FHIR resources unavailable on the RESTful FHIR API.  For example, the proposed CDS Hooks decision workflow can be implemented through SMART Web Messaging.  Messages affecting the scratchpad match the pattern `scratchpad.*`.
 
 ```js
 SMART.messaging.send(
@@ -247,7 +247,7 @@ SMART.messaging.send(
   })
 ```
 
-SMART Messaging is designed to be compatible with CDS Hooks, and to implement the CDS Hooks decisions flow. For any CDS Hooks Actions array, you can create a list of SMART.messaging API calls:
+SMART Web Messaging is designed to be compatible with CDS Hooks, and to implement the CDS Hooks decisions flow. For any CDS Hooks Actions array, you can create a list of SMART.messaging API calls:
 
 * CDS Hooks suggestion type is used to populate the payload's `.messageType`
   * `create` → `scratchpad.create`
@@ -278,7 +278,7 @@ The EHR responds to all `scratchpad` messageTypes with a payload that matches FH
 ```
 
 ### Authorization with SMART Scopes
-SMART Messaging enables capabilities that can be authorized via OAuth scopes, within the `messaging/` category. Authorization is at the level of message groups (e.g., `messaging/ui`) rather than specific messages (e.g., `launchActivity`). For example, a SMART app that performs dosage adjustments to in-progress orders might request the following scopes:
+SMART Web  enables capabilities that can be authorized via OAuth scopes, within the `messaging/` category. Authorization is at the level of message groups (e.g., `messaging/ui`) rather than specific messages (e.g., `launchActivity`). For example, a SMART app that performs dosage adjustments to in-progress orders might request the following scopes:
 
 * `patient/MedicationRequest.read`: enable access to existing prescribed medications
 * `messaging/scratchpad`: enable access to draft orders (including meds) on the EHR scratchpad
@@ -328,7 +328,7 @@ Following the OAuth 2.0 handshake, the authorization server returns the authoriz
 ### Limitations
 The use of web messaging requires the app to be a web application, which is either embedded within an iframe or launched in a new tab/window.
 
-SMART messaging is not a context synchronization specification (see [FHIRCast](http://fhircast.org)). Rather, it's a collection of functions available to a web app embedded within an EHR which supports tight workflow integration.
+SMART Web Messaging is not a context synchronization specification (see [FHIRCast](http://fhircast.org)). Rather, it's a collection of functions available to a web app embedded within an EHR which supports tight workflow integration.
 
 ### Alternatives considered
 See [Alternatives Considered](./alternatives-considered.html)
