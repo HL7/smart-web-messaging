@@ -21,6 +21,7 @@
 [Alternatives Considered]: ./alternatives-considered.html
 [`Bundle.entry.response`]: http://hl7.org/fhir/bundle-definitions.html#Bundle.entry.response.location
 [CDS Hooks Action]: https://cds-hooks.hl7.org/1.0/#action
+[FHIR OperationOutcome]: https://www.hl7.org/fhir/operationoutcome.html
 [FHIRCast]: http://fhircast.org
 [HTML5's Web Messaging]: https://www.w3.org/TR/webmessaging
 [OAuth]: https://oauth.net/
@@ -117,7 +118,7 @@ window.addEventListener("message", function(event) {
 
   // Send a response back to the app.
   const response = {
-    ... // See below for more details on the response properties.
+    ...  // See below for more details on the response properties.
   };
   event.source.postMessage(response, event.origin);
 });
@@ -134,7 +135,7 @@ The EHR SHALL send a response message with the following properties:
 {:.grid}
 
 #### Response Payload
-The response message `payload` properties will vary based on the request `messageType`. See message types below for details.
+The response message `payload` properties will vary based on the request `messageType`.  See message types below for details.
 
 #### Response Target Origin
 It is assumed that the EHR already knows the proper `targetOrigin` to use in its
@@ -154,9 +155,15 @@ window.addEventListener("message", function(event) {
 
   const messageType = event.data.messageType;
 
-  var location = {};      // TODO(carl): describe this better.
-  var outcome = {};       // For example, a result of the specified messageType.
-  var status = "200 OK";  // Update this upon any errors.
+  // The response payload is modeled after Bundle.entry.response.
+  // See: https://www.hl7.org/fhir/bundle-definitions.html#Bundle.entry.response
+  var location = "Example/123";
+  var status = "200 OK";
+
+  // For errors encountered handling the request, the EHR can add an
+  // OperationOutcome to contain additional information.
+  // See: https://www.hl7.org/fhir/operationoutcome.html
+  var outcome = {};
 
   //
   // TODO: Handle the message here by using the contents of event.data.
@@ -175,12 +182,6 @@ window.addEventListener("message", function(event) {
   event.source.postMessage(response, event.origin);
 });
 ```
-
-{::comment}
-
-  What is `payload.location` intended to be used for?
-
-{:/comment}
 
 Then, back in the app, the message response is received and handled as shown in
 this example.
@@ -211,7 +212,7 @@ needed, this can be accomplished by having the server send "unsolicited"
 messages, i.e., messages with no `responseToMessageId`, after a client's initial
 request.
 
-### Influence the EHR UI: `ui.*` messageType
+### Influence the EHR UI: `messageType ui.*`
 An embedded SMART app may improve the clinician's user experience by attempting
 to close itself when appropriate, or by requesting the EHR automatically
 navigate the user to an appropriate 'next' activity.  Messages that affect the
@@ -225,45 +226,42 @@ SMART app, and optionally navigates the user to a 'next' activity.
 The `ui.launchActivity` message type signals the EHR to navigate the user to another
 activity without closing the SMART app.
 
-
 #### Request payload for `ui.done` and `ui.launchActivity`
-
-| Property              | Optionality  | Type   | Description |
-| --------------------- | ------------ | ------ | ----------- |
-| `activityType`        | CONDITIONAL  | string | REQUIRED for `ui.launchActivity`, optional for `ui.done`. Navigation hint; see description below. |
-| `activityParameters`  | CONDITIONAL  | object | REQUIRED for `ui.launchActivity`, optional for `ui.done`. Navigation hint; see description below. |
+| Property             | Optionality | Type   | Description |
+| -------------------- | ----------- | ------ | ----------- |
+| `activityType`       | CONDITIONAL | string | REQUIRED for `ui.launchActivity`, optional for `ui.done`. Navigation hint; see description below. |
+| `activityParameters` | CONDITIONAL | object | REQUIRED for `ui.launchActivity`, optional for `ui.done`. Navigation hint; see description below. |
 {:.grid}
 
 #### Response payload for `ui.done` and `ui.launchActivity`
-
-| Property              | Optionality  | Type   | Description |
-| --------------------- | ------------ | ------ | ----------- |
-| `success`        | REQUIRED  | boolean | `true` if the request has been accepted; `false` if it has been rejected. |
-| `details`        | OPTIONAL  | string | A human readable string explaining the outcome. |
+| Property  | Optionality | Type    | Description |
+| --------- | ----------- | ------- | ----------- |
+| `success` | REQUIRED    | boolean | `true` if the request has been accepted; `false` if it has been rejected. |
+| `details` | OPTIONAL    | string  | A human readable explanation of the outcome. |
 {:.grid}
 
-
 The `activityType` property conveys an activity type drawn from the SMART Web
-Messaging [Activity Catalog]. In general, these activities follow the same naming
-conventions as entries inthe CDS Hooks catalog (`noun-verb`), and will align with
-CDS Hooks catalog entries where feasible. The `activityType` property conveys a 
-navigation target such as `problem-add` or `order-sign`, indicating where EHR should
-go to after the ui message has been handled. An activity may specify additional parameters
-that can be included in the call as additional properties. 
+Messaging [Activity Catalog]. In general, these activities follow the same
+naming conventions as entries inthe CDS Hooks catalog (`noun-verb`), and will
+align with CDS Hooks catalog entries where feasible. The `activityType` property
+conveys a navigation target such as `problem-add` or `order-sign`, indicating
+where EHR should go to after the ui message has been handled. An activity may
+specify additional parameters that can be included in the call as additional
+properties.
 
-The `activityParameters` property conveys parameters specific to an activity type. See the
-SMART Web Messaging [Activity Catalog] for details.
+The `activityParameters` property conveys parameters specific to an activity
+type. See the SMART Web Messaging [Activity Catalog] for details.
 
 *Note:* A SMART app launched in the context of CDS Hooks should generally not
 need to specify an `activityType` or `activityParameters` with the `ui.done`
 message, because the EHR tracks the context in which the app was launched (e.g.,
-order entry) and can navigate to the appropriate follow-up screen based on this
+order entry) and can navigate to an appropriate follow-up screen based on this
 context.
 
-An example of a `ui.done` message is shown below:
+An example of a `ui.done` message from an app to the EHR is shown below:
 
 ```js
-appWindow.postMessage({
+window.postMessage({
   "messageId": "<some new guid>",
   "messageType": "ui.done",
   "payload": {
@@ -284,7 +282,7 @@ Similarly, the SMART app can use the `ui.LaunchActivity` message type to request
 navigation to a different activity *without* closing the app:
 
 ```js
-appWindow.postMessage({
+window.postMessage({
   "messageId": "<some new guid>",
   "messageType": "ui.launchActivity",
   "payload": {
@@ -303,9 +301,9 @@ appWindow.postMessage({
 
 The EHR SHALL respond to all `ui` message types with a payload that includes a
 boolean `success` parameter and an optional `details` string:
-```js
 
-clientAppWindow.postMessage({
+```js
+window.postMessage({
   "messageId": "<some new guid>",
   "responseToMessageId": "<guid from the client's request>",
   "payload": {
@@ -315,7 +313,7 @@ clientAppWindow.postMessage({
 }, clientAppOrigin);
 ```
 
-### EHR Scratchpad Interactions: `scratchpad.*` messageType
+### EHR Scratchpad Interactions: `messageType scratchpad.*`
 While interacting with an embedded SMART app, a clinician may make decisions
 that should be implemented in the EHR with minimal clicks.  SMART Web Messaging
 exposes an API to the clinician's scratchpad within the EHR, which may contain
@@ -341,7 +339,7 @@ can create a list of SMART Web Messaging API calls:
 
 | Property              | Optionality  | Type   | Description |
 | --------------------- | ------------ | ------ | ----------- |
-| `resource`            | CONDITIONAL  | object | REQUIRED for `scratchpad.create` and `scratchpad.update`. Prohibited for `scratchpad.delete`. Conveys resource content as per CDS Hooks Action's `payload.resource`. |
+| `resource`            | CONDITIONAL  | object | REQUIRED for `scratchpad.create` and `scratchpad.update`. Prohibited for `scratchpad.delete`.  Conveys resource content as per CDS Hooks Action's `payload.resource`. |
 {:.grid}
 
 #### Response payload for `scratchpad.*`
@@ -350,18 +348,17 @@ The EHR responds to all `scratchpad` message types with a payload that matches
 FHIR's [`Bundle.entry.response`] data model. The table below includes only
 the most commonly used fields; see the FHIR specification for full details.
 
-| Property              | Optionality  | Type   | Description |
-| --------------------- | ------------ | ------ | ----------- |
-| `status`              | REQUIRED     | string | An HTTP response code (i.e. "200 OK").|
-| `location`            | CONDITIONAL  | string | REQUIRED if a new resource has been added to the scratchapd. Conveys a relative resource URL for the new resource.|
-| `outcome`             | OPTIONAL  | object | FHIR OperationOutcome with details if something has gone wrong.|
+| Property              | Optionality | Type   | Description |
+| --------------------- | ----------- | ------ | ----------- |
+| `status`              | REQUIRED    | string | An HTTP response code (i.e. "200 OK"). |
+| `location`            | CONDITIONAL | string | REQUIRED if a new resource has been added to the scratchapd. Conveys a relative resource URL for the new resource. |
+| `outcome`             | OPTIONAL    | object | [FHIR OperationOutcome] with details if something has gone wrong. |
 {:.grid}
-
 
 The following example adds a new `ServiceRequest` to the EHR's scratchpad:
 
 ```js
-appWindow.postMessage({
+window.postMessage({
   "messageId": "<some new guid>",
   "messageType": "scratchpad.create",
   "payload": {
@@ -374,13 +371,12 @@ appWindow.postMessage({
 }, targetOrigin);
 ```
 
-
 For example, a proposal to update a draft prescription in the context of a CDS
 Hooks request might look like:
 
 ```js
 // Update to a better, cheaper alternative prescription
-appWindow.postMessage({
+window.postMessage({
   "messageId": "<some new guid>",
   "messageType": "scratchpad.update",
   "payload": {
@@ -394,13 +390,13 @@ appWindow.postMessage({
 }, targetOrigin);
 ```
 
-As described above, the EHR responds to all `scratchpad` message types with a payload that matches
-FHIR's [`Bundle.entry.response`] data model.  For instance, the response to a
-`scratchpad.create` that adds a new prescription to the scratchpad (and assigns
-id `456` to this draft resource) might look like:
+As described above, the EHR responds to all `scratchpad` message types with a
+payload that matches FHIR's [`Bundle.entry.response`] data model.  For instance,
+the response to a `scratchpad.create` that adds a new prescription to the
+scratchpad (and assigns id `456` to this draft resource) might look like:
 
 ```js
-clientAppWindow.postMessage({
+window.postMessage({
   "messageId": "<some new guid>",
   "responseToMessageId": "<guid from the client's request>",
   "payload": {
