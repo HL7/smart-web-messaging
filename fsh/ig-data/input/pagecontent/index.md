@@ -212,7 +212,7 @@ needed, this can be accomplished by having the server send "unsolicited"
 messages, i.e., messages with no `responseToMessageId`, after a client's initial
 request.
 
-### Influence the EHR UI: `messageType ui.*`
+### Influence the EHR UI: `ui.*` message type
 An embedded SMART app may improve the clinician's user experience by attempting
 to close itself when appropriate, or by requesting the EHR automatically
 navigate the user to an appropriate 'next' activity.  Messages that affect the
@@ -261,7 +261,7 @@ context.
 An example of a `ui.done` message from an app to the EHR is shown below:
 
 ```js
-window.postMessage({
+targetWindow.postMessage({
   "messageId": "<some new guid>",
   "messageType": "ui.done",
   "payload": {
@@ -282,7 +282,7 @@ Similarly, the SMART app can use the `ui.LaunchActivity` message type to request
 navigation to a different activity *without* closing the app:
 
 ```js
-window.postMessage({
+targetWindow.postMessage({
   "messageId": "<some new guid>",
   "messageType": "ui.launchActivity",
   "payload": {
@@ -303,17 +303,17 @@ The EHR SHALL respond to all `ui` message types with a payload that includes a
 boolean `success` parameter and an optional `details` string:
 
 ```js
-window.postMessage({
+event.source.postMessage({
   "messageId": "<some new guid>",
   "responseToMessageId": "<guid from the client's request>",
   "payload": {
     "success": true,
     "details": "string explanation for user (optional)"
   }
-}, clientAppOrigin);
+}, event.origin);
 ```
 
-### EHR Scratchpad Interactions: `messageType scratchpad.*`
+### EHR Scratchpad Interactions: `scratchpad.*` message type
 While interacting with an embedded SMART app, a clinician may make decisions
 that should be implemented in the EHR with minimal clicks.  SMART Web Messaging
 exposes an API to the clinician's scratchpad within the EHR, which may contain
@@ -358,7 +358,7 @@ the most commonly used fields; see the FHIR specification for full details.
 The following example adds a new `ServiceRequest` to the EHR's scratchpad:
 
 ```js
-window.postMessage({
+targetWindow.postMessage({
   "messageId": "<some new guid>",
   "messageType": "scratchpad.create",
   "payload": {
@@ -376,7 +376,7 @@ Hooks request might look like:
 
 ```js
 // Update to a better, cheaper alternative prescription
-window.postMessage({
+targetWindow.postMessage({
   "messageId": "<some new guid>",
   "messageType": "scratchpad.update",
   "payload": {
@@ -396,14 +396,14 @@ the response to a `scratchpad.create` that adds a new prescription to the
 scratchpad (and assigns id `456` to this draft resource) might look like:
 
 ```js
-window.postMessage({
+event.source.postMessage({
   "messageId": "<some new guid>",
   "responseToMessageId": "<guid from the client's request>",
   "payload": {
     "status": "200 OK",
     "location": "MedicationRequest/456"
   }
-}, clientAppOrigin);
+}, event.origin);
 ```
 
 ### Authorization with SMART Scopes
@@ -477,13 +477,26 @@ See [Alternatives Considered].
 ### Open questions for ballot feedback
 
 #### Discovery of server capabilities
-In the current proposal, we leave discovery out of band. For example, a client must consult server documentation to determine which message types a server supports.  We welcome ballot comments that consider whether we should define an in-band way to advertise which message types (and possibly which parameters) a server supports (e.g. via added details in a `.well-known/smart-configuration`).
+In the current proposal, we leave discovery out of band. For example, a client
+must consult server documentation to determine which message types a server
+supports.  We welcome ballot comments that consider whether we should define an
+in-band way to advertise which message types (and possibly which parameters) a
+server supports (e.g. via added details in a `.well-known/smart-configuration`).
 
 #### Handshake protocol
-In the current proposal, we omit any initial handshake; a client can submit a Web Messaging request at any point, and can determine whether a connection is working based on a combination of responses and/or timeout logic. We welcome ballot comments that consider the utility of an explicit handshake, taking into account the fact that a initially working connection (e.g., at handshake time) can always degrade later.
+In the current proposal, we omit any initial handshake; a client can submit a
+Web Messaging request at any point, and can determine whether a connection is
+working based on a combination of responses and/or timeout logic.  We welcome
+ballot comments that consider the utility of an explicit handshake, taking into
+account the fact that a initially working connection (e.g., at handshake time)
+can always degrade later.
 
 #### Security considerations
-In the current proposal, we provide infrastructure for servers to correlate Web Messaging requests with a specific SMART App Launch context, through the `smart_web_messaging_handle`. However we do not require that servers make use of this property. We refer commenters to [discussion and rationale here](https://github.com/HL7/smart-web-messaging/pull/4) and welcome any additional feedback on this point.
+In the current proposal, we provide infrastructure for servers to correlate Web
+Messaging requests with a specific SMART App Launch context, through the
+`smart_web_messaging_handle`. However we do not require that servers make use of
+this property.  We refer commenters to [discussion and rationale here](https://github.com/HL7/smart-web-messaging/pull/4)
+and welcome any additional feedback on this point.
 
 #### General FHIR API interactions
 In the current proposal, we limit message types to `ui` and `scratchpad` for messages sent from the app to the EHR client.  However, it might be convenient for apps if the SMART Web Messaging standard supported a `fhir` message type, which would signify messages meant to be relayed from the app, through the EHR client to the FHIR server.  We welcome ballot comments that speak to the merits or risks of this capability; based on feedback we will consider introducing  a `fhir.*` message type.
