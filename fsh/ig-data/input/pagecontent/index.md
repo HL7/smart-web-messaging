@@ -134,6 +134,7 @@ The EHR SHALL send a response message with the following properties:
 | `payload`             | REQUIRED     | object | The message content as specified by the `messageType` of the request message.  See [below](#response-payload). |
 {:.grid}
 
+In addition to sending Web Messaging Responses to the app, the EHR MAY also send "unsolicited" requests to the app, omitting  a `responseToMessageId` property. The semantics of such requests are are implementation-specific.
 #### Response Payload
 The response message `payload` properties will vary based on the request `messageType`.  See message types below for details.
 
