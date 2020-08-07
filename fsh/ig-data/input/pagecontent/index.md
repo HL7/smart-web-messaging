@@ -3,6 +3,7 @@
   COMMON TERMS, which will reveal a hover-text definition in the IG when viewed.
 
 {:/comment}
+*[API]: Application Programming Interface
 *[CDS]: Clinical Decision Support
 *[CPOE]: Computerized Physician Order Entry
 *[CRUD]: Copy Read Update Delete
@@ -18,6 +19,8 @@
 {:/comment}
 [Activity Catalog]: ./activity-catalog.html
 [Alternatives Considered]: ./alternatives-considered.html
+[`Bundle.entry.response`]: http://hl7.org/fhir/bundle-definitions.html#Bundle.entry.response.location
+[CDS Hooks Action]: https://cds-hooks.hl7.org/1.0/#action
 [FHIRCast]: http://fhircast.org
 [HTML5's Web Messaging]: https://www.w3.org/TR/webmessaging
 [OAuth]: https://oauth.net/
@@ -68,14 +71,10 @@ This message object must be passed to `window.postMessage` using a valid `target
 
 {::comment}
 
-  TODO: add a footnote here, or link to a reason why it's a security feature.
+  TODO: add a footnote here, or link to an explanation of the reasons for not using "*" as the targetOrigin.
 
-{:/comment}
-
-{::comment}
-
-  TODO: include an example of using the SMART app launch client here, and extracting the smart_messaging_origin from the launch context.  I mean, why not?  And link to the javascript FHIR client.
-  https://github.com/HL7/smart-web-messaging/issues/18
+  TODO: include an example of using the SMART app launch client here, and extracting the smart_messaging_origin from the launch context.  Link to the javascript FHIR client?
+  See: https://github.com/HL7/smart-web-messaging/issues/18
 
 {:/comment}
 
@@ -107,10 +106,8 @@ targetWindow.postMessage(message, targetOrigin);
 In the EHR, the message is received and is handled as shown below.
 
 ```js
-const expectedOrigin = "<the EHR's expected origin>";
-
 window.addEventListener("message", function(event) {
-  if (event.origin != expectedOrigin) {
+  if (event.origin !== "<the app's expected origin>") {
     return;  // Ignore unknown origins.
   }
 
@@ -122,8 +119,7 @@ window.addEventListener("message", function(event) {
   const response = {
     ... // See below for more details on the response properties.
   };
-  const appTargetOrigin = "<use the targetOrigin which prefixes the SMART Launch URL>";
-  event.source.postMessage(response, appTargetOrigin);
+  event.source.postMessage(response, event.origin);
 });
 ```
 
@@ -138,19 +134,19 @@ The EHR SHALL send a response message with the following properties:
 {:.grid}
 
 #### Response Payload
-The response message `payload` properties will vary by request `messageType`, but all will have at least these parameters in common:
+The response message `payload` properties will vary based on the request `messageType`, but all message types will have at least these parameters in common:
 
 | Property              | Optionality  | Type   | Description |
 | --------------------- | ------------ | ------ | ----------- |
-| `status`              | REQUIRED     | int    | An HTTP response code. |
-| `outcome`             | OPTIONAL     | object | The result of a request message. |
+| `status`              | REQUIRED     | string | An HTTP response code (i.e. "200 OK"). |
+| `outcome`             | OPTIONAL     | object | The result of a request message.       |
 {:.grid}
 
 {::comment}
 
-  Would it be helpful to specify a subset of the HTTP response codes that should be expected, or are  to be valid?  There are *lots* of codes in the HTTP spec, and many of them won't make sense in typical EHR <-> app situations (i.e. 418: I am a teapot or 420: enhance your calm).
+  Would it be helpful to specify a subset of the HTTP response codes that should be expected to be used?  There are *lots* of codes in the HTTP spec, and many of them won't make sense in typical EHR <-> app situations (i.e. 418: I am a teapot or 420: enhance your calm).
 
-  I wonder if this HTTP code idea is not restrictive *enough*, enabling its use to become a kind of false cognate for certain situations.  Like, would developers be tempted to use 3xx status codes for ui.launchActivity responses?  To me, that doesn't feel right but I could totally see it happening.
+  I wonder if this HTTP code idea is not restrictive *enough*, enabling its use to become a kind of false cognate in certain situations.  Like, would developers be tempted to use 3xx status codes for ui.launchActivity responses?  To me, that doesn't feel right but I could totally see it happening.
 
   If we're only ever expecting to see HTTP 200, 500, and 400 (and maybe 404) - why not just codify the cases as 0, 1, 2, etc?  Or (better?) "Success", "InternalError", "BadRequest", etc.
 
@@ -159,22 +155,26 @@ The response message `payload` properties will vary by request `messageType`, bu
 {:/comment}
 
 #### Response Target Origin
-It is assumed that the EHR already knows the proper `targetOrigin` to use in its call to `window.postMessage` because it has demonstrated that it can SMART launch the app at a known SMART launch URL.  The SMART launch URL SHALL be prefixed with the proper value to use for the app `targetOrigin`.
+It is assumed that the EHR already knows the proper `targetOrigin` to use in its
+call to `window.postMessage` because it has demonstrated that it can SMART
+launch the app at a known SMART launch URL.  The SMART launch URL SHALL be
+prefixed with the proper value to use for the app `targetOrigin`, and the launch
+URL SHALL not redirect users to a different origin after launch.
 
 #### Detailed Example Response
 In a more detailed example response, the EHR may send one return message like:
 
 ```js
 window.addEventListener("message", function(event) {
-  if (event.origin != "<targetOrigin>") {
+  if (event.origin != "<the app's expected origin>") {
     return;  // Ignore unknown origins.
   }
 
   const messageType = event.data.messageType;
 
-  var location = {};  // TODO: what is this?
-  var outcome = {};   // For example, a result of the specified messageType.
-  var status = 200;   // Update this upon any errors.
+  var location = {};      // TODO(carl): describe this better.
+  var outcome = {};       // For example, a result of the specified messageType.
+  var status = "200 OK";  // Update this upon any errors.
 
   //
   // TODO: Handle the message here by using the contents of event.data.
@@ -187,11 +187,10 @@ window.addEventListener("message", function(event) {
     "payload": {
       "location": location,
       "outcome": outcome,
-      "status": status
+      "status": status,
     }
   };
-  const appTargetOrigin = "<the origin which prefixes the SMART Launch URL>";
-  event.source.postMessage(response, appTargetOrigin);
+  event.source.postMessage(response, event.origin);
 });
 ```
 
@@ -201,19 +200,18 @@ window.addEventListener("message", function(event) {
 
 {:/comment}
 
-Then, back in the app, the message response is received and handled as shown in this example.
+Then, back in the app, the message response is received and handled as shown in
+this example.
 
 ```js
-const expectedOrigin = "<the app's origin>";
-
 window.addEventListener("message", function(event) {
-  if (event.origin != expectedOrigin) {
+  if (event.origin != "<the app's origin>") {
     return;  // Ignore unknown origins.
   }
 
   const requestId = event.data.responseToMessageId;
 
-  if (event.data.payload.status == 200) {
+  if (event.data.payload.status == "200 OK") {
     // Success!
   } else {
     // Error handling.
@@ -225,35 +223,41 @@ window.addEventListener("message", function(event) {
 This mechanism enables a full request/response pattern.
 
 ##### Unsolicited Responses
-Applications SHOULD be prepared to see, at most, one incoming message with a given `responseToMessageId`.  If multiple response messages (e.g., streams) are needed, this can be accomplished by having the server send "unsolicited" messages, i.e., messages with no `responseToMessageId`, after a client's initial request.
+Applications SHOULD be prepared to see, at most, one incoming message with a
+given `responseToMessageId`.  If multiple response messages (e.g., streams) are
+needed, this can be accomplished by having the server send "unsolicited"
+messages, i.e., messages with no `responseToMessageId`, after a client's initial
+request.
 
 ### Influence the EHR UI: `ui.*`
-An embedded SMART app improves the clinician's user experience by attempting to close itself, when appropriate, or by requesting the EHR automatically navigate the user to an appropriate next activity.  Messages that affect the EHR UI match the pattern `ui.*` for their `messageType`.
+An embedded SMART app may improve the clinician's user experience by attempting
+to close itself when appropriate, or by requesting the EHR automatically
+navigate the user to an appropriate 'next' activity.  Messages that affect the
+EHR UI will have a `messageType` that matches the pattern `ui.*`.
 
-A `ui.*` message may contain an OPTIONAL `activityType` property.  These named activity types are drawn from
-the SMART Web Messaging [Activity Catalog].  In general, these activities follow
-the same naming conventions as entries in the CDS Hooks catalog, and will align with CDS Hooks catalog
+The `ui` category includes messages: `launchActivity` and `done`.
+
+A `ui.*` message may also contain an OPTIONAL `activityType` property.  These
+named activity types are drawn from the SMART Web Messaging [Activity Catalog].
+In general, these activities follow the same naming conventions as entries in
+the CDS Hooks catalog (`noun-verb`), and will align with CDS Hooks catalog
 entries where feasible.
 
-This property indicates the navigation target the EHR should go to after the ui message has been handled.
-A activity may specify additional parameters that can be included in the call as additional properties.
+The `activityType` property indicates the navigation target the EHR should go to
+after the ui message has been handled.  An activity may specify additional
+parameters that can be included in the call as additional properties.
 
-The ui category includes two messages: `launchActivity` and `done`.
-All `ui.done` and `ui.launchActivity` messages may include an `activityType`
-such as `problem-add` or `order-sign`. These named activity types are drawn
-from the SMART Web Messaging [Activity Catalog].  In
-general, these activities follow the same naming conventions as entries in the
-CDS Hooks catalog, and will align with CDS Hooks catalog entries where
-feasible.
+All `ui.done` messages MAY include an `activityType` such as `problem-add` or
+`order-sign`.  All `ui.launchActivity` messages SHALL include an `activityType`.
 
-All `ui.launchActivity` messages SHALL include an `activityType`.
-
-The `ui.done` messageType instructs the EHR to close the activity hosting the SMART app, and optionally navigates the user to an alternate activity.
+The `ui.done` message type signals the EHR to close the activity hosting the
+SMART app, and optionally navigates the user to a 'next' activity.
 
 *Note:* A SMART app launched in the context of CDS Hooks should generally not
-need to specify an `activityType` or `activityParameters` with the `ui.done` message, because the EHR
-tracks the context in which the app was launched (e.g., order entry) and can
-navigate to the appropriate follow-up screen based on this context.
+need to specify an `activityType` or `activityParameters` with the `ui.done`
+message, because the EHR tracks the context in which the app was launched (e.g.,
+order entry) and can navigate to the appropriate follow-up screen based on this
+context.
 
 An example of a `ui.done` message is shown below:
 
@@ -264,39 +268,40 @@ appWindow.postMessage({
   "payload": {
     "activityType": "problem-add",
     "activityParameters": {
-      // Each ui activity defines its optional+required params
+      // Each ui activity defines its optional and required params.  See the
+      // Activity Catalog for more details.
       "problem": {
         "resourceType": "Condition",
         "patient": "123",
       }
     }
   }
-}, targetOrigin)
-
+}, targetOrigin);
 ```
 
-Similarly, the SMART app can use the `ui.LaunchActivity` message type to request navigation to an alternate activity without closing the app:
+Similarly, the SMART app can use the `ui.LaunchActivity` message type to request
+navigation to a different activity *without* closing the app:
 
 ```js
-
-
 appWindow.postMessage({
   "messageId": "<some new guid>",
   "messageType": "ui.launchActivity",
   "payload": {
     "activityType": "problem-add",
     "activityParameters": {
-      // Each ui activity defines its optional+required params
+      // Each ui activity defines its optional and required params.  See the
+      // Activity Catalog for more details.
       "problem": {
         "resourceType": "Condition",
         "patient": "123",
       }
     }
   }
-}, targetOrigin)
+}, targetOrigin);
 ```
 
-The EHR SHALL respond to all `ui` message types with a payload that includes a boolean `success` parameter and an optional `details` string:
+The EHR SHALL respond to all `ui` message types with a payload that includes a
+boolean `success` parameter and an optional `details` string:
 ```js
 {
   "success": true | false,
@@ -304,13 +309,27 @@ The EHR SHALL respond to all `ui` message types with a payload that includes a b
 }
 ```
 
+{::comment}
+
+  Why does the `ui.done` response have totally different properties?  Change this to use HTTP response codes?  If so, the earlier spec would need a `details` property added.
+
+{:/comment}
+
 ### EHR Scratchpad Interactions: `scratchpad.*`
-While interacting with an embedded SMART app, a clinician may make decisions that should be implemented in the EHR with minimal clicks.  SMART Web Messaging exposes an API to the clinician's scratchpad within the EHR, which may contain FHIR resources unavailable on the RESTful FHIR API.  For example, the proposed CDS Hooks decision workflow can be implemented through SMART Web Messaging.  Messages affecting the scratchpad match the pattern `scratchpad.*`.
+While interacting with an embedded SMART app, a clinician may make decisions
+that should be implemented in the EHR with minimal clicks.  SMART Web Messaging
+exposes an API to the clinician's scratchpad within the EHR, which may contain
+FHIR resources unavailable on the [RESTful FHIR API].
+
+For example, the proposed CDS Hooks decision workflow can be implemented through
+SMART Web Messaging.
+
+All messages affecting the scratchpad have a `messageType` matching the pattern
+`scratchpad.*`.
 
 The following example adds a new `ServiceRequest` to the EHR's scratchpad:
 
 ```js
-
 appWindow.postMessage({
   "messageId": "<some new guid>",
   "messageType": "scratchpad.create",
@@ -324,19 +343,20 @@ appWindow.postMessage({
 }, targetOrigin);
 ```
 
-SMART Web Messaging is designed to be compatible with CDS Hooks, and to implement the CDS Hooks decisions flow.  For any CDS Hooks Actions array, you can create a list of SMART Web Messaging API calls:
+SMART Web Messaging is designed to be compatible with CDS Hooks, and to
+implement the CDS Hooks decisions flow.  For any [CDS Hooks Action] array, you
+can create a list of SMART Web Messaging API calls:
 
-* CDS Hooks suggestion type is used to populate the payload's `.messageType`
+* [CDS Hooks Action] `type` is used to populate the response `messageType`
   * `create`→ `scratchpad.create`
   * `update`→ `scratchpad.update`
   * `delete`→ `scratchpad.delete`
-* CDS Hooks suggestion body: used to populate the the payload's `.payload.resource`
+* [CDS Hooks Action] `resource`: used to populate the `payload.resource`
 
-For example, a proposal to update a draft prescription in the context of a CDS Hooks request might look like:
+For example, a proposal to update a draft prescription in the context of a CDS
+Hooks request might look like:
 
 ```js
-
-
 // Update to a better, cheaper alternative prescription
 appWindow.postMessage({
   "messageId": "<some new guid>",
@@ -352,7 +372,10 @@ appWindow.postMessage({
 }, targetOrigin);
 ```
 
-The EHR responds to all `scratchpad` messageTypes with a payload that matches FHIR's [`Bundle.entry.response`](http://hl7.org/fhir/bundle-definitions.html#Bundle.entry.response.location) data model. For instance the response to a `scratchpad.create` that adds a new prescription to the scratchpad (and assigns id `456` to this draft resource) might look like:
+The EHR responds to all `scratchpad` message types with a payload that matches
+FHIR's [`Bundle.entry.response`] data model.  For instance, the response to a
+`scratchpad.create` that adds a new prescription to the scratchpad (and assigns
+id `456` to this draft resource) might look like:
 
 ```js
 clientAppWindow.postMessage({
@@ -366,20 +389,28 @@ clientAppWindow.postMessage({
 ```
 
 ### Authorization with SMART Scopes
-SMART Web Messaging enables capabilities that can be authorized via [OAuth scopes], within the `messaging/` category.  Authorization is at the level of message groups (e.g., `messaging/ui`) rather than specific messages (e.g., `launchActivity`).  For example, a SMART app that performs dosage adjustments to in-progress orders might request the following scopes:
+SMART Web Messaging enables capabilities that can be authorized via
+[OAuth scopes], within the `messaging/` category.  Authorization is at the level
+of message groups (e.g., `messaging/ui`) rather than specific messages (e.g.,
+`launchActivity`).  For example, a SMART app that performs dosage adjustments to
+in-progress orders might request the following scopes:
 
 * `patient/MedicationRequest.read`: enable access to existing prescribed medications
 * `messaging/scratchpad`: enable access to draft orders (including meds) on the EHR scratchpad
 * `messaging/ui`: enable access to EHR navigation (e.g., to signal when the app is "done")
 
-At the time of launch, the app receives a `smart_web_messaging_handle` alongside the [OAuth] `access_token`. This
-`smart_web_messaging_handle` is used to correlate `postMessage` requests back with the authorization context.  We define this
-as a distinct parameter from the access token itself because in many app architectures, the access token will
-only live server-side, and the `smart_web_messaging_handle` is explicitly designed to be safely pushed up to
-the browser environment.  (It confers limited permissions, entirely focued on the Web Messaging interactions
-without enabling full REST API access.)  A server MAY restrict the use of a single `smart_web_messaging_handle`
-to requests from a single app window, and SHOULD apply logic to expire the handle when appropriate (e.g.,
-the server might expire the handle when the user session ends).
+At the time of launch, the app receives a `smart_web_messaging_handle` alongside
+the [OAuth] `access_token`.  This `smart_web_messaging_handle` is used to
+correlate `postMessage` requests to the authorization context.  We define this
+as a distinct parameter from the access token itself because in many app
+architectures, the access token will only live server-side, and the
+`smart_web_messaging_handle` is explicitly designed to be safely pushed up to
+the browser environment.  (It confers limited permissions, and is entirely
+focused on the Web Messaging interactions without enabling full REST API
+access.)  A server MAY restrict the use of a single `smart_web_messaging_handle`
+to requests from a single app window, and SHOULD apply logic to expire the
+handle when appropriate (e.g., the server might expire the handle when the user
+session ends).
 
 *Note on security goals: We include a `smart_web_messaging_handle` in the request to ensure that a SMART app launch has been completed prior to any SMART Web Messaging API calls.  Requiring this parameter is part of a defense-in-depth strategoy to mitigate some cross-site-scripting (XSS) attacks.*
 
@@ -396,7 +427,9 @@ the server might expire the handle when the user session ends).
   aud=https://ehr/fhir
 ```
 
-Following the [OAuth 2.0] handshake, the authorization server returns the authorized SMART launch parameters alongside the `access_token`.  Note the `scope`, `smart_web_messaging_handle`, and `smart_messaging_origin` values:
+Following the [OAuth 2.0] handshake, the authorization server returns the
+authorized SMART launch parameters alongside the `access_token`.  Note the
+`scope`, `smart_web_messaging_handle`, and `smart_messaging_origin` values:
 
 ```json
  {
@@ -413,9 +446,12 @@ Following the [OAuth 2.0] handshake, the authorization server returns the author
 ```
 
 ### Limitations
-The use of web messaging requires the app to be a web application, which is either embedded within an iframe or launched in a new tab/window.
+The use of web messaging requires the app to be a web application, which is
+either embedded within an iframe or launched in a new tab/window.
 
-SMART Web Messaging is not a context synchronization specification (see [FHIRCast]).  Rather, it's a collection of functions available to a web app embedded within an EHR which supports tight workflow integration.
+SMART Web Messaging is not a context synchronization specification (see
+[FHIRCast]).  Rather, it's a collection of functions available to a web app
+embedded within an EHR which supports tight workflow integration.
 
 ### Alternatives considered
 See [Alternatives Considered].
@@ -434,5 +470,5 @@ In the current proposal, we provide infrastructure for servers to correlate Web 
 #### General FHIR API interactions
 In the current proposal, we limit message types to `ui` and `scratchpad` for messages sent from the app to the EHR client.  However, it might be convenient for apps if the SMART Web Messaging standard supported a `fhir` message type, which would signify messages meant to be relayed from the app, through the EHR client to the FHIR server.  We welcome ballot comments that speak to the merits or risks of this capability; based on feedback we will consider introducing  a `fhir.*` message type.
 
-#### Independent maturity models for message types
-FHIRCast and CDS Hooks specify their events (or hooks) in separate specifications, using their own maturity models and lifecycles.  Should the SMART Web Messaging adopt similar patterns for its message types?
+#### Independent maturity models for message types and activities
+FHIRCast and CDS Hooks specify their events (or hooks) in separate specifications, using their own maturity models and lifecycles.  Should the SMART Web Messaging adopt similar patterns for its message types and activities?
