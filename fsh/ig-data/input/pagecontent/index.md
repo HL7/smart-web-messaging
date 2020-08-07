@@ -134,25 +134,7 @@ The EHR SHALL send a response message with the following properties:
 {:.grid}
 
 #### Response Payload
-The response message `payload` properties will vary based on the request `messageType`, but all message types will have at least these parameters in common:
-
-| Property              | Optionality  | Type   | Description |
-| --------------------- | ------------ | ------ | ----------- |
-| `status`              | REQUIRED     | string | An HTTP response code (i.e. "200 OK"). |
-| `outcome`             | OPTIONAL     | object | The result of a request message.       |
-{:.grid}
-
-{::comment}
-
-  Would it be helpful to specify a subset of the HTTP response codes that should be expected to be used?  There are *lots* of codes in the HTTP spec, and many of them won't make sense in typical EHR <-> app situations (i.e. 418: I am a teapot or 420: enhance your calm).
-
-  I wonder if this HTTP code idea is not restrictive *enough*, enabling its use to become a kind of false cognate in certain situations.  Like, would developers be tempted to use 3xx status codes for ui.launchActivity responses?  To me, that doesn't feel right but I could totally see it happening.
-
-  If we're only ever expecting to see HTTP 200, 500, and 400 (and maybe 404) - why not just codify the cases as 0, 1, 2, etc?  Or (better?) "Success", "InternalError", "BadRequest", etc.
-
-  See: https://github.com/HL7/smart-web-messaging/issues/19
-
-{:/comment}
+The response message `payload` properties will vary based on the request `messageType`. See message types below for details.
 
 #### Response Target Origin
 It is assumed that the EHR already knows the proper `targetOrigin` to use in its
@@ -229,29 +211,48 @@ needed, this can be accomplished by having the server send "unsolicited"
 messages, i.e., messages with no `responseToMessageId`, after a client's initial
 request.
 
-### Influence the EHR UI: `ui.*`
+### Influence the EHR UI: `ui.*` messageType
 An embedded SMART app may improve the clinician's user experience by attempting
 to close itself when appropriate, or by requesting the EHR automatically
 navigate the user to an appropriate 'next' activity.  Messages that affect the
 EHR UI will have a `messageType` that matches the pattern `ui.*`.
 
-The `ui` category includes messages: `launchActivity` and `done`.
-
-A `ui.*` message may also contain an OPTIONAL `activityType` property.  These
-named activity types are drawn from the SMART Web Messaging [Activity Catalog].
-In general, these activities follow the same naming conventions as entries in
-the CDS Hooks catalog (`noun-verb`), and will align with CDS Hooks catalog
-entries where feasible.
-
-The `activityType` property indicates the navigation target the EHR should go to
-after the ui message has been handled.  An activity may specify additional
-parameters that can be included in the call as additional properties.
-
-All `ui.done` messages MAY include an `activityType` such as `problem-add` or
-`order-sign`.  All `ui.launchActivity` messages SHALL include an `activityType`.
+The `ui` category includes messages: `ui.done` and `ui.launchActivity`.
 
 The `ui.done` message type signals the EHR to close the activity hosting the
 SMART app, and optionally navigates the user to a 'next' activity.
+
+The `ui.launchActivity` message type signals the EHR to navigate the user to another
+activity without closing the SMART app.
+
+
+#### Request payload for `ui.done` and `ui.launchActivity`
+
+| Property              | Optionality  | Type   | Description |
+| --------------------- | ------------ | ------ | ----------- |
+| `activityType`        | CONDITIONAL  | string | REQUIRED for `ui.launchActivity`, optional for `ui.done`. Navigation hint; see description below. |
+| `activityParameters`  | CONDITIONAL  | object | REQUIRED for `ui.launchActivity`, optional for `ui.done`. Navigation hint; see description below. |
+{:.grid}
+
+#### Response payload for `ui.done` and `ui.launchActivity`
+
+| Property              | Optionality  | Type   | Description |
+| --------------------- | ------------ | ------ | ----------- |
+| `success`        | REQUIRED  | boolean | `true` if the request has been accepted; `false` if it has been rejected. |
+| `details`        | OPTIONAL  | string | A human readable string explaining the outcome. |
+{:.grid}
+
+
+The `activityType` property conveys an activity type drawn from the SMART Web
+Messaging [Activity Catalog]. In general, these activities follow the same naming
+conventions as entries inthe CDS Hooks catalog (`noun-verb`), and will align with
+CDS Hooks catalog entries where feasible. The `activityType` property conveys a 
+navigation target such as `problem-add` or `order-sign`, indicating where EHR should
+go to after the ui message has been handled. An activity may specify additional parameters
+that can be included in the call as additional properties. 
+
+The `activityParameters` property conveys parameters specific to an activity type. See the
+SMART Web Messaging [Activity Catalog] for details.
 
 *Note:* A SMART app launched in the context of CDS Hooks should generally not
 need to specify an `activityType` or `activityParameters` with the `ui.done`
@@ -303,19 +304,18 @@ appWindow.postMessage({
 The EHR SHALL respond to all `ui` message types with a payload that includes a
 boolean `success` parameter and an optional `details` string:
 ```js
-{
-  "success": true | false,
-  "details": "string explanation for user (optional)"
-}
+
+clientAppWindow.postMessage({
+  "messageId": "<some new guid>",
+  "responseToMessageId": "<guid from the client's request>",
+  "payload": {
+    "success": true,
+    "details": "string explanation for user (optional)"
+  }
+}, clientAppOrigin);
 ```
 
-{::comment}
-
-  Why does the `ui.done` response have totally different properties?  Change this to use HTTP response codes?  If so, the earlier spec would need a `details` property added.
-
-{:/comment}
-
-### EHR Scratchpad Interactions: `scratchpad.*`
+### EHR Scratchpad Interactions: `scratchpad.*` messageType
 While interacting with an embedded SMART app, a clinician may make decisions
 that should be implemented in the EHR with minimal clicks.  SMART Web Messaging
 exposes an API to the clinician's scratchpad within the EHR, which may contain
@@ -326,6 +326,37 @@ SMART Web Messaging.
 
 All messages affecting the scratchpad have a `messageType` matching the pattern
 `scratchpad.*`.
+
+SMART Web Messaging is designed to be compatible with CDS Hooks, and to
+implement the CDS Hooks decisions flow.  For any [CDS Hooks Action] array, you
+can create a list of SMART Web Messaging API calls:
+
+* [CDS Hooks Action] `type` is used to populate the response `messageType`
+  * `create`→ `scratchpad.create`
+  * `update`→ `scratchpad.update`
+  * `delete`→ `scratchpad.delete`
+* [CDS Hooks Action] `resource`: used to populate the `payload.resource`
+
+#### Request payload for `scratchpad.*`
+
+| Property              | Optionality  | Type   | Description |
+| --------------------- | ------------ | ------ | ----------- |
+| `resource`            | CONDITIONAL  | object | REQUIRED for `scratchpad.create` and `scratchpad.update`. Prohibited for `scratchpad.delete`. Conveys resource content as per CDS Hooks Action's `payload.resource`. |
+{:.grid}
+
+#### Response payload for `scratchpad.*`
+
+The EHR responds to all `scratchpad` message types with a payload that matches
+FHIR's [`Bundle.entry.response`] data model. The table below includes only
+the most commonly used fields; see the FHIR specification for full details.
+
+| Property              | Optionality  | Type   | Description |
+| --------------------- | ------------ | ------ | ----------- |
+| `status`              | REQUIRED     | string | An HTTP response code (i.e. "200 OK").|
+| `location`            | CONDITIONAL  | string | REQUIRED if a new resource has been added to the scratchapd. Conveys a relative resource URL for the new resource.|
+| `outcome`             | OPTIONAL  | object | FHIR OperationOutcome with details if something has gone wrong.|
+{:.grid}
+
 
 The following example adds a new `ServiceRequest` to the EHR's scratchpad:
 
@@ -343,15 +374,6 @@ appWindow.postMessage({
 }, targetOrigin);
 ```
 
-SMART Web Messaging is designed to be compatible with CDS Hooks, and to
-implement the CDS Hooks decisions flow.  For any [CDS Hooks Action] array, you
-can create a list of SMART Web Messaging API calls:
-
-* [CDS Hooks Action] `type` is used to populate the response `messageType`
-  * `create`→ `scratchpad.create`
-  * `update`→ `scratchpad.update`
-  * `delete`→ `scratchpad.delete`
-* [CDS Hooks Action] `resource`: used to populate the `payload.resource`
 
 For example, a proposal to update a draft prescription in the context of a CDS
 Hooks request might look like:
@@ -372,7 +394,7 @@ appWindow.postMessage({
 }, targetOrigin);
 ```
 
-The EHR responds to all `scratchpad` message types with a payload that matches
+As described above, the EHR responds to all `scratchpad` message types with a payload that matches
 FHIR's [`Bundle.entry.response`] data model.  For instance, the response to a
 `scratchpad.create` that adds a new prescription to the scratchpad (and assigns
 id `456` to this draft resource) might look like:
