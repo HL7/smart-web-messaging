@@ -24,19 +24,22 @@
 [FHIR OperationOutcome]: https://www.hl7.org/fhir/operationoutcome.html
 [FHIRCast]: http://fhircast.org
 [HTML5's Web Messaging]: https://www.w3.org/TR/webmessaging
+[`MessageEvent`]: https://www.w3.org/TR/webmessaging/#messageevent
 [OAuth]: https://oauth.net/
 [OAuth 2.0]: https://oauth.net/2/
 [OAuth scopes]: https://oauth.net/2/scope/
+[RESTful FHIR API]: http://hl7.org/fhir/http.html
 [RFC2119]: https://tools.ietf.org/html/rfc2119
 [SMART applications]: http://hl7.org/fhir/smart-app-launch/index.html
+[`window.postMessage`]: https://dev.w3.org/html5/postmsg/publish/LCWD-webmessaging-201103TBD.html#dom-window-postmessage
 
-SMART Web Messaging enables tight UI integration between EHRs and embedded SMART apps via [HTML5's Web Messaging].  SMART Web Messaging allows applications to push unsigned orders, note snippets, risk scores, or UI suggestions directly to the clinician's EHR session.  Built on the browser's javascript `window.postMessage` function, SMART Web Messaging is a simple, native API for health apps embedded within the user's workflow.
+SMART Web Messaging enables tight UI integration between EHRs and embedded SMART apps via [HTML5's Web Messaging].  SMART Web Messaging allows applications to push unsigned orders, note snippets, risk scores, or UI suggestions directly to the clinician's EHR session.  Built on the browser's javascript [`window.postMessage`] function, SMART Web Messaging is a simple, native API for health apps embedded within the user's workflow.
 
 #### Conformance Language
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this specification are to be interpreted as described in [RFC2119].
 
 ### Why
-Clinical workflow systems (such as EHRs) can launch [SMART applications] in many ways: automatically at specific points in the workflow, by user interaction in the UI, or in response to a suggestion from a [CDS Hooks Service](https://cds-hooks.hl7.org/1.0/#cds-hooks-anatomy) - just to name a few.  Once launched, web applications are often embedded within an iframe of the main UI.  In this model, the new application appears in close proximity to a patient's chart and can work with the EHR via [RESTful FHIR APIs](http://hl7.org/fhir/http.html).  These RESTful APIs are great for [CRUD](https://en.wikipedia.org/wiki/Create,_read,_update_and_delete) operations on a database, but they don't enable tight workflow integration or access to draft FHIR resources that may only exist in memory on the EHR client.
+Clinical workflow systems (such as EHRs) can launch [SMART applications] in many ways: automatically at specific points in the workflow, by user interaction in the UI, or in response to a suggestion from a [CDS Hooks Service](https://cds-hooks.hl7.org/1.0/#cds-hooks-anatomy) - just to name a few.  Once launched, web applications are often embedded within an iframe of the main UI.  In this model, the new application appears in close proximity to a patient's chart and can work with the EHR via [RESTful FHIR API].  These RESTful APIs are great for [CRUD](https://en.wikipedia.org/wiki/Create,_read,_update_and_delete) operations on a database, but they don't enable tight workflow integration or access to draft FHIR resources that may only exist in memory on the EHR client.
 
 For these embedded apps, there are some key use cases that SMART and CDS Hooks don't address today:
 
@@ -53,12 +56,17 @@ Additionally, SMART Web Messaging enables other interesting capabilities.  For e
 * Interacting with the EHR's FHIR server through this messaging channel (enabling applications that cannot access the FHIR server directly, e.g. those hosted on the internet).
 
 ### SMART Web Messaging
-SMART Web Messaging builds on [HTML5's Web Messaging] specification, which allows web pages to communicate across domains.  In JavaScript, calls to [`window.postMessage`](https://dev.w3.org/html5/postmsg/publish/LCWD-webmessaging-201103TBD.html#dom-window-postmessage) pass [`MessageEvent`](https://www.w3.org/TR/webmessaging/#messageevent) objects between windows.
+SMART Web Messaging builds on [HTML5's Web Messaging] specification, which
+allows web pages to communicate across domains.  In JavaScript, calls to
+[`window.postMessage`] pass [`MessageEvent`] objects between windows.
 
-A `postMessage`-based messaging approach allows flexible, standards-based integration that works across windows, frames and domains, and should be readily supportable in browser controls for either thin or thick-client EHRs.
+A [`window.postMessage`]-based messaging approach allows flexible,
+standards-based integration that works across windows, frames and domains, and
+should be readily supportable in browser controls for either thin or
+thick-client EHRs.
 
 #### Request Parameters
-For the purposes of SMART Web Messaging, a `window.postMessage` call from an app to an EHR client SHALL contain a JSON message object with the following properties:
+For the purposes of SMART Web Messaging, a [`window.postMessage`] call from an app to an EHR client SHALL contain a JSON message object with the following properties:
 
 | Property          | Optionality  | Type   | Description |
 | ----------------- | ------------ | ------ | ----------- |
@@ -68,7 +76,7 @@ For the purposes of SMART Web Messaging, a `window.postMessage` call from an app
 | `payload`         | REQUIRED     | object | The message content as specified by the `messageType`.  See below. |
 {:.grid}
 
-This message object must be passed to `window.postMessage` using a valid `targetOrigin` parameter.  The EHR provides this value to the app in the initial SMART launch context, in the `smart_messaging_origin` property from the OAuth token.  Applications SHOULD refrain from using `"*"` for the `targetOrigin` parameter for security reasons.
+This message object must be passed to [`window.postMessage`] using a valid `targetOrigin` parameter.  The EHR provides this value to the app in the initial SMART launch context, in the `smart_messaging_origin` property from the OAuth token.  Applications SHOULD refrain from using `"*"` for the `targetOrigin` parameter for security reasons.
 
 {::comment}
 
@@ -140,7 +148,7 @@ The response message `payload` properties will vary based on the request `messag
 
 #### Response Target Origin
 It is assumed that the EHR already knows the proper `targetOrigin` to use in its
-call to `window.postMessage` because it has demonstrated that it can SMART
+call to [`window.postMessage`] because it has demonstrated that it can SMART
 launch the app at a known SMART launch URL.  The SMART launch URL SHALL be
 prefixed with the proper value to use for the app `targetOrigin`, and the launch
 URL SHALL not redirect users to a different origin after launch.
@@ -420,9 +428,9 @@ in-progress orders might request the following scopes:
 
 At the time of launch, the app receives a `smart_web_messaging_handle` alongside
 the [OAuth] `access_token`.  This `smart_web_messaging_handle` is used to
-correlate `postMessage` requests to the authorization context.  We define this
-as a distinct parameter from the access token itself because in many app
-architectures, the access token will only live server-side, and the
+correlate [`window.postMessage`] requests to the authorization context.  We
+define this as a distinct parameter from the access token itself because in many
+app architectures, the access token will only live server-side, and the
 `smart_web_messaging_handle` is explicitly designed to be safely pushed up to
 the browser environment.  (It confers limited permissions, and is entirely
 focused on the Web Messaging interactions without enabling full REST API
