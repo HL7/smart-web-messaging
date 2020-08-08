@@ -162,30 +162,23 @@ window.addEventListener("message", function(event) {
     return;  // Ignore unknown origins.
   }
 
-  const messageType = event.data.messageType;
-
-  // The response payload is modeled after Bundle.entry.response.
-  // See: https://www.hl7.org/fhir/bundle-definitions.html#Bundle.entry.response
-  var location = "Example/123";
-  var status = "200 OK";
-
-  // For errors encountered handling the request, the EHR can add an
-  // OperationOutcome to contain additional information.
-  // See: https://www.hl7.org/fhir/operationoutcome.html
-  var outcome = {};
-
   //
-  // TODO: Handle the message here by using the contents of event.data.
+  // TODO: Handle the message here, using the contents of event.data.
   //
 
   // Send a response back to the app.
   const response = {
     "responseToMessageId": event.data.messageId,
     "messageId": "<some new guid>",
+    // The response payload is modeled after Bundle.entry.response.
+    // See: https://www.hl7.org/fhir/bundle-definitions.html#Bundle.entry.response
     "payload": {
-      "location": location,
-      "outcome": outcome,
-      "status": status,
+      "location": "Example/123",
+      // For errors encountered handling the request, the EHR can add an
+      // OperationOutcome to contain additional information.
+      // See: https://www.hl7.org/fhir/operationoutcome.html
+      "outcome": {},
+      "status": "200 OK",
     }
   };
   event.source.postMessage(response, event.origin);
@@ -312,14 +305,14 @@ The EHR SHALL respond to all `ui` message types with a payload that includes a
 boolean `success` parameter and an optional `details` string:
 
 ```js
-event.source.postMessage({
+clientAppWindow.postMessage({
   "messageId": "<some new guid>",
   "responseToMessageId": "<guid from the client's request>",
   "payload": {
     "success": true,
     "details": "string explanation for user (optional)"
   }
-}, event.origin);
+}, clientAppOrigin);
 ```
 
 ### EHR Scratchpad Interactions: `scratchpad.*` message type
@@ -405,14 +398,14 @@ the response to a `scratchpad.create` that adds a new prescription to the
 scratchpad (and assigns id `456` to this draft resource) might look like:
 
 ```js
-event.source.postMessage({
+clientAppWindow.postMessage({
   "messageId": "<some new guid>",
   "responseToMessageId": "<guid from the client's request>",
   "payload": {
     "status": "200 OK",
     "location": "MedicationRequest/456"
   }
-}, event.origin);
+}, clientAppOrigin);
 ```
 
 ### Authorization with SMART Scopes
