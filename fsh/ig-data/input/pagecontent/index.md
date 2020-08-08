@@ -229,6 +229,7 @@ The `ui.launchActivity` message type signals the EHR to navigate the user to ano
 activity without closing the SMART app.
 
 #### Request payload for `ui.done` and `ui.launchActivity`
+
 | Property             | Optionality | Type   | Description |
 | -------------------- | ----------- | ------ | ----------- |
 | `activityType`       | CONDITIONAL | string | REQUIRED for `ui.launchActivity`, optional for `ui.done`. Navigation hint; see description below. |
@@ -236,6 +237,7 @@ activity without closing the SMART app.
 {:.grid}
 
 #### Response payload for `ui.done` and `ui.launchActivity`
+
 | Property  | Optionality | Type    | Description |
 | --------- | ----------- | ------- | ----------- |
 | `success` | REQUIRED    | boolean | `true` if the request has been accepted; `false` if it has been rejected. |
