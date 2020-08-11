@@ -28,10 +28,10 @@ history:
   current: https://build.fhir.org/ig/HL7/smart-web-messaging/
   0.1.0:
     fhirversion: 4.0.1
-    date: 2020-03-14
-    desc: STU 1 Release
-    path: https://hl7.org/fhir/smart-web-messaging/2020Sep/
-    status: trial-use
+    date: 2020-08-11
+    desc: STU 1 Ballot
+    path: https://hl7.org/fhir/uv/smart-web-messaging/2020Sep/
+    status: ballot
     sequence: STU 1
     current: true
 
