@@ -1,5 +1,5 @@
 id: hl7.fhir.uv.smart-web-messaging
-canonical: https://hl7.org/fhir/smart-web-messaging
+canonical: https://hl7.org/fhir/uv/smart-web-messaging
 version: 0.1.0
 fhirVersion: 4.0.1
 license: Apache-2.0
