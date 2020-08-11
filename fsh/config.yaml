@@ -30,7 +30,7 @@ history:
     fhirversion: 4.0.1
     date: 2020-03-14
     desc: STU 1 Release
-    path: https://hl7.org/fhir/smart-web-messaging/2020Sep
+    path: https://hl7.org/fhir/smart-web-messaging/2020Sep/
     status: trial-use
     sequence: STU 1
     current: true
