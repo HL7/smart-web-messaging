@@ -33,7 +33,7 @@ history:
     path: https://hl7.org/fhir/uv/smart-web-messaging/2020Sep/
     status: ballot
     sequence: STU 1
-    current: true
+    current: false
 
 resources:
   Patient/example:
