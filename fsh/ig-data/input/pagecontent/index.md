@@ -76,7 +76,7 @@ For the purposes of SMART Web Messaging, a [`window.postMessage`] call from an a
 | `payload`         | REQUIRED     | object | The message content as specified by the `messageType`.  See below. |
 {:.grid}
 
-This message object must be passed to [`window.postMessage`] using a valid `targetOrigin` parameter.  The EHR provides this value to the app in the initial SMART launch context, in the `smart_messaging_origin` property from the OAuth token.  Applications SHOULD refrain from using `"*"` for the `targetOrigin` parameter for security reasons.
+This message object MUST be passed to [`window.postMessage`] using a valid `targetOrigin` parameter.  The EHR provides this value to the app in the initial SMART launch context, in the `smart_messaging_origin` property from the OAuth token.  Applications SHOULD refrain from using `"*"` for the `targetOrigin` parameter for security reasons.
 
 {::comment}
 
@@ -151,7 +151,7 @@ It is assumed that the EHR already knows the proper `targetOrigin` to use in its
 call to [`window.postMessage`] because it has demonstrated that it can SMART
 launch the app at a known SMART launch URL.  The SMART launch URL SHALL be
 prefixed with the proper value to use for the app `targetOrigin`, and the launch
-URL SHALL not redirect users to a different origin after launch.
+URL SHALL NOT redirect users to a different origin after launch.
 
 #### Detailed Example Response
 In a more detailed example response, the EHR may send one return message like:
@@ -249,7 +249,7 @@ Messaging [Activity Catalog]. In general, these activities follow the same
 naming conventions as entries in the CDS Hooks catalog (`noun-verb`), and will
 align with CDS Hooks catalog entries where feasible. The `activityType` property
 conveys a navigation target such as `problem-add` or `order-sign`, indicating
-where EHR should go to after the ui message has been handled. An activity may
+where EHR should go to after the ui message has been handled. An activity MAY
 specify additional parameters that can be included in the call as additional
 properties.
 
