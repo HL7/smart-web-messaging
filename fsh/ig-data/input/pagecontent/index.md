@@ -246,7 +246,7 @@ activity without closing the SMART app.
 
 The `activityType` property conveys an activity type drawn from the SMART Web
 Messaging [Activity Catalog]. In general, these activities follow the same
-naming conventions as entries inthe CDS Hooks catalog (`noun-verb`), and will
+naming conventions as entries in the CDS Hooks catalog (`noun-verb`), and will
 align with CDS Hooks catalog entries where feasible. The `activityType` property
 conveys a navigation target such as `problem-add` or `order-sign`, indicating
 where EHR should go to after the ui message has been handled. An activity may
