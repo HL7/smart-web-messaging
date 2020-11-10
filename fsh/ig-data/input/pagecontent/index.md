@@ -23,15 +23,15 @@
 [CDS Hooks Action]: https://cds-hooks.hl7.org/1.0/#action
 [FHIR OperationOutcome]: https://www.hl7.org/fhir/operationoutcome.html
 [FHIRCast]: http://fhircast.org
-[HTML5's Web Messaging]: https://www.w3.org/TR/webmessaging
-[`MessageEvent`]: https://www.w3.org/TR/webmessaging/#messageevent
+[HTML5's Web Messaging]: https://html.spec.whatwg.org/multipage/web-messaging.html
+[`MessageEvent`]: https://html.spec.whatwg.org/multipage/comms.html#messageevent
 [OAuth]: https://oauth.net/
 [OAuth 2.0]: https://oauth.net/2/
 [OAuth scopes]: https://oauth.net/2/scope/
 [RESTful FHIR API]: http://hl7.org/fhir/http.html
 [RFC2119]: https://tools.ietf.org/html/rfc2119
 [SMART applications]: http://hl7.org/fhir/smart-app-launch/index.html
-[`window.postMessage`]: https://dev.w3.org/html5/postmsg/publish/LCWD-webmessaging-201103TBD.html#dom-window-postmessage
+[`window.postMessage`]: https://html.spec.whatwg.org/multipage/web-messaging.html#posting-messages
 
 SMART Web Messaging enables tight UI integration between EHRs and embedded SMART apps via [HTML5's Web Messaging].  SMART Web Messaging allows applications to push unsigned orders, note snippets, risk scores, or UI suggestions directly to the clinician's EHR session.  Built on the browser's javascript [`window.postMessage`] function, SMART Web Messaging is a simple, native API for health apps embedded within the user's workflow.
 
