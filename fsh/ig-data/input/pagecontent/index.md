@@ -76,7 +76,7 @@ For the purposes of SMART Web Messaging, a [`window.postMessage`] call from an a
 | `payload`         | REQUIRED     | object | The message content as specified by the `messageType`.  See below. |
 {:.grid}
 
-This message object MUST be passed to [`window.postMessage`] using a valid `targetOrigin` parameter.  The EHR provides this value to the app in the initial SMART launch context, in the `smart_messaging_origin` property from the OAuth token.  Applications SHOULD refrain from using `"*"` for the `targetOrigin` parameter for security reasons.
+This message object MUST be passed to [`window.postMessage`] using a valid `targetOrigin` parameter.  The EHR MUST provide the `smart_messaging_origin` property to the app in the initial SMART launch context alongside the `access_token`.  Applications SHOULD refrain from using `"*"` for the `targetOrigin` parameter for security reasons.
 
 {::comment}
 
