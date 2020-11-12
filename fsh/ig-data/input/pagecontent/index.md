@@ -282,7 +282,7 @@ targetWindow.postMessage({
 }, targetOrigin);
 ```
 
-Similarly, the SMART app can use the `ui.LaunchActivity` message type to request
+Similarly, the SMART app can use the `ui.launchActivity` message type to request
 navigation to a different activity *without* closing the app:
 
 ```js
