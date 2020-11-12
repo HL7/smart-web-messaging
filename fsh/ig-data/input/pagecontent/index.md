@@ -104,7 +104,7 @@ const targetOrigin = "<smart_messaging_origin> from SMART launch context";
 // The smart_web_messaging_handle is a launch context property also alongside the access_token.
 const message = {
   "messagingHandle": "<smart_web_messaging_handle> from SMART launch context",
-  "messageId":       "<some new guid>",
+  "messageId":       "<some new uid>",
   "messageType":     "scratchpad.create",
   "payload":         {}  // See below.
 };
@@ -169,7 +169,7 @@ window.addEventListener("message", function(event) {
   // Send a response back to the app.
   const response = {
     "responseToMessageId": event.data.messageId,
-    "messageId": "<some new guid>",
+    "messageId": "<some new uid>",
     // The response payload is modeled after Bundle.entry.response.
     // See: https://www.hl7.org/fhir/bundle-definitions.html#Bundle.entry.response
     "payload": {
@@ -266,7 +266,7 @@ An example of a `ui.done` message from an app to the EHR is shown below:
 
 ```js
 targetWindow.postMessage({
-  "messageId": "<some new guid>",
+  "messageId": "<some new uid>",
   "messageType": "ui.done",
   "payload": {
     "activityType": "problem-add",
@@ -287,7 +287,7 @@ navigation to a different activity *without* closing the app:
 
 ```js
 targetWindow.postMessage({
-  "messageId": "<some new guid>",
+  "messageId": "<some new uid>",
   "messageType": "ui.launchActivity",
   "payload": {
     "activityType": "problem-add",
@@ -308,8 +308,8 @@ boolean `success` parameter and an optional `details` string:
 
 ```js
 clientAppWindow.postMessage({
-  "messageId": "<some new guid>",
-  "responseToMessageId": "<guid from the client's request>",
+  "messageId": "<some new uid>",
+  "responseToMessageId": "<uid from the client's request>",
   "payload": {
     "success": true,
     "details": "string explanation for user (optional)"
@@ -363,7 +363,7 @@ The following example adds a new `ServiceRequest` to the EHR's scratchpad:
 
 ```js
 targetWindow.postMessage({
-  "messageId": "<some new guid>",
+  "messageId": "<some new uid>",
   "messageType": "scratchpad.create",
   "payload": {
     "resource": {
@@ -381,7 +381,7 @@ Hooks request might look like:
 ```js
 // Update to a better, cheaper alternative prescription
 targetWindow.postMessage({
-  "messageId": "<some new guid>",
+  "messageId": "<some new uid>",
   "messageType": "scratchpad.update",
   "payload": {
     "resource": {
@@ -401,8 +401,8 @@ scratchpad (and assigns id `456` to this draft resource) might look like:
 
 ```js
 clientAppWindow.postMessage({
-  "messageId": "<some new guid>",
-  "responseToMessageId": "<guid from the client's request>",
+  "messageId": "<some new uid>",
+  "responseToMessageId": "<uid from the client's request>",
   "payload": {
     "status": "200 OK",
     "location": "MedicationRequest/456"
