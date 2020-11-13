@@ -76,11 +76,9 @@ For the purposes of SMART Web Messaging, a [`window.postMessage`] call from an a
 | `payload`         | REQUIRED     | object | The message content as specified by the `messageType`.  See below. |
 {:.grid}
 
-This message object MUST be passed to [`window.postMessage`] using a valid `targetOrigin` parameter.  The EHR MUST provide the `smart_messaging_origin` property to the app in the initial SMART launch context alongside the `access_token`.  Applications SHOULD refrain from using `"*"` for the `targetOrigin` parameter for security reasons.
+This message object MUST be passed to [`window.postMessage`] using a valid `targetOrigin` parameter.  The EHR MUST provide the `smart_messaging_origin` property to the app in the initial SMART launch context alongside the `access_token`.  Applications SHOULD NOT use `"*"` for the `targetOrigin` parameter for [security reasons](https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage#Security_concerns).
 
 {::comment}
-
-  TODO: add a footnote here, or link to an explanation of the reasons for not using "*" as the targetOrigin.
 
   TODO: include an example of using the SMART app launch client here, and extracting the smart_messaging_origin from the launch context.  Link to the javascript FHIR client?
   See: https://github.com/HL7/smart-web-messaging/issues/18
