@@ -430,9 +430,9 @@ app architectures, the access token will only live server-side, and the
 the browser environment.  (It confers limited permissions, and is entirely
 focused on the Web Messaging interactions without enabling full REST API
 access.)  A server MAY restrict the use of a single `smart_web_messaging_handle`
-to requests from a single app window, and SHOULD apply logic to expire the
-handle when appropriate (e.g., the server might expire the handle when the user
-session ends).
+to requests from a single app window, and SHOULD apply logic to invalidate the
+handle when appropriate (e.g., the server might invalidate the handle when the
+user session ends).
 
 *Note on security goals: We include a `smart_web_messaging_handle` in the request to ensure that a SMART app launch has been completed prior to any SMART Web Messaging API calls.  Requiring this parameter is part of a defense-in-depth strategoy to mitigate some cross-site-scripting (XSS) attacks.*
 
