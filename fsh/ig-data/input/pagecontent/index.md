@@ -23,15 +23,15 @@
 [CDS Hooks Action]: https://cds-hooks.hl7.org/1.0/#action
 [FHIR OperationOutcome]: https://www.hl7.org/fhir/operationoutcome.html
 [FHIRCast]: http://fhircast.org
-[HTML5's Web Messaging]: https://www.w3.org/TR/webmessaging
-[`MessageEvent`]: https://www.w3.org/TR/webmessaging/#messageevent
+[HTML5's Web Messaging]: https://html.spec.whatwg.org/multipage/web-messaging.html
+[`MessageEvent`]: https://html.spec.whatwg.org/multipage/comms.html#messageevent
 [OAuth]: https://oauth.net/
 [OAuth 2.0]: https://oauth.net/2/
 [OAuth scopes]: https://oauth.net/2/scope/
 [RESTful FHIR API]: http://hl7.org/fhir/http.html
 [RFC2119]: https://tools.ietf.org/html/rfc2119
 [SMART applications]: http://hl7.org/fhir/smart-app-launch/index.html
-[`window.postMessage`]: https://dev.w3.org/html5/postmsg/publish/LCWD-webmessaging-201103TBD.html#dom-window-postmessage
+[`window.postMessage`]: https://html.spec.whatwg.org/multipage/web-messaging.html#posting-messages
 
 SMART Web Messaging enables tight UI integration between EHRs and embedded SMART apps via [HTML5's Web Messaging].  SMART Web Messaging allows applications to push unsigned orders, note snippets, risk scores, or UI suggestions directly to the clinician's EHR session.  Built on the browser's javascript [`window.postMessage`] function, SMART Web Messaging is a simple, native API for health apps embedded within the user's workflow.
 
@@ -39,7 +39,7 @@ SMART Web Messaging enables tight UI integration between EHRs and embedded SMART
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this specification are to be interpreted as described in [RFC2119].
 
 ### Why
-Clinical workflow systems (such as EHRs) can launch [SMART applications] in many ways: automatically at specific points in the workflow, by user interaction in the UI, or in response to a suggestion from a [CDS Hooks Service](https://cds-hooks.hl7.org/1.0/#cds-hooks-anatomy) - just to name a few.  Once launched, web applications are often embedded within an iframe of the main UI.  In this model, the new application appears in close proximity to a patient's chart and can work with the EHR via [RESTful FHIR API].  These RESTful APIs are great for [CRUD](https://en.wikipedia.org/wiki/Create,_read,_update_and_delete) operations on a database, but they don't enable tight workflow integration or access to draft FHIR resources that may only exist in memory on the EHR client.
+Clinical workflow systems (such as EHRs) can launch [SMART applications] in many ways: automatically at specific points in the workflow, by user interaction in the UI, or in response to a suggestion from a [CDS Hooks Service](https://cds-hooks.hl7.org/1.0/#cds-hooks-anatomy) - just to name a few.  Once launched, web applications are often embedded within an iframe of the main UI.  In this model, the new application appears in close proximity to a patient's chart and can work with the EHR via [RESTful FHIR API].  These RESTful APIs are great for [CRUD](https://en.wikipedia.org/wiki/Create,_read,_update_and_delete) operations on a logical FHIR Server endpoint, but they don't enable tight workflow integration or access to draft FHIR resources that may only exist in memory on the EHR client.
 
 For these embedded apps, there are some key use cases that SMART and CDS Hooks don't address today:
 
@@ -76,11 +76,9 @@ For the purposes of SMART Web Messaging, a [`window.postMessage`] call from an a
 | `payload`         | REQUIRED     | object | The message content as specified by the `messageType`.  See below. |
 {:.grid}
 
-This message object MUST be passed to [`window.postMessage`] using a valid `targetOrigin` parameter.  The EHR provides this value to the app in the initial SMART launch context, in the `smart_messaging_origin` property from the OAuth token.  Applications SHOULD refrain from using `"*"` for the `targetOrigin` parameter for security reasons.
+This message object MUST be passed to [`window.postMessage`] using a valid `targetOrigin` parameter.  The EHR MUST provide the `smart_messaging_origin` property to the app in the initial SMART launch context alongside the `access_token`.  Applications SHOULD NOT use `"*"` for the `targetOrigin` parameter for [security reasons](https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage#Security_concerns).
 
 {::comment}
-
-  TODO: add a footnote here, or link to an explanation of the reasons for not using "*" as the targetOrigin.
 
   TODO: include an example of using the SMART app launch client here, and extracting the smart_messaging_origin from the launch context.  Link to the javascript FHIR client?
   See: https://github.com/HL7/smart-web-messaging/issues/18
@@ -104,7 +102,7 @@ const targetOrigin = "<smart_messaging_origin> from SMART launch context";
 // The smart_web_messaging_handle is a launch context property also alongside the access_token.
 const message = {
   "messagingHandle": "<smart_web_messaging_handle> from SMART launch context",
-  "messageId":       "<some new guid>",
+  "messageId":       "<some new uid>",
   "messageType":     "scratchpad.create",
   "payload":         {}  // See below.
 };
@@ -169,7 +167,7 @@ window.addEventListener("message", function(event) {
   // Send a response back to the app.
   const response = {
     "responseToMessageId": event.data.messageId,
-    "messageId": "<some new guid>",
+    "messageId": "<some new uid>",
     // The response payload is modeled after Bundle.entry.response.
     // See: https://www.hl7.org/fhir/bundle-definitions.html#Bundle.entry.response
     "payload": {
@@ -266,7 +264,7 @@ An example of a `ui.done` message from an app to the EHR is shown below:
 
 ```js
 targetWindow.postMessage({
-  "messageId": "<some new guid>",
+  "messageId": "<some new uid>",
   "messageType": "ui.done",
   "payload": {
     "activityType": "problem-add",
@@ -282,12 +280,12 @@ targetWindow.postMessage({
 }, targetOrigin);
 ```
 
-Similarly, the SMART app can use the `ui.LaunchActivity` message type to request
+Similarly, the SMART app can use the `ui.launchActivity` message type to request
 navigation to a different activity *without* closing the app:
 
 ```js
 targetWindow.postMessage({
-  "messageId": "<some new guid>",
+  "messageId": "<some new uid>",
   "messageType": "ui.launchActivity",
   "payload": {
     "activityType": "problem-add",
@@ -308,8 +306,8 @@ boolean `success` parameter and an optional `details` string:
 
 ```js
 clientAppWindow.postMessage({
-  "messageId": "<some new guid>",
-  "responseToMessageId": "<guid from the client's request>",
+  "messageId": "<some new uid>",
+  "responseToMessageId": "<uid from the client's request>",
   "payload": {
     "success": true,
     "details": "string explanation for user (optional)"
@@ -363,7 +361,7 @@ The following example adds a new `ServiceRequest` to the EHR's scratchpad:
 
 ```js
 targetWindow.postMessage({
-  "messageId": "<some new guid>",
+  "messageId": "<some new uid>",
   "messageType": "scratchpad.create",
   "payload": {
     "resource": {
@@ -381,7 +379,7 @@ Hooks request might look like:
 ```js
 // Update to a better, cheaper alternative prescription
 targetWindow.postMessage({
-  "messageId": "<some new guid>",
+  "messageId": "<some new uid>",
   "messageType": "scratchpad.update",
   "payload": {
     "resource": {
@@ -401,8 +399,8 @@ scratchpad (and assigns id `456` to this draft resource) might look like:
 
 ```js
 clientAppWindow.postMessage({
-  "messageId": "<some new guid>",
-  "responseToMessageId": "<guid from the client's request>",
+  "messageId": "<some new uid>",
+  "responseToMessageId": "<uid from the client's request>",
   "payload": {
     "status": "200 OK",
     "location": "MedicationRequest/456"
