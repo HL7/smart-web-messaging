@@ -187,7 +187,7 @@ this example.
 
 ```js
 window.addEventListener("message", function(event) {
-  if (event.origin != "<the app's origin>") {
+  if (event.origin != "<the EHR's origin>") {
     return;  // Ignore unknown origins.
   }
 
