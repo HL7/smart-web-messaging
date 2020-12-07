@@ -202,14 +202,26 @@ window.addEventListener("message", function(event) {
 ```
 
 #### Workflow Summary
-This mechanism enables a full request/response pattern.
+This mechanism enables a full request/response pattern, and all activities defined in the
+[Activity Catalog] follow this pattern.
+
+NOTE: A broadcast-type pattern which involves notification messages without an initial request
+message is currently out of scope, even though it could be implemented with SMART Web Messaging
+technology.
 
 ##### Unsolicited Responses
-Applications SHOULD be prepared to see, at most, one incoming message with a
-given `responseToMessageId`.  If multiple response messages (e.g., streams) are
-needed, this can be accomplished by having the server send "unsolicited"
-messages, i.e., messages with no `responseToMessageId`, after a client's initial
-request.
+Applications SHALL be capable of receiving at least one response to an initial message, and MAY be
+capable of receiving more than one responses to an initial message.  All response messages will
+contain a populated `responseToMessageId` field, which correlates to an initial `messageId` field
+sent in a request message.
+
+Refer to the [Activity Catalog] to determine if multiple responses are required for a given
+activity type.
+
+NOTE: Activities that result in multiple response messages have not yet been defined.
+For now, applications MAY expect a single response for any request.  As the [Activity Catalog]
+matures to include activities which require multiple responses, appropriate standards will be
+defined.
 
 ### Influence the EHR UI: `ui.*` message type
 An embedded SMART app may improve the clinician's user experience by attempting
