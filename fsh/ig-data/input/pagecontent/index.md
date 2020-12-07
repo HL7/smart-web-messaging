@@ -209,7 +209,7 @@ NOTE: A broadcast-type pattern which involves notification messages without an i
 message is currently out of scope, even though it could be implemented with SMART Web Messaging
 technology.
 
-##### Unsolicited Responses
+##### Request Responses
 Applications SHALL be capable of receiving at least one response to an initial message, and MAY be
 capable of receiving more than one responses to an initial message.  All response messages will
 contain a populated `responseToMessageId` field, which correlates to an initial `messageId` field
