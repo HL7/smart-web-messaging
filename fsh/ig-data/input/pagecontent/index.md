@@ -341,6 +341,7 @@ can create a list of SMART Web Messaging API calls:
 | Property              | Optionality  | Type   | Description |
 | --------------------- | ------------ | ------ | ----------- |
 | `resource`            | CONDITIONAL  | object | REQUIRED for `scratchpad.create` and `scratchpad.update`. Prohibited for `scratchpad.delete`.  Conveys resource content as per CDS Hooks Action's `payload.resource`. |
+| `location`            | CONDITIONAL  | string | REQUIRED for `scratchpad.delete` and `scratchpad.update`.  Prohibited for `scratchpad.create`. |
 {:.grid}
 
 #### Response payload for `scratchpad.*`
@@ -405,6 +406,18 @@ clientAppWindow.postMessage({
     "location": "MedicationRequest/456"
   }
 }, clientAppOrigin);
+```
+
+To delete `MedicationRequest/456` from the EHR's scratchpad, the client would issue this message:
+
+```js
+targetWindow.postMessage({
+  "messageId": "<some new uid>",
+  "messageType": "scratchpad.delete",
+  "payload": {
+    "location": "MedicationRequest/456"
+  }
+}, targetOrigin);
 ```
 
 ### Authorization with SMART Scopes
