@@ -62,7 +62,7 @@ allows web pages to communicate across domains.  In JavaScript, calls to
 
 A [`window.postMessage`]-based messaging approach allows flexible,
 standards-based integration that works across windows, frames and domains, and
-should be readily supportable in browser controls for any HTML5-capable browser-based EHR.
+should be readily supportable in browser controls for any EHR capable of embedding a web application.
 
 #### Request Parameters
 For the purposes of SMART Web Messaging, a [`window.postMessage`] call from an app to an EHR client SHALL contain a JSON message object with the following properties:
