@@ -341,7 +341,7 @@ can create a list of SMART Web Messaging API calls:
 | Property              | Optionality  | Type   | Description |
 | --------------------- | ------------ | ------ | ----------- |
 | `resource`            | CONDITIONAL  | object | REQUIRED for `scratchpad.create` and `scratchpad.update`. Prohibited for `scratchpad.delete`.  Conveys resource content as per CDS Hooks Action's `payload.resource`. |
-| `location`            | CONDITIONAL  | string | REQUIRED for `scratchpad.delete` and `scratchpad.update`.  Prohibited for `scratchpad.create`. |
+| `location`            | CONDITIONAL  | string | REQUIRED for `scratchpad.delete` and `scratchpad.update`.  Prohibited for `scratchpad.create`. When used for updates, the id in the `location` value SHALL match the id in the supplied resource. |
 {:.grid}
 
 #### Response payload for `scratchpad.*`
