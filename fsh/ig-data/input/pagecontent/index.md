@@ -382,6 +382,7 @@ targetWindow.postMessage({
   "messageId": "<some new uid>",
   "messageType": "scratchpad.update",
   "payload": {
+    "location": "MedicationRequest/123",
     "resource": {
       "resourceType": "MedicationRequest",
       "id": "123",
