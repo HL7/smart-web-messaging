@@ -220,10 +220,20 @@ EHR UI will have a `messageType` that matches the pattern `ui.*`.
 The `ui` category includes messages: `ui.done` and `ui.launchActivity`.
 
 The `ui.done` message type signals the EHR to close the activity hosting the
-SMART app, and optionally navigates the user to a 'next' activity.
+SMART app, and optionally provides a hint to the EHR which can be used to inform
+further actions or navigations to EHR activities.
 
 The `ui.launchActivity` message type signals the EHR to navigate the user to another
 activity without closing the SMART app.
+
+Here are some helpful, guiding principles for the intended use of `launchActivity`.
+  * `launchActivity` doesn't modify EHR data itself, but it *can* hint the EHR to
+    navigate the user to a place in the EHR workflow where the *user* could modify
+    EHR data.
+  * Data can be passed from the app to the EHR as hints, within the `launchActivity`
+    payload.
+  * For supported resource types, it's better to pass in a scratchpad resource ID
+    rather than duplicating resource content when providing a hint to `launchActivity`.
 
 #### Request payload for `ui.done` and `ui.launchActivity`
 
@@ -245,7 +255,7 @@ The `activityType` property conveys an activity type drawn from the SMART Web
 Messaging [Activity Catalog]. In general, these activities follow the same
 naming conventions as entries in the CDS Hooks catalog (`noun-verb`), and will
 align with CDS Hooks catalog entries where feasible. The `activityType` property
-conveys a navigation target such as `problem-add` or `order-sign`, indicating
+conveys a navigation target such as `problem-review` or `order-review`, indicating
 where EHR should go to after the ui message has been handled. An activity MAY
 specify additional parameters that can be included in the call as additional
 properties.
@@ -266,14 +276,11 @@ targetWindow.postMessage({
   "messageId": "<some new uid>",
   "messageType": "ui.done",
   "payload": {
-    "activityType": "problem-add",
+    "activityType": "problem-review",
     "activityParameters": {
       // Each ui activity defines its optional and required params.  See the
       // Activity Catalog for more details.
-      "problem": {
-        "resourceType": "Condition",
-        "patient": "123",
-      }
+      "problemLocation": "Condition/123"
     }
   }
 }, targetOrigin);
@@ -287,14 +294,11 @@ targetWindow.postMessage({
   "messageId": "<some new uid>",
   "messageType": "ui.launchActivity",
   "payload": {
-    "activityType": "problem-add",
+    "activityType": "problem-review",
     "activityParameters": {
       // Each ui activity defines its optional and required params.  See the
       // Activity Catalog for more details.
-      "problem": {
-        "resourceType": "Condition",
-        "patient": "123",
-      }
+      "problemLocation": "Condition/123"
     }
   }
 }, targetOrigin);
