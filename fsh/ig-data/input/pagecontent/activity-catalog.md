@@ -54,5 +54,5 @@ Allow the EHR user to add a new problem to the patieint's problem list.
 ### Parameters
 | Name              | Optionality | Description |
 | ----------------- | ----------- | ----------- |
-| `problemLocation` | REQUIRED    | [FHIR Condition] resource reference to a pre-existing resource that is used by the EHR to pre-populate the data entry screen presented to the user. |
+| `problemLocation` | REQUIRED    | Reference to a pre-existing [FHIR Condition] resource which is used by the EHR to pre-populate the data entry screen presented to the user. |
 {:.grid}
