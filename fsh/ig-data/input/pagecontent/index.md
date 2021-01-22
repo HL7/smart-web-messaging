@@ -280,10 +280,7 @@ targetWindow.postMessage({
     "activityParameters": {
       // Each ui activity defines its optional and required params.  See the
       // Activity Catalog for more details.
-      "problem": {
-        "resourceType": "Condition",
-        "patient": "123",
-      }
+      "problemLocation": "Condition/123"
     }
   }
 }, targetOrigin);
@@ -301,10 +298,7 @@ targetWindow.postMessage({
     "activityParameters": {
       // Each ui activity defines its optional and required params.  See the
       // Activity Catalog for more details.
-      "problem": {
-        "resourceType": "Condition",
-        "patient": "123",
-      }
+      "problemLocation": "Condition/123"
     }
   }
 }, targetOrigin);
