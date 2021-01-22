@@ -22,9 +22,37 @@ Standardized activities follow the same naming convention as CDS Hooks, with
 `noun-verb` form. In addition to following the same naming convention, we'll
 align with the actual names of existing CDS Hooks activities where feasible.
 
-| Activity Name      | Description | Parameters |
-| ------------------ | ----------- | ---------- |
-| `appointment-book` | See [CDS Hooks `appointment-book`]                | `appointments`: [FHIR Bundle] of [FHIR Appointment] resources in draft status, and any other supporting data. |
-| `order-sign`       | See [CDS Hooks `order-sign`]                      | `draftOrders`: array of draft orders to include in the scratchpad. (Note that for more fine-grained control, an app may query/create/update orders using the `scratchpad.*` SMART Web Messaging API before navigating to this activity.  In this case, the `draftOrders` array may be omitted fom the activity parameters.) |
-| `problem-add`      | Add a new problem to the patieint's problem list. | `problem`: [FHIR Condition] resource, to pre-populate the data entry screen. |
+### Conformance Language
+The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD",
+"SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this specification are to
+be interpreted as described in RFC2119.
+
+
+## `appointment-book`
+See [CDS Hooks `appointment-book`]
+
+### Parameters
+| Name                   | Optionality | Description |
+| ---------------------- | ----------- | ----------- |
+| `appointmentLocations` | REQUIRED    | [FHIR Bundle] of [FHIR Appointment] resource locations in draft status, and any other supporting data. |
+{:.grid}
+
+
+## `order-review`
+See [CDS Hooks `order-sign`] for a similar operation.
+
+### Parameters
+| Name                  | Optionality | Description |
+| --------------------- | ----------- | ----------- |
+| `draftOrderLocations` | REQUIRED    | array of draft order locations (references to) already existing in the scratchpad. See the `scratchpad.*` operations. |
+{:.grid}
+
+
+## `problem-review`
+Allow the EHR user to add a new problem to the patieint's problem list.
+
+### Parameters
+| Name              | Optionality | Description |
+| ----------------- | ----------- | ----------- |
+| `problemLocation` | REQUIRED    | [FHIR Condition] resource reference to a pre-existing resource that is used by the EHR to pre-populate the data entry screen presented to the user. |
 {:.grid}
