@@ -144,11 +144,11 @@ In addition to sending Web Messaging Responses to the app, the EHR MAY also send
 The response message `payload` properties will vary based on the request `messageType`.  See message types below for details.
 
 #### Response Target Origin
-It is assumed that the EHR already knows the proper `targetOrigin` to use in its
-call to [`window.postMessage`] because it has demonstrated that it can SMART
-launch the app at a known SMART launch URL.  The SMART launch URL SHALL be
-prefixed with the proper value to use for the app `targetOrigin`, and the launch
-URL SHALL NOT redirect users to a different origin after launch.
+It is assumed that the EHR already knows the set of allowed web origins for each
+app, to be used in Web Messaging.  After launching an app, EHR SHOULD NOT process
+Web Messages originating from an origin outside this set.  If the app navigates
+users to an origin outside of this set, it SHOULD NOT depend on Web Messages
+reaching the EHR.
 
 #### Detailed Example Response
 In a more detailed example response, the EHR may send one return message like:
