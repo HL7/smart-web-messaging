@@ -93,7 +93,7 @@ discover what capabilities the container supports.
 Either an app, or the EHR, MAY initiate an OPTIONAL handshake message sequence,
 using the value `status.handshake` as the value for the `messageType` and an
 empty object for the `payload`.  The receiver of a handshake request message
-SHOULD respond with an appropriate handshake response message, and may provide
+SHOULD respond with an appropriate handshake response message, and MAY provide
 an OPTIONAL `error` [FHIR Coding] parameter.
 
 Extensions MAY be used for handshake requests and responses, and MAY be used to
