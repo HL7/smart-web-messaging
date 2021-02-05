@@ -239,8 +239,8 @@ Here are some helpful, guiding principles for the intended use of `launchActivit
 
 | Property             | Optionality | Type   | Description |
 | -------------------- | ----------- | ------ | ----------- |
-| `activityType`       | CONDITIONAL | string | REQUIRED for `ui.launchActivity`, optional for `ui.done`. Navigation hint; see description below. |
-| `activityParameters` | CONDITIONAL | object | REQUIRED for `ui.launchActivity`, optional for `ui.done`. Navigation hint; see description below. |
+| `activityType`       | REQUIRED for `ui.launchActivity`, OPTIONAL for `ui.done` | string | Navigation hint; see description below. |
+| `activityParameters` | REQUIRED for `ui.launchActivity`, OPTIONAL for `ui.done` | object | Navigation hint; see description below. |
 {:.grid}
 
 #### Response payload for `ui.done` and `ui.launchActivity`
@@ -344,8 +344,8 @@ can create a list of SMART Web Messaging API calls:
 
 | Property              | Optionality  | Type   | Description |
 | --------------------- | ------------ | ------ | ----------- |
-| `resource`            | CONDITIONAL  | object | REQUIRED for `scratchpad.create` and `scratchpad.update`. Prohibited for `scratchpad.delete`.  Conveys resource content as per CDS Hooks Action's `payload.resource`. |
-| `location`            | CONDITIONAL  | string | REQUIRED for `scratchpad.delete` and `scratchpad.update`.  Prohibited for `scratchpad.create`. When used for updates, the id in the `location` value SHALL match the id in the supplied resource. |
+| `resource`            | REQUIRED for `scratchpad.create` and `scratchpad.update`, PROHIBITED for `scratchpad.delete`  | object | Conveys resource content as per CDS Hooks Action's `payload.resource`. |
+| `location`            | REQUIRED for `scratchpad.delete` and `scratchpad.update`,  PROHIBITED for `scratchpad.create`  | string | When used for updates, the id in the `location` value SHALL match the id in the supplied resource. |
 {:.grid}
 
 #### Response payload for `scratchpad.*`
@@ -357,7 +357,7 @@ the most commonly used fields; see the FHIR specification for full details.
 | Property              | Optionality | Type   | Description |
 | --------------------- | ----------- | ------ | ----------- |
 | `status`              | REQUIRED    | string | An HTTP response code (i.e. "200 OK"). |
-| `location`            | CONDITIONAL | string | REQUIRED if a new resource has been added to the scratchapd. Conveys a relative resource URL for the new resource. |
+| `location`            | REQUIRED if a new resource has been added to the scratchapd. | string | Conveys a relative resource URL for the new resource. |
 | `outcome`             | OPTIONAL    | object | [FHIR OperationOutcome] with details if something has gone wrong. |
 {:.grid}
 
