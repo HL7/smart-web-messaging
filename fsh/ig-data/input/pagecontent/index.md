@@ -87,8 +87,8 @@ This message object MUST be passed to [`window.postMessage`] using a valid `targ
 
 ##### Handshake
 The purpose of the handshake is to allow apps and EHRs to determine, just after
-launch time, if web messaging is enabled in the container; and possibly to
-discover what capabilities the container supports.
+launch time, if web messaging is enabled in the other; and possibly to discover
+what capabilities the other supports.
 
 Either an app, or the EHR, MAY initiate an OPTIONAL handshake message sequence,
 using the value `status.handshake` as the value for the `messageType` and an
