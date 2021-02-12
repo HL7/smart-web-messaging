@@ -243,14 +243,6 @@ Here are some helpful, guiding principles for the intended use of `launchActivit
 | `activityParameters` | REQUIRED for `ui.launchActivity`, OPTIONAL for `ui.done` | object | Navigation hint; see description below. |
 {:.grid}
 
-#### Response payload for `ui.done` and `ui.launchActivity`
-
-| Property  | Optionality | Type    | Description |
-| --------- | ----------- | ------- | ----------- |
-| `success` | REQUIRED    | boolean | `true` if the request has been accepted; `false` if it has been rejected. |
-| `details` | OPTIONAL    | string  | A human readable explanation of the outcome. |
-{:.grid}
-
 The `activityType` property conveys an activity type drawn from the SMART Web
 Messaging [Activity Catalog]. In general, these activities follow the same
 naming conventions as entries in the CDS Hooks catalog (`noun-verb`), and will
@@ -304,6 +296,14 @@ targetWindow.postMessage({
 }, targetOrigin);
 ```
 
+#### Response payload for `ui.done` and `ui.launchActivity`
+
+| Property  | Optionality | Type    | Description |
+| --------- | ----------- | ------- | ----------- |
+| `success` | REQUIRED    | boolean | `true` if the request has been accepted; `false` if it has been rejected. |
+| `details` | OPTIONAL    | string  | A human readable explanation of the outcome. |
+{:.grid}
+
 The EHR SHALL respond to all `ui` message types with a payload that includes a
 boolean `success` parameter and an optional `details` string:
 
@@ -348,20 +348,7 @@ can create a list of SMART Web Messaging API calls:
 | `location`            | REQUIRED for `scratchpad.delete` and `scratchpad.update`,  PROHIBITED for `scratchpad.create`  | string | When used for updates, the id in the `location` value SHALL match the id in the supplied resource. |
 {:.grid}
 
-#### Response payload for `scratchpad.*`
-
-The EHR responds to all `scratchpad` message types with a payload that matches
-FHIR's [`Bundle.entry.response`] data model. The table below includes only
-the most commonly used fields; see the FHIR specification for full details.
-
-| Property              | Optionality | Type   | Description |
-| --------------------- | ----------- | ------ | ----------- |
-| `status`              | REQUIRED    | string | An HTTP response code (i.e. "200 OK"). |
-| `location`            | REQUIRED if a new resource has been added to the scratchapd. | string | Conveys a relative resource URL for the new resource. |
-| `outcome`             | OPTIONAL    | object | [FHIR OperationOutcome] with details if something has gone wrong. |
-{:.grid}
-
-The following example adds a new `ServiceRequest` to the EHR's scratchpad:
+The following example creates a new `ServiceRequest` in the EHR's scratchpad:
 
 ```js
 targetWindow.postMessage({
@@ -377,8 +364,8 @@ targetWindow.postMessage({
 }, targetOrigin);
 ```
 
-For example, a proposal to update a draft prescription in the context of a CDS
-Hooks request might look like:
+This example shows an update to a draft prescription in the context of a CDS
+Hooks request:
 
 ```js
 // Update to a better, cheaper alternative prescription
@@ -397,6 +384,19 @@ targetWindow.postMessage({
 }, targetOrigin);
 ```
 
+#### Response payload for `scratchpad.*`
+
+The EHR responds to all `scratchpad` message types with a payload that matches
+FHIR's [`Bundle.entry.response`] data model. The table below includes only
+the most commonly used fields; see the FHIR specification for full details.
+
+| Property              | Optionality | Type   | Description |
+| --------------------- | ----------- | ------ | ----------- |
+| `status`              | REQUIRED    | string | An HTTP response code (i.e. "200 OK"). |
+| `location`            | REQUIRED if a new resource has been added to the scratchapd. | string | Conveys a relative resource URL for the new resource. |
+| `outcome`             | OPTIONAL    | object | [FHIR OperationOutcome] with details if something has gone wrong. |
+{:.grid}
+
 As described above, the EHR responds to all `scratchpad` message types with a
 payload that matches FHIR's [`Bundle.entry.response`] data model.  For instance,
 the response to a `scratchpad.create` that adds a new prescription to the
@@ -413,7 +413,7 @@ clientAppWindow.postMessage({
 }, clientAppOrigin);
 ```
 
-To delete `MedicationRequest/456` from the EHR's scratchpad, the client would issue this message:
+For the app to then delete `MedicationRequest/456` from the EHR's scratchpad, the app sould issue this message:
 
 ```js
 targetWindow.postMessage({
@@ -440,7 +440,7 @@ At the time of launch, the app receives a `smart_web_messaging_handle` alongside
 the [OAuth] `access_token`.  This `smart_web_messaging_handle` is used to
 correlate [`window.postMessage`] requests to the authorization context.  We
 define this as a distinct parameter from the access token itself because in many
-app architectures, the access token will only live server-side, and the
+app architectures, the access token will only live server-side, and the29338
 `smart_web_messaging_handle` is explicitly designed to be safely pushed up to
 the browser environment.  (It confers limited permissions, and is entirely
 focused on the Web Messaging interactions without enabling full REST API
