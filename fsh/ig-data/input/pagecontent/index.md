@@ -220,8 +220,7 @@ EHR UI will have a `messageType` that matches the pattern `ui.*`.
 The `ui` category includes messages: `ui.done` and `ui.launchActivity`.
 
 The `ui.done` message type signals the EHR to close the activity hosting the
-SMART app, and optionally provides a hint to the EHR which can be used to inform
-further actions or navigations to EHR activities.
+SMART app.
 
 The `ui.launchActivity` message type signals the EHR to navigate the user to another
 activity without closing the SMART app.
@@ -239,8 +238,8 @@ Here are some helpful, guiding principles for the intended use of `launchActivit
 
 | Property             | Optionality | Type   | Description |
 | -------------------- | ----------- | ------ | ----------- |
-| `activityType`       | REQUIRED for `ui.launchActivity`, OPTIONAL for `ui.done` | string | Navigation hint; see description below. |
-| `activityParameters` | REQUIRED for `ui.launchActivity`, OPTIONAL for `ui.done` | object | Navigation hint; see description below. |
+| `activityType`       | REQUIRED for `ui.launchActivity`, PROHIBITED for `ui.done` | string | Navigation hint; see description below. |
+| `activityParameters` | REQUIRED for `ui.launchActivity`, PROHIBITED for `ui.done` | object | Navigation hint; see description below. |
 {:.grid}
 
 #### Response payload for `ui.done` and `ui.launchActivity`
@@ -275,18 +274,11 @@ An example of a `ui.done` message from an app to the EHR is shown below:
 targetWindow.postMessage({
   "messageId": "<some new uid>",
   "messageType": "ui.done",
-  "payload": {
-    "activityType": "problem-review",
-    "activityParameters": {
-      // Each ui activity defines its optional and required params.  See the
-      // Activity Catalog for more details.
-      "problemLocation": "Condition/123"
-    }
-  }
+  "payload": {}
 }, targetOrigin);
 ```
 
-Similarly, the SMART app can use the `ui.launchActivity` message type to request
+An SMART app can use the `ui.launchActivity` message type to request
 navigation to a different activity *without* closing the app:
 
 ```js
