@@ -440,7 +440,7 @@ At the time of launch, the app receives a `smart_web_messaging_handle` alongside
 the [OAuth] `access_token`.  This `smart_web_messaging_handle` is used to
 correlate [`window.postMessage`] requests to the authorization context.  We
 define this as a distinct parameter from the access token itself because in many
-app architectures, the access token will only live server-side, and the29338
+app architectures, the access token will only live server-side, and the
 `smart_web_messaging_handle` is explicitly designed to be safely pushed up to
 the browser environment.  (It confers limited permissions, and is entirely
 focused on the Web Messaging interactions without enabling full REST API
