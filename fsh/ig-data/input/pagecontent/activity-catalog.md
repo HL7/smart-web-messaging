@@ -31,27 +31,31 @@ be interpreted as described in RFC2119.
 ## `appointment-book`
 See [CDS Hooks `appointment-book`]
 
+
 ### Parameters
+
 | Name                   | Optionality | Description |
 | ---------------------- | ----------- | ----------- |
 | `appointmentLocations` | REQUIRED    | [FHIR Bundle] of [FHIR Appointment] resource locations in draft status, and any other supporting data. |
 {:.grid}
 
-
 ## `order-review`
 See [CDS Hooks `order-sign`] for a similar operation.
 
+
 ### Parameters
+
 | Name                  | Optionality | Description |
 | --------------------- | ----------- | ----------- |
 | `draftOrderLocations` | REQUIRED    | array of draft order locations (references to) already existing in the scratchpad. See the `scratchpad.*` operations. |
 {:.grid}
 
-
 ## `problem-review`
 Allow the EHR user to add a new problem to the patieint's problem list.
 
+
 ### Parameters
+
 | Name              | Optionality | Description |
 | ----------------- | ----------- | ----------- |
 | `problemLocation` | REQUIRED    | Reference to a pre-existing [FHIR Condition] resource which is used by the EHR to pre-populate the data entry screen presented to the user. |
