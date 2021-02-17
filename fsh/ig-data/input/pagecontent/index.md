@@ -56,6 +56,11 @@ Additionally, SMART Web Messaging enables other interesting capabilities.  For e
 * Saving app-specific session or state identifiers to the EHR for later retrieval (continuing sessions).
 * Interacting with the EHR's FHIR server through this messaging channel (enabling applications that cannot access the FHIR server directly, e.g. those hosted on the internet).
 
+#### Scratchpad
+Throughout this IG, references to a "scratchpad" refer to an EHR capability where FHIR-structured data can be stored without the expectation of being persisted "permanently" in a FHIR server. The scratchpad can be thought of as a shared memory area, consisting of "temporary" FHIR resources that can be accessed and modified by either an app or the EHR itself.  Each resource on the scratchpad has a temporary unique id (its scratchpad "location").
+
+A common use of the scratchpad is to hold the contents of a clinician's "shopping cart" -- i.e., data that only exist during the clinician's session and may not have been finalized or made available through in the EHR's FHIR API. At the end of a user's session, selected data from the scratchpad can be persisted to the EHR's FHIR server (e.g., a "checkout" experience, following the shopping cart metaphor).
+
 ### SMART Web Messaging
 SMART Web Messaging builds on [HTML5's Web Messaging] specification, which
 allows web pages to communicate across domains.  In JavaScript, calls to
