@@ -66,15 +66,15 @@ standards-based integration that works across windows, frames and domains, and
 should be readily supportable in browser controls for any EHR capable of 
 embedding a web application.
 
-Messages, often in the form or request/response, can originate from either the
-EHR client to an application, or from an application to the EHR client.
+Messages, often in the form or request/response, can originate from an
+application to the EHR client.  Messages initiated from the EHR to an
+application is currently out of scope, but is planned for inclusion in a
+future version of this specification.
 
-Requesters SHALL be capable of receiving at least one response message to an
-initial request message, and MAY be capable of receiving more than one response
-messages to an initial request message.  All response messages will contain a
-populated `responseToMessageId` field, which correlates to an initial
-`messageId` field sent in a request message.  See the following sections for
-more details.
+Requesters SHALL be capable of receiving at most one response message to an
+initial request message.  All response messages will contain a populated
+`responseToMessageId` field, which correlates to an initial `messageId` field
+sent in a request message.  See the following sections for more details.
 
 #### Request Parameters
 For the purposes of SMART Web Messaging, a [`window.postMessage`] call from a
