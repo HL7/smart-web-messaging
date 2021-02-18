@@ -272,6 +272,9 @@ where EHR should go to after the ui message has been handled. An activity MAY
 specify additional parameters that can be included in the call as additional
 properties.
 
+EHRs and Apps MAY implement activities *not specified* in the [Activity Catalog] and
+that all activities in the catalog are OPTIONAL.
+
 The `activityParameters` property conveys parameters specific to an activity
 type. See the SMART Web Messaging [Activity Catalog] for details.
 
