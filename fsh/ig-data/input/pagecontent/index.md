@@ -431,7 +431,7 @@ the most commonly used fields; see the FHIR specification for full details.
 | --------------------- | ----------- | ------ | ----------- |
 | `status`              | REQUIRED    | string | An HTTP response code (i.e. "200 OK"). |
 | `location`            | REQUIRED if a new resource has been added to the scratchapd. | string | Conveys a relative resource URL for the new resource. |
-| `outcome`             | OPTIONAL    | object | [FHIR OperationOutcome] with details if something has gone wrong. |
+| `outcome`             | OPTIONAL    | object | [FHIR OperationOutcome] resulting from the message action. |
 {:.grid}
 
 As described above, the EHR responds to all `scratchpad` message types with a
