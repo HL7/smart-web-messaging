@@ -38,7 +38,9 @@
 [SMART applications]: https://hl7.org/fhir/smart-app-launch/index.html
 [`window.postMessage`]: https://html.spec.whatwg.org/multipage/web-messaging.html#posting-messages
 
-SMART Web Messaging enables tight UI integration between EHRs and embedded SMART apps via [HTML5's Web Messaging].  SMART Web Messaging allows applications to push unsigned orders, note snippets, risk scores, or UI suggestions directly to the clinician's EHR session.  Built on the browser's javascript [`window.postMessage`] function, SMART Web Messaging is a simple, native API for health apps embedded within the user's workflow.
+SMART Web Messaging enables tight UI integration between EHRs and embedded SMART apps via [HTML5's Web Messaging].
+
+Built on the browser's javascript [`window.postMessage`] function, SMART Web Messaging is a simple, native API for health apps embedded within the user's workflow.  SMART Web Messaging allows applications to push unsigned orders, note snippets, risk scores, UI suggestions etc. directly to the clinician's EHR session.  This allows the EHR to manage the UI behvior for these interactions, such as highlighting the newly created unsigned order, unlike with a CRUD operation on the FHIR REST-ful endpoint which may push an unsigned order, note snippet, risk score etc. but may not become evident in the end user UI immediately.  This also enables the SMART app to suggest UI changes such as closing the app itself, navigating the end user to various UI activities in the EHR etc.
 
 #### Conformance Language
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this specification are to be interpreted as described in [RFC2119].
@@ -47,7 +49,7 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 
 * [FHIR] 
 * [CDS Hooks]
-* [JSON (RFC7159)]
+* [JSON (RFC8259)]
 * [HTML5]
 
 SMART Web Messaging is designed for compatibility with FHIR R4 and above.
