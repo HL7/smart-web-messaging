@@ -331,107 +331,95 @@ targetWindow.postMessage({
 #### Response payload for `ui.launchActivity`
 The `status` and `statusDetail` properties already on the `response` are sufficient to capture all outcomes of an app attempting to launch an activity. Therefore, the response payload for `ui.launchActivity` is an empty JSON object.
 
-### EHR Scratchpad Interactions: `scratchpad.*` message type
-While interacting with an embedded SMART app, a clinician may make decisions
-that should be implemented in the EHR with minimal clicks.  SMART Web Messaging
-exposes an API to the clinician's scratchpad within the EHR, which may contain
-FHIR resources unavailable on the [RESTful FHIR API].
+### EHR interactions providing managed access to work-in-progress resources
+While interacting with an embedded SMART app, a clinician may make decisions that should be implemented in the EHR with minimal clicks.  SMART Web Messaging exposes an API to the clinician's set of work-in-progress resources within the EHR, which may include FHIR resources unavailable on the [RESTful FHIR API]. 
 
-For example, the proposed CDS Hooks decision workflow can be implemented through
-SMART Web Messaging.
+Note that, while these 'work-in-progress' resources fit the general English tem 'draft', 
+* FHIR resources do not always have a 'draft' status
+* FHIR resource status of 'draft' may not always be accurate for the resource in question. For example, a clinician may be modifying a signed order, in which case the EHR may choose to expose the 'work-in-progress' changes through in this managed access interaction, whereas these 'work-in-progress' changes may not be available thorough the [RESTful FHIR API]
 
-All messages affecting the scratchpad have a `messageType` matching the pattern
-`scratchpad.*`.
-
-SMART Web Messaging is designed to be compatible with CDS Hooks, and to
-implement the CDS Hooks decisions flow.  For any [CDS Hooks Action] array, you
-can create a list of SMART Web Messaging API calls:
+SMART Web Messaging is designed to be compatible with CDS Hooks, and to implement the CDS Hooks decisions flow.  For any [CDS Hooks Action] array, you can create a list of SMART Web Messaging API calls:
 
 * [CDS Hooks Action] `type` is used to populate the response `messageType`
-  * `create`→ `scratchpad.create`
-  * `update`→ `scratchpad.update`
-  * `delete`→ `scratchpad.delete`
+  * `create`→ `ui.create`
+  * `update`→ `ui.update`
+  * `delete`→ `ui.delete`
 * [CDS Hooks Action] `resource`: used to populate the `payload.resource`
+* [CDS Hooks Action] `resourceId`: used to populate the `payload.resourceId`
 
-#### Request payload for `scratchpad.*`
+#### Request payload for `ui.create`, `ui.update`, and `ui.delete`
 
 | Property              | Optionality  | Type   | Description |
 | --------------------- | ------------ | ------ | ----------- |
-| `resource`            | REQUIRED for `scratchpad.create` and `scratchpad.update`, PROHIBITED for `scratchpad.delete`  | object | Conveys resource content as per CDS Hooks Action's `payload.resource`. |
-| `location`            | REQUIRED for `scratchpad.delete` and `scratchpad.update`,  PROHIBITED for `scratchpad.create`  | string | When used for updates, the id in the `location` value SHALL match the id in the supplied resource. |
+| `resource`            | REQUIRED for `ui.create` and `ui.update`, PROHIBITED for `ui.delete`  | object | Conveys resource content as per CDS Hooks Action's `payload.resource`. |
+| `resourceId`            | REQUIRED for `ui.delete` and `ui.update`,  PROHIBITED for `ui.create`  | string | Conveys resource location as per CDS Hooks Action's `payload.resourceId`. |
 {:.grid}
 
-The following example creates a new `ServiceRequest` in the EHR's scratchpad:
+The following example creates a new unsigned order using a `ServiceRequest` resource in the EHR:
 
 ```js
 targetWindow.postMessage({
   "messageId": "<some new uid>",
-  "messageType": "scratchpad.create",
+  "messageType": "ui.create",
   "payload": {
     "resource": {
       "resourceType": "ServiceRequest",
       "status": "draft",
-      // additional details as needed
+      // additional resource properties elided for brevity
     }
   }
 }, targetOrigin);
 ```
 
-This example shows an update to a draft prescription in the context of a CDS
-Hooks request:
+This example shows an update to a draft prescription in the context of a CDS Hooks request:
 
 ```js
 // Update to a better, cheaper alternative prescription
 targetWindow.postMessage({
   "messageId": "<some new uid>",
-  "messageType": "scratchpad.update",
+  "messageType": "ui.update",
   "payload": {
     "location": "MedicationRequest/123",
     "resource": {
       "resourceType": "MedicationRequest",
       "id": "123",
       "status": "draft"
-      // additional details as needed
+      // additional resource properties elided for brevity
     }
   }
 }, targetOrigin);
 ```
 
-#### Response payload for `scratchpad.*`
+#### Response payload for `ui.create`, `ui.update`, and `ui.delete`
 
-The EHR responds to all `scratchpad` message types with a payload that matches
-FHIR's [`Bundle.entry.response`] data model. The table below includes only
-the most commonly used fields; see the FHIR specification for full details.
+The EHR responds to all `scratchpad` message types with a payload that matches FHIR's [`Bundle.entry.response`] data model. The table below includes only the most commonly used fields; see the FHIR specification for full details.
 
 | Property              | Optionality | Type   | Description |
 | --------------------- | ----------- | ------ | ----------- |
-| `status`              | REQUIRED    | string | An HTTP response code (i.e. "200 OK"). |
-| `location`            | REQUIRED if a new resource has been added to the scratchapd. | string | Conveys a relative resource URL for the new resource. |
+| `location`            | REQUIRED if a new resource has been created. | string | Conveys a relative resource URL for the new resource. |
 | `outcome`             | OPTIONAL    | object | [FHIR OperationOutcome] with details if something has gone wrong. |
 {:.grid}
 
-As described above, the EHR responds to all `scratchpad` message types with a
-payload that matches FHIR's [`Bundle.entry.response`] data model.  For instance,
-the response to a `scratchpad.create` that adds a new prescription to the
-scratchpad (and assigns id `456` to this draft resource) might look like:
+As described, the EHR responds to the above message types with a payload that matches FHIR's [`Bundle.entry.response`] data model.  For instance, the response to a `ui.create` that adds an unsigned order for a new prescription (and assigns id `456` to this draft resource) might look like:
 
 ```js
 clientAppWindow.postMessage({
   "messageId": "<some new uid>",
+  "messageType": "app.response",
   "responseToMessageId": "<uid from the client's request>",
+  "status": "success",
   "payload": {
-    "status": "200 OK",
     "location": "MedicationRequest/456"
   }
 }, clientAppOrigin);
 ```
 
-For the app to then delete `MedicationRequest/456` from the EHR's scratchpad, the app sould issue this message:
+For the app to then delete `MedicationRequest/456`, the app sould issue this message:
 
 ```js
 targetWindow.postMessage({
   "messageId": "<some new uid>",
-  "messageType": "scratchpad.delete",
+  "messageType": "ui.delete",
   "payload": {
     "location": "MedicationRequest/456"
   }
@@ -439,15 +427,12 @@ targetWindow.postMessage({
 ```
 
 ### Authorization with SMART Scopes
-SMART Web Messaging enables capabilities that can be authorized via
-[OAuth scopes], within the `messaging/` category.  Authorization is at the level
-of message groups (e.g., `messaging/ui`) rather than specific messages (e.g.,
-`launchActivity`).  For example, a SMART app that performs dosage adjustments to
-in-progress orders might request the following scopes:
+SMART Web Messaging enables capabilities that can be authorized via [OAuth scopes], within the `messaging/` category.  Authorization is at the level of specific messages (e.g., `ui.launchActivity`).  For example, a SMART app that performs dosage adjustments to in-progress orders might request the following scopes:
 
-* `patient/MedicationRequest.read`: enable access to existing prescribed medications
-* `messaging/scratchpad`: enable access to draft orders (including meds) on the EHR scratchpad
-* `messaging/ui`: enable access to EHR navigation (e.g., to signal when the app is "done")
+* `patient/MedicationRequest.read`: enable read access to medication prescriptions
+* `patient/MedicationRequest.update`: enable update access to medication prescriptions
+* `messaging/ui.update`: enable access to draft orders (including meds)
+* `messaging/ui.done`: enable signaling when the app is "done"
 
 At the time of launch, the app receives a `smart_web_messaging_handle` alongside
 the [OAuth] `access_token`.  This `smart_web_messaging_handle` is used to
@@ -466,7 +451,7 @@ EHR implementations MAY include additional constraints on authorization beyond t
 coarse-grained scopes.  We encourage further experimentation in this direction, and will look
 to implementer experience to determine whether we can standardize more granular controls.
 
-*Note on security goals: We include a `smart_web_messaging_handle` in the request to ensure that a SMART app launch has been completed prior to any SMART Web Messaging API calls.  Requiring this parameter is part of a defense-in-depth strategoy to mitigate some cross-site-scripting (XSS) attacks.*
+*Note on security goals: We include a `smart_web_messaging_handle` in the request to ensure that a SMART app launch has been completed prior to any SMART Web Messaging API calls.  Requiring this parameter is part of a defense-in-depth strategoy to mitigate some cross-site-scripting (XSS) attacks. A future revision of this specification may additionally use JSON Web Signatures for security.*
 
 #### Scope examples
 
@@ -534,8 +519,10 @@ Messaging requests with a specific SMART App Launch context, through the
 this property.  We refer commenters to [discussion and rationale here](https://github.com/HL7/smart-web-messaging/pull/4)
 and welcome any additional feedback on this point.
 
+A future revision of this specification may additionally use JSON Web Signatures for security.
+
 #### General FHIR API interactions
-In the current proposal, we limit message types to `ui` and `scratchpad` for messages sent from the app to the EHR client.  However, it might be convenient for apps if the SMART Web Messaging standard supported a `fhir` message type, which would signify messages meant to be relayed from the app, through the EHR client to the FHIR server.  We welcome ballot comments that speak to the merits or risks of this capability; based on feedback we will consider introducing  a `fhir.*` message type.
+In the current proposal, we limit roles to `ui` and `app`.  However, it might be convenient for apps if the SMART Web Messaging standard supported a `fhir` role, which would signify messages meant to be relayed from the app, through the EHR client to the FHIR server.  We welcome ballot comments that speak to the merits or risks of this capability; based on feedback we will consider introducing  a `fhir.*` message type.
 
 #### Independent maturity models for message types and activities
 FHIRCast and CDS Hooks specify their events (or hooks) in separate specifications, using their own maturity models and lifecycles.  Should the SMART Web Messaging adopt similar patterns for its message types and activities?
