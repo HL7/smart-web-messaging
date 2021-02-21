@@ -77,6 +77,23 @@ Additionally, SMART Web Messaging MAY enable other interesting capabilities in t
 * Saving app-specific session or state identifiers to the EHR for later retrieval (continuing sessions).
 * Interacting with the EHR's FHIR server through this messaging channel (enabling applications that cannot access the FHIR server directly, e.g. those hosted on the internet).
 
+### Roles
+The SMART Web Messaging specification envisions the following roles for actors in this specification. 
+
+| Role    | Description |
+| ------- | ----------- |
+| ui      | The user interface of the EHR that the SMART app interacts with |
+| app     | The SMART app |
+| fhir    | An EHR delegate actor that provides a SMART Web Messaging proxy endpoint to the [RESTful FHIR API] |
+{:.grid}
+
+#### ui
+
+#### app
+
+#### fhir
+
+
 ### SMART Web Messaging
 SMART Web Messaging builds on [HTML5's Web Messaging] specification, which
 allows web pages to communicate across domains.  In JavaScript, calls to
