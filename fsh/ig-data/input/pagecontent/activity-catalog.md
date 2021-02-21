@@ -17,7 +17,7 @@ standardized activities using "bare" keywords like `order-review`, any EHR may
 support custom activities using fully-qualified URIs like
 `https://my-ehr/custom-activity-name`.
 
-It is important to note that activities in the activity catalog do not align with hooks in [CDS Hooks]. This is because hooks in [CDS Hooks] represent workflow points (such as signing orders) whereas activities in SMART Web Messaging represent EHR screens (such as the screen where clinicians tee up orders for signing). There may be some nominal overlap, but this is because the term may be used for both the workflow point and the screen (such as perhaps patient-view), but where possible, the spec will try to avoid this overlap since it is a source of confusion.
+It is important to note that activities in the activity catalog do not align with hooks in [CDS Hooks]. This is because hooks in [CDS Hooks] represent workflow points (such as signing orders) whereas activities in SMART Web Messaging represent EHR screens (such as the screen where clinicians tee up orders for signing). There may be some nominal overlap, but this is because the term may be used for both the workflow point and the screen (such as perhaps patient-view), but where possible, this specification will try to avoid this overlap since it is a source of confusion.
 
 ### Conformance Language
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD",
