@@ -110,6 +110,8 @@ Since [`window.postMessage`] only allows for uni-directional communication, a bi
 
 Requests are currently all initiated by the `app`. There are currently no requests in this specification initiated by a role other than the `app`, but that maay change in the future.
 
+Certain `request` messages such as `ui.done` may not recieve a response.
+
 #### Request Properties
 For the purposes of SMART Web Messaging, a [`window.postMessage`] `request` from a caller SHALL contain a JSON message object with the following properties:
 
@@ -252,6 +254,7 @@ function listener(event) {
   }
 
   const requestId = event.data.responseToMessageId;
+  // Verify that the requestID is one that app is expecting a response for.
 
   if (event.data.status == "success") {
     // Success!
@@ -262,61 +265,40 @@ function listener(event) {
 ```
 
 #### Workflow Summary
-This mechanism enables a full request/response pattern.
+This mechanism enables a full request/response pattern. As noted, not all `request`s may receive a `response`.
 
 NOTE: A broadcast-type pattern which involves notification messages without an initial request message is currently out of scope, even though it could be implemented with SMART Web Messaging technology.
 
-### Influence the EHR UI: `ui.*` message type
-An embedded SMART app may improve the clinician's user experience by attempting
-to close itself when appropriate, or by requesting the EHR automatically
-navigate the user to an appropriate 'next' activity.  Messages that affect the
-EHR UI will have a `messageType` that matches the pattern `ui.*`.
+### User-interface interactions
+An embedded SMART app may improve the clinician's user experience by attempting to close itself when appropriate, or by requesting the EHR to navigate the user to an appropriate activity. 
 
-The `ui` category includes messages: `ui.done` and `ui.launchActivity`.
+This category of messages include: `ui.done` and `ui.launchActivity`.
 
-The `ui.done` message type signals the EHR to close the activity hosting the
-SMART app.
+The `ui.done` message type signals the EHR to close the activity hosting the SMART app.
 
-The `ui.launchActivity` message type signals the EHR to navigate the user to another
-activity without closing the SMART app.
+The `ui.launchActivity` message type signals the EHR to navigate the user to another activity without closing the SMART app.
 
 Here are some helpful, guiding principles for the intended use of `launchActivity`.
-  * `launchActivity` doesn't modify EHR data itself, but it *can* hint the EHR to
-    navigate the user to a place in the EHR workflow where the *user* could modify
-    EHR data.
-  * Data can be passed from the app to the EHR as hints, within the `launchActivity`
-    payload.
-  * For supported resource types, it's better to pass in a scratchpad resource ID
-    rather than duplicating resource content when providing a hint to `launchActivity`.
+  * `launchActivity` doesn't modify EHR data itself, but it *can* hint the EHR to navigate the user to a place in the EHR workflow where the *user* could modify EHR data.
+  * Data can be passed from the app to the EHR as hints, within the `launchActivity` payload.
+  * For FHIR resource types, it's better to pass in a resource ID rather than duplicating resource content when providing a hint to `launchActivity`.
 
-#### Request payload for `ui.done` and `ui.launchActivity`
+#### Request payload for `ui.done`
+The request payload for the `ui.done` message is an empty JSON object. 
+
+#### Request payload for `ui.launchActivity`
 
 | Property             | Optionality | Type   | Description |
 | -------------------- | ----------- | ------ | ----------- |
-| `activityType`       | REQUIRED for `ui.launchActivity`, PROHIBITED for `ui.done` | string | Navigation hint; see description below. |
-| `activityParameters` | REQUIRED for `ui.launchActivity`, PROHIBITED for `ui.done` | object | Navigation hint; see description below. |
+| `activityType`       | REQUIRED    | string | Navigation hint; see description below. |
+| `activityParameters` | OPTIONAL    | object | Navigation hint; see description below. |
 {:.grid}
 
-The `activityType` property conveys an activity type drawn from the SMART Web
-Messaging [Activity Catalog]. In general, these activities follow the same
-naming conventions as entries in the CDS Hooks catalog (`noun-verb`), and will
-align with CDS Hooks catalog entries where feasible. The `activityType` property
-conveys a navigation target such as `problem-review` or `order-review`, indicating
-where EHR should go to after the ui message has been handled. An activity MAY
-specify additional parameters that can be included in the call as additional
-properties.
+The `activityType` property conveys an activity type drawn from the SMART Web Messaging [Activity Catalog]. The `activityType` property conveys a navigation target such as `problem-review` or `order-review`, indicating where EHR should go upon handling the launchActivity message. An activity MAY specify additional `activityParameters`.
 
-EHRs and Apps MAY implement activities *not specified* in the [Activity Catalog] and
-that all activities in the catalog are OPTIONAL.
+EHRs and Apps MAY implement activities *not specified* in the [Activity Catalog] and all activities in the catalog are OPTIONAL.
 
-The `activityParameters` property conveys parameters specific to an activity
-type. See the SMART Web Messaging [Activity Catalog] for details.
-
-*Note:* A SMART app launched in the context of CDS Hooks should generally not
-need to specify an `activityType` or `activityParameters` with the `ui.done`
-message, because the EHR tracks the context in which the app was launched (e.g.,
-order entry) and can navigate to an appropriate follow-up screen based on this
-context.
+The `activityParameters` property conveys parameters specific to an activity type. See the SMART Web Messaging [Activity Catalog] for details.
 
 An example of a `ui.done` message from an app to the EHR is shown below:
 
@@ -346,27 +328,8 @@ targetWindow.postMessage({
 }, targetOrigin);
 ```
 
-#### Response payload for `ui.done` and `ui.launchActivity`
-
-| Property  | Optionality | Type    | Description |
-| --------- | ----------- | ------- | ----------- |
-| `success` | REQUIRED    | boolean | `true` if the request has been accepted; `false` if it has been rejected. |
-| `details` | OPTIONAL    | string  | A human readable explanation of the outcome. |
-{:.grid}
-
-The EHR SHALL respond to all `ui` message types with a payload that includes a
-boolean `success` parameter and an optional `details` string:
-
-```js
-clientAppWindow.postMessage({
-  "messageId": "<some new uid>",
-  "responseToMessageId": "<uid from the client's request>",
-  "payload": {
-    "success": true,
-    "details": "string explanation for user (optional)"
-  }
-}, clientAppOrigin);
-```
+#### Response payload for `ui.launchActivity`
+The `status` and `statusDetail` properties already on the `response` are sufficient to capture all outcomes of an app attempting to launch an activity. Therefore, the response payload for `ui.launchActivity` is an empty JSON object.
 
 ### EHR Scratchpad Interactions: `scratchpad.*` message type
 While interacting with an embedded SMART app, a clinician may make decisions
