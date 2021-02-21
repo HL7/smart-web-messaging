@@ -6,7 +6,7 @@
 [FHIR Appointment]: https://www.hl7.org/fhir/appointment.html
 [FHIR Bundle]: https://www.hl7.org/fhir/bundle.html
 [FHIR Condition]: https://www.hl7.org/fhir/condition.html
-[CDS Hooks]: https://cds-hooks.hl7.org/1.0/
+[CDS Hooks]: https://cds-hooks.hl7.org/
 
 These activites serve as navigation targets for `ui.launchActivity` messages.
 They are designed to describe navigation points within an EHR environment. We
