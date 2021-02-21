@@ -40,7 +40,7 @@
 
 SMART Web Messaging enables tight UI integration between EHRs and embedded SMART apps via [HTML5's Web Messaging].
 
-Built on the browser's javascript [`window.postMessage`] function, SMART Web Messaging is a simple, native API for health apps embedded within the user's workflow.  SMART Web Messaging allows applications to push unsigned orders, note snippets, risk scores, UI suggestions etc. directly to the clinician's EHR session.  This allows the EHR to manage the UI behvior for these interactions, such as highlighting the newly created unsigned order, unlike with a CRUD operation on the FHIR REST-ful endpoint which may push an unsigned order, note snippet, risk score etc. but may not become evident in the end user UI immediately.  This also enables the SMART app to suggest UI changes such as closing the app itself, navigating the end user to various UI activities in the EHR etc.
+Built on the browser's javascript [`window.postMessage`] function, SMART Web Messaging is a simple, native API for health apps embedded within the user's workflow.  SMART Web Messaging allows applications to push unsigned orders, note snippets, risk scores, UI suggestions etc. directly to the clinician's EHR session.  This allows the EHR to manage the UI behvior for these interactions, such as highlighting the newly created unsigned order, unlike with a CRUD operation on the FHIR REST-ful endpoint which may push an unsigned order, note snippet, risk score etc. but may not become evident in the clinician UI immediately.  This also enables the SMART app to suggest UI changes such as closing the app itself, navigating the clinician to various UI activities in the EHR etc.
 
 #### Conformance Language
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this specification are to be interpreted as described in [RFC2119].
@@ -55,26 +55,27 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 SMART Web Messaging is designed for compatibility with FHIR R4 and above.
 
 ### Why
-Clinical workflow systems (such as EHRs) may be able to launch [SMART applications] in a few different ways: automatically at specific points in the workflow, by user interaction in the UI, or in response to a suggestion from a [CDS Hooks Service](https://cds-hooks.hl7.org/1.0/#cds-hooks-anatomy) (or *other* decision support service).  Once launched, web applications are often embedded within an iframe of the main UI.  In this model, the new application appears in close proximity to a patient's chart and can work with the EHR via [RESTful FHIR API].  These RESTful APIs are great for [CRUD](https://en.wikipedia.org/wiki/Create,_read,_update_and_delete) operations on a logical FHIR Server endpoint, but they don't enable tight workflow integration or access to draft FHIR resources that may only exist in memory on the EHR client.
+Clinical workflow systems (such as EHRs) may be able to launch [SMART applications] in a few different ways: 
+* automatically at specific points in the workflow, 
+* in response to a user interaction event in the UI, 
+* or in response to a SMART app link from a [CDS Hooks Service](https://cds-hooks.hl7.org/1.0/#cds-hooks-anatomy) (or *other* decision support service).  
 
-For these embedded apps, there are some key use cases that SMART and CDS Hooks don't address today:
+Once launched, SMART web applications are often embedded within an iframe in the main UI of the EHR.  In this model, the new application appears in close proximity to a patient's chart and can work with the EHR via [RESTful FHIR API].  These RESTful APIs are great for [CRUD](https://en.wikipedia.org/wiki/Create,_read,_update_and_delete) operations on a logical FHIR Server endpoint. However, being RESTful APIs, they don't enable tight workflow integration. Additionally, access to draft FHIR resources such as unsigned orders may not always be available through the EHR's [RESTful FHIR API].
 
+For these embedded apps, there are therefore some key use cases that the SMART on FHIR model doesn't address today:
 * Communicating a decision made by the clinician within the SMART app, such as:
-  * placing an order
-  * annotating a procedure with an appropriateness score or a radiation count
-  * transmitting a textual note snippet
-  * suggesting a diagnosis or a condition to the patient's chart
-* Interrogating the orders scratchpad / shopping cart, currently only known within the ordering provider's [CPOE](https://en.wikipedia.org/wiki/Computerized_physician_order_entry) session.
-* Allowing an app to communicate [UX](https://en.wikipedia.org/wiki/User_experience)-relevant results back to the EHR, for example, automatic navigation to a native EHR activity, or sending an "I'm done" signal.
+  * placing an unsigned order with visual indication to the clinician that the order was created and requires signing
+  * updating an unsigned procedure that the clinician is working on with an appropriateness score or a radiation count
+  * transmitting a draft textual note snippet for the clinician to update and finalize in their notes
+  * adding a diagnosis or a condition to the patient's chart with UI indication to the clinician
+* Interrogating the set of unsigned orders the clinician is actively working on within their [CPOE](https://en.wikipedia.org/wiki/Computerized_physician_order_entry) session. Depending on EHR implementation, these may not be accessible via the EHR's [RESTful FHIR API].
+* Allowing an app to communicate [UX](https://en.wikipedia.org/wiki/User_experience)-relevant results back to the EHR.  For example: 
+  * automatic navigation to a native EHR activity, 
+  * or sending an "I'm done" signal.
 
-Additionally, SMART Web Messaging enables other interesting capabilities.  For example:
+Additionally, SMART Web Messaging MAY enable other interesting capabilities in the future.  For example:
 * Saving app-specific session or state identifiers to the EHR for later retrieval (continuing sessions).
 * Interacting with the EHR's FHIR server through this messaging channel (enabling applications that cannot access the FHIR server directly, e.g. those hosted on the internet).
-
-#### Scratchpad
-Throughout this IG, references to a "scratchpad" refer to an EHR capability where FHIR-structured data can be stored without the expectation of being persisted "permanently" in a FHIR server. The scratchpad can be thought of as a shared memory area, consisting of "temporary" FHIR resources that can be accessed and modified by either an app or the EHR itself.  Each resource on the scratchpad has a temporary unique id (its scratchpad "location").
-
-A common use of the scratchpad is to hold the contents of a clinician's "shopping cart" -- i.e., data that only exist during the clinician's session and may not have been finalized or made available through in the EHR's FHIR API. At the end of a user's session, selected data from the scratchpad can be persisted to the EHR's FHIR server (e.g., a "checkout" experience, following the shopping cart metaphor).
 
 ### SMART Web Messaging
 SMART Web Messaging builds on [HTML5's Web Messaging] specification, which
