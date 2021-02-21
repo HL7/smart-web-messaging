@@ -38,6 +38,7 @@
 [RFC2119]: https://tools.ietf.org/html/rfc2119
 [SMART applications]: https://hl7.org/fhir/smart-app-launch/index.html
 [`window.postMessage`]: https://html.spec.whatwg.org/multipage/web-messaging.html#posting-messages
+[FHIR Subscriptions]: https://www.hl7.org/fhir/subscription.html
 
 SMART Web Messaging enables tight UI integration between EHRs and embedded SMART apps via [HTML5's Web Messaging].
 
@@ -75,8 +76,8 @@ For these embedded apps, there are therefore some key use cases that the SMART o
   * or sending an "I'm done" signal.
 
 Additionally, SMART Web Messaging MAY enable other interesting capabilities in the future.  For example:
-* Saving app-specific session or state identifiers to the EHR for later retrieval (continuing sessions).
-* Interacting with the EHR's FHIR server through this messaging channel (enabling applications that cannot access the FHIR server directly, e.g. those hosted on the internet).
+* Saving app-specific session or state identifiers to the EHR for later retrieval (persistent sessions).
+* Interacting with the EHR's FHIR server through this messaging channel (enabling applications that cannot access the FHIR server directly, e.g. those hosted on a different network).
 
 ### Roles
 The SMART Web Messaging specification envisions the following roles for actors in this specification. SMART Web Messaging post messages sent from one role to another specify a message type that MUST be prefixed with the role name of the intended recipient.
@@ -90,11 +91,13 @@ The SMART Web Messaging specification envisions the following roles for actors i
 
 #### `ui` role
 This is the user interface of the EHR that is hosting the SMART app. It provides the following capabilities for the app.
-* The `ui` of the EHR that the SMART Web Messaging app interacts with provides managed access to work in progress resources such as unsigned orders within the EHR that may not otherwise be available through the [RESTful FHIR API].
-* The `ui` allows the SMART Web Messaging app to perform user-interface interactions such as closing the app or taking the clinician to another activity.
+* The `ui` of the EHR that the SMART Web Messaging app interacts with provides managed access to work-in-progress resources such as unsigned orders within the EHR that may not otherwise be available through the [RESTful FHIR API].
+* The `ui` allows the SMART Web Messaging app to perform user-interface interactions such as closing the app, or taking the clinician to another activity.
 
 #### `app` role
-This role represents the SMART app itself, that is interacting with the EHR `ui` using SMART Web Messaging. Interactions between multiple SMART apps simultaneously hosted within an EHR `ui` are currently not within the scope of this specification.
+This role represents the SMART app itself, that is interacting with the EHR `ui` using SMART Web Messaging. 
+
+Interactions between multiple SMART apps simultaneously hosted within an EHR `ui` are currently not within the scope of this specification.
 
 #### `fhir` role
 This role represents a Web Messaging proxy to the [RESTful FHIR API] that the EHR MAY expose to the `app`. This allows the SMART Web Messaging app to gain client side access to the [RESTful FHIR API] rather than having to make web service calls to the [RESTful FHIR API] directly.
@@ -107,7 +110,9 @@ SMART Web Messaging builds on [HTML5's Web Messaging] specification, which allow
 
 A [`window.postMessage`]-based messaging approach allows flexible, standards-based integration that works across windows, frames and domains, and should be readily supportable in browser controls for any EHR capable of embedding a web application.
 
-Since [`window.postMessage`] only allows for uni-directional communication, a bi-directional communication model is created using two [`window.postMessage`] calls, one constituting a `request` from the requesting role to the recipient role, and a second constituting a `response` from the recipient role to the requesting role. Each individual message is prefixed with the name of the recipient role. All response messages will contain a populated `responseToMessageId` field, which correlates to an initial `messageId` field sent in a request message.  See the following sections for more details.
+Since [`window.postMessage`] only allows for uni-directional communication, a bi-directional communication model is created using two [`window.postMessage`] calls, one constituting a `request` from the requesting role to the recipient role, and a second constituting a `response` from the recipient role to the requesting role. Each individual message is prefixed with the name of the recipient role. An actor of any role MUST wait for a response on any previous request messages it sent to another role, before sending any new request messages.
+
+All response messages will contain a populated `responseToMessageId` field, which correlates to an initial `messageId` field sent in a request message.  See the following sections for more details.
 
 Requests are currently all initiated by the `app`. There are currently no requests in this specification initiated by a role other than the `app`, but that maay change in the future.
 
@@ -129,14 +134,14 @@ The purpose of the handshake is to allow `app`s to determine, just after launch 
 
 The `app` MAY initiate an OPTIONAL handshake message sequence, using the value `ui.handshake` as the value for the `messageType` in the SMART Web Messaging `request` and an empty object for the `payload`.  The EHR, upon receiving the handshake `request` SHOULD respond with an appropriate handshake `response` message.
 
-Extensions MAY be used for handshake `request`s and `response`s, and MAY be used to advertise capabilities.
+Extensions MAY be used on handshake `request`s and `response`s to advertise capabilities.
 
 #### Request Payload
 The `request` message `payload` properties will vary based on the request `messageType`.  See message types below for details.
 
 #### Request Target Origin
 
-This message object MUST be passed to [`window.postMessage`] using a valid `targetOrigin` parameter.  The caller MUST provide the `smart_messaging_origin` property to the receiver in the initial SMART launch context alongside the `access_token`.  Callers SHOULD NOT use `"*"` for the `targetOrigin` parameter for [security reasons](https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage#Security_concerns).
+The `request` message object MUST be passed to [`window.postMessage`] using a valid `targetOrigin` parameter.  The caller MUST provide the `smart_messaging_origin` property to the receiver in the initial SMART launch context alongside the `access_token`.  Callers SHOULD NOT use `"*"` for the `targetOrigin` parameter for [security reasons](https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage#Security_concerns).
 
 {::comment}
 
@@ -240,7 +245,7 @@ function listener(event) {
       "outcome": {},
     }
   };
-  event.source.postMessage(response, event.origin);
+  event.source.postMessage(response, event.origin);  // validate event.origin before doing this
 }
 ```
 
@@ -266,28 +271,45 @@ function listener(event) {
 ```
 
 #### Workflow Summary
-This mechanism enables a full request/response pattern. As noted, not all `request`s may receive a `response`.
+This mechanism enables a full request/response pattern. As noted, not all `request`s may receive a `response`. Similarly, a `request` MAY currently receieve at most one `response`.
 
-NOTE: A broadcast-type pattern which involves notification messages without an initial request message is currently out of scope, even though it could be implemented with SMART Web Messaging technology.
+NOTE: A broadcast-type pattern which involves notification messages without an initial request message is currently out of scope, even though it could be implemented with SMART Web Messaging technology (perhaps making a SMART Web Messaging channel-type in the [FHIR Subscriptions] specification for example).
 
 ### User-interface interactions
 An embedded SMART app may improve the clinician's user experience by attempting to close itself when appropriate, or by requesting the EHR to navigate the user to an appropriate activity. 
 
 This category of messages include: `ui.done` and `ui.launchActivity`.
 
+#### `ui.done` message type
 The `ui.done` message type signals the EHR to close the activity hosting the SMART app.
+
+##### Request payload for `ui.done`
+The request payload for the `ui.done` message is an empty JSON object. 
+
+##### Response for `ui.done`
+Since `ui.done` message is used by the app to request the EHR to close itself, the app SHALL NOT recieve a `response` in the event of success. In the (unlikely) event of a failure to close the app, the EHR MAY respone with a `status` and `statusDetail` explaining why the `request` failed.
+
+##### `ui.done` example
+An example of a `ui.done` message from an app to the EHR is shown below:
+
+```js
+targetWindow.postMessage({
+  "messageId": "<some new uid>",
+  "messageType": "ui.done",
+  "payload": {}
+}, targetOrigin);
+```
+
+#### `ui.launchActivity` message type
 
 The `ui.launchActivity` message type signals the EHR to navigate the user to another activity without closing the SMART app.
 
 Here are some helpful, guiding principles for the intended use of `launchActivity`.
   * `launchActivity` doesn't modify EHR data itself, but it *can* hint the EHR to navigate the user to a place in the EHR workflow where the *user* could modify EHR data.
-  * Data can be passed from the app to the EHR as hints, within the `launchActivity` payload.
-  * For FHIR resource types, it's better to pass in a resource ID rather than duplicating resource content when providing a hint to `launchActivity`.
+  * Data can be passed from the app to the EHR as hints, within the `launchActivity` payload. For example, suggested timeslots to book a new appointment. We welcome implementor feedback on whether this is appropriate, or if `ui.create` actions should instead be used for such purposes.
+  * For FHIR resource types, it is better to pass in a resource ID rather than duplicating resource content when providing a hint to `launchActivity`.
 
-#### Request payload for `ui.done`
-The request payload for the `ui.done` message is an empty JSON object. 
-
-#### Request payload for `ui.launchActivity`
+##### Request payload for `ui.launchActivity`
 
 | Property             | Optionality | Type   | Description |
 | -------------------- | ----------- | ------ | ----------- |
@@ -301,18 +323,8 @@ EHRs and Apps MAY implement activities *not specified* in the [Activity Catalog]
 
 The `activityParameters` property conveys parameters specific to an activity type. See the SMART Web Messaging [Activity Catalog] for details.
 
-An example of a `ui.done` message from an app to the EHR is shown below:
-
-```js
-targetWindow.postMessage({
-  "messageId": "<some new uid>",
-  "messageType": "ui.done",
-  "payload": {}
-}, targetOrigin);
-```
-
-A SMART app can use the `ui.launchActivity` message type to request
-navigation to a different activity *without* closing the app:
+##### `ui.launchActivity` example
+A SMART app can use the `ui.launchActivity` message type to request navigation to a different activity *without* closing the app:
 
 ```js
 targetWindow.postMessage({
@@ -323,7 +335,7 @@ targetWindow.postMessage({
     "activityParameters": {
       // Each ui activity defines its optional and required params.  See the
       // Activity Catalog for more details.
-      "problemLocation": "Condition/123"
+      "problemLocations": ["Condition/123"]
     }
   }
 }, targetOrigin);
@@ -333,20 +345,21 @@ targetWindow.postMessage({
 The `status` and `statusDetail` properties already on the `response` are sufficient to capture all outcomes of an app attempting to launch an activity. Therefore, the response payload for `ui.launchActivity` is an empty JSON object.
 
 ### EHR interactions providing managed access to work-in-progress resources
-While interacting with an embedded SMART app, a clinician may make decisions that should be implemented in the EHR with minimal clicks.  SMART Web Messaging exposes an API to the clinician's set of work-in-progress resources within the EHR, which may include FHIR resources unavailable on the [RESTful FHIR API]. 
+While interacting with an embedded SMART app, a clinician may make decisions that should be implemented in the EHR with minimal clicks.  SMART Web Messaging exposes an API that provides EHR managed access to the clinician's set of work-in-progress resources, which may include FHIR resources unavailable on the [RESTful FHIR API]. 
 
-Note that, while these 'work-in-progress' resources fit the general English tem 'draft', 
+Note that, while these 'work-in-progress' resources fit the general meaning of the English term 'draft', 
 * FHIR resources do not always have a 'draft' status
-* FHIR resource status of 'draft' may not always be accurate for the resource in question. For example, a clinician may be modifying a signed order, in which case the EHR may choose to expose the 'work-in-progress' changes through in this managed access interaction, whereas these 'work-in-progress' changes may not be available thorough the [RESTful FHIR API]
+* FHIR resource status of 'draft' may not always be accurate for the resource in question. For example, a clinician may be modifying a signed order, in which case the EHR may choose to expose the 'work-in-progress' changes through this managed access interface, whereas these 'work-in-progress' changes may not be available thorough the [RESTful FHIR API]. 
+* The specifics of how state information regarding work-in-progress resources are maintained is EHR implementation detail, and will not be impinged upon by this specification. 
 
-SMART Web Messaging is designed to be compatible with CDS Hooks, and to implement the CDS Hooks decisions flow.  For any [CDS Hooks Action] array, you can create a list of SMART Web Messaging API calls:
+SMART Web Messaging is designed to be compatible with CDS Hooks, and to implement flows similar to CDS Hooks.  For any [CDS Hooks Action] array, you can create a list of SMART Web Messaging API calls:
 
-* [CDS Hooks Action] `type` is used to populate the response `messageType`
+* [CDS Hooks Action] `type` is used to populate the `messageType` in the SMART Web Messaging `request`
   * `create`→ `ui.create`
   * `update`→ `ui.update`
   * `delete`→ `ui.delete`
-* [CDS Hooks Action] `resource`: used to populate the `payload.resource`
-* [CDS Hooks Action] `resourceId`: used to populate the `payload.resourceId`
+* [CDS Hooks Action] `resource`: used to populate the `payload.resource` in the SMART Web Messaging `request`
+* [CDS Hooks Action] `resourceId`: used to populate the `payload.resourceId` in the SMART Web Messaging `request`
 
 #### Request payload for `ui.create`, `ui.update`, and `ui.delete`
 
@@ -393,7 +406,7 @@ targetWindow.postMessage({
 
 #### Response payload for `ui.create`, `ui.update`, and `ui.delete`
 
-The EHR responds to all the above message types with a payload that matches FHIR's [`Bundle.entry.response`] data model. The table below includes only the most commonly used fields; see the FHIR specification for full details.
+The EHR responds to all the above message types with a `payload` that matches FHIR's [`Bundle.entry.response`] data model. The table below includes only the most commonly used fields; see the FHIR specification for full details.
 
 | Property              | Optionality | Type   | Description |
 | --------------------- | ----------- | ------ | ----------- |
@@ -426,6 +439,10 @@ targetWindow.postMessage({
   }
 }, targetOrigin);
 ```
+
+This specification does not explicitly prevent the same resources from being modified through the `ui.create`, `ui.update`, and `ui.delete` messages as well as through the [RESTful FHIR API]. However, as noted beforehand:
+* Not all resources, and not all work-in-progress information on resources, available through the `ui.*` messages may be available through the [RESTful FHIR API]. Resource availability through each of these options is EHR implementation detail, and the `app` is responsible for determining availability details before using a particular option for interacting with a particular state of a particular resource.
+* Using the `ui.*` messages in preference to the [RESTful FHIR API] may allow the EHR to provide tighter UI integration such as spotlighting newly created orders so clinicians understand that they need to sign these.
 
 ### Authorization with SMART Scopes
 SMART Web Messaging enables capabilities that can be authorized via [OAuth scopes], within the `messaging/` category.  Authorization is at the level of specific messages (e.g., `ui.launchActivity`).  For example, a SMART app that performs dosage adjustments to in-progress orders might request the following scopes:
