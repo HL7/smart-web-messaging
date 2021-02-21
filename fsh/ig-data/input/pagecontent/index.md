@@ -83,13 +83,17 @@ The SMART Web Messaging specification envisions the following roles for actors i
 | Role    | Description |
 | ------- | ----------- |
 | ui      | The user interface of the EHR that the SMART app interacts with |
-| app     | The SMART app |
+| app     | The SMART app using SMART Web Messaging |
 | fhir    | An EHR delegate actor that provides a SMART Web Messaging proxy endpoint to the [RESTful FHIR API] |
 {:.grid}
 
 #### ui
+This is the user interface of the EHR that is hosting the SMART app. It provides the following capabilities for the app.
+* The `ui` of the EHR that the SMART Web Messaging app interacts with provides managed access to work in progress resources such as unsigned orders within the EHR that may not otherwise be available through the [RESTful FHIR API].
+* The `ui` allows the SMART Web Messaging app to perform user-interface interactions such as closing the app or taking the clinician to another activity.
 
 #### app
+This role stands for the SMART app itself, that is interacting with the EHR `ui` using SMART Web Messaging. Interactions between multiple SMART apps simultaneously hosted within an EHR `ui` are currently not within the scope of this specification.
 
 #### fhir
 
