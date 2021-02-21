@@ -56,7 +56,7 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 
 SMART Web Messaging is designed for compatibility with FHIR R4 and above.
 
-### Why
+### Objective
 Clinical workflow systems (such as EHRs) may be able to launch [SMART applications] in a few different ways: 
 * automatically at specific points in the workflow, 
 * in response to a user interaction event in the UI, 
