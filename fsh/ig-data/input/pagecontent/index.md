@@ -392,7 +392,7 @@ targetWindow.postMessage({
 
 #### Response payload for `ui.create`, `ui.update`, and `ui.delete`
 
-The EHR responds to all `scratchpad` message types with a payload that matches FHIR's [`Bundle.entry.response`] data model. The table below includes only the most commonly used fields; see the FHIR specification for full details.
+The EHR responds to all the above message types with a payload that matches FHIR's [`Bundle.entry.response`] data model. The table below includes only the most commonly used fields; see the FHIR specification for full details.
 
 | Property              | Optionality | Type   | Description |
 | --------------------- | ----------- | ------ | ----------- |
