@@ -28,7 +28,7 @@
 [FHIRCast]: http://fhircast.org
 [HTML5]: https://html.spec.whatwg.org/multipage
 [HTML5's Web Messaging]: https://html.spec.whatwg.org/multipage/web-messaging.html
-[JSON (RFC7159)]: https://tools.ietf.org/html/rfc7159
+[JSON (RFC8259)]: https://tools.ietf.org/html/rfc8259
 [`MessageEvent`]: https://html.spec.whatwg.org/multipage/comms.html#messageevent
 [OAuth]: https://oauth.net/
 [OAuth 2.0]: https://oauth.net/2/
