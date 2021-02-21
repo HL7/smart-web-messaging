@@ -46,7 +46,7 @@ This is the EHR activity where end users (usually clinicians) review active orde
 
 | Property             | Optionality | Type   | Description |
 | -------------------- | ----------- | ------ | ----------- |
-| `orderLocations` | OPTIONAL    | array  | array of order locations to highlight to end user. |
+| `orderLocations` | OPTIONAL    | array of string  | array of order locations to highlight to end user. |
 {:.grid}
 
 ## `problem-review`
@@ -57,5 +57,5 @@ Allow the EHR user to review the patient's problem list.
 
 | Property             | Optionality | Type   | Description |
 | -------------------- | ----------- | ------ | ----------- |
-| `problemLocations` | OPTIONAL    | array  | Array of references to a pre-existing [FHIR Condition] resources to highlight to end user. |
+| `problemLocations` | OPTIONAL    | array of string  | Array of references to a pre-existing [FHIR Condition] resources to highlight to end user. |
 {:.grid}
