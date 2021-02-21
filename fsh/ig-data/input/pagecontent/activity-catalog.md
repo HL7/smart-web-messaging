@@ -25,7 +25,7 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD",
 be interpreted as described in RFC2119.
 
 
-## `appointment-book`
+## `appointment-schedule`
 This is the EHR activity where end users (usually schedulers or front-desk staff) schedule appointments for a patient.
 
 
