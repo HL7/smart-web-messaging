@@ -6,9 +6,9 @@
 *[API]: Application Programming Interface
 *[CDS]: Clinical Decision Support
 *[CPOE]: Computerized Physician Order Entry
-*[CRUD]: Copy Read Update Delete
+*[CRUD]: Create Read Update Delete
 *[EHR]: Electronic Health Record
-*[EHRs]: Electronic Health Record
+*[EHRs]: Electronic Health Records
 *[OAuth]: An open standard for access delegation, commonly used as a way for Internet users to grant websites or applications access to their information on other websites but without giving them the passwords.
 *[UX]: User Experience
 
@@ -19,13 +19,13 @@
 {:/comment}
 [Activity Catalog]: ./activity-catalog.html
 [Alternatives Considered]: ./alternatives-considered.html
-[`Bundle.entry.response`]: http://hl7.org/fhir/bundle-definitions.html#Bundle.entry.response.location
+[`Bundle.entry.response`]: https://hl7.org/fhir/bundle-definitions.html#Bundle.entry.response.location
 [CDS Hooks]: https://cds-hooks.hl7.org/1.0
 [CDS Hooks Action]: https://cds-hooks.hl7.org/1.0/#action
 [FHIR]: https://hl7.org/fhir/
 [FHIR Coding]: https://www.hl7.org/fhir/datatypes.html#Coding
 [FHIR OperationOutcome]: https://www.hl7.org/fhir/operationoutcome.html
-[FHIRCast]: http://fhircast.org
+[FHIRCast]: https://fhircast.org
 [HTML5]: https://html.spec.whatwg.org/multipage
 [HTML5's Web Messaging]: https://html.spec.whatwg.org/multipage/web-messaging.html
 [JSON (RFC8259)]: https://tools.ietf.org/html/rfc8259
@@ -33,9 +33,9 @@
 [OAuth]: https://oauth.net/
 [OAuth 2.0]: https://oauth.net/2/
 [OAuth scopes]: https://oauth.net/2/scope/
-[RESTful FHIR API]: http://hl7.org/fhir/http.html
+[RESTful FHIR API]: https://hl7.org/fhir/http.html
 [RFC2119]: https://tools.ietf.org/html/rfc2119
-[SMART applications]: http://hl7.org/fhir/smart-app-launch/index.html
+[SMART applications]: https://hl7.org/fhir/smart-app-launch/index.html
 [`window.postMessage`]: https://html.spec.whatwg.org/multipage/web-messaging.html#posting-messages
 
 SMART Web Messaging enables tight UI integration between EHRs and embedded SMART apps via [HTML5's Web Messaging].  SMART Web Messaging allows applications to push unsigned orders, note snippets, risk scores, or UI suggestions directly to the clinician's EHR session.  Built on the browser's javascript [`window.postMessage`] function, SMART Web Messaging is a simple, native API for health apps embedded within the user's workflow.
