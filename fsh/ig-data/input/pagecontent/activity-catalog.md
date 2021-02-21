@@ -50,7 +50,7 @@ This is the EHR activity where end users (usually clinicians) review active orde
 {:.grid}
 
 ## `problem-review`
-Allow the EHR user to review the patient's problem list.
+This is the EHR activity where end users (usually clinicians) review the patient's problem list.
 
 
 ### Parameters
