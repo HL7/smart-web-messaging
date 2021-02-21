@@ -78,7 +78,7 @@ Additionally, SMART Web Messaging MAY enable other interesting capabilities in t
 * Interacting with the EHR's FHIR server through this messaging channel (enabling applications that cannot access the FHIR server directly, e.g. those hosted on the internet).
 
 ### Roles
-The SMART Web Messaging specification envisions the following roles for actors in this specification. 
+The SMART Web Messaging specification envisions the following roles for actors in this specification. SMART Web Messaging post messages sent from one role to another specify a message type that MUST be prefixed with the role name of the intended recipient.
 
 | Role    | Description |
 | ------- | ----------- |
@@ -87,15 +87,18 @@ The SMART Web Messaging specification envisions the following roles for actors i
 | fhir    | An EHR delegate actor that provides a SMART Web Messaging proxy endpoint to the [RESTful FHIR API] |
 {:.grid}
 
-#### ui
+#### `ui` role
 This is the user interface of the EHR that is hosting the SMART app. It provides the following capabilities for the app.
 * The `ui` of the EHR that the SMART Web Messaging app interacts with provides managed access to work in progress resources such as unsigned orders within the EHR that may not otherwise be available through the [RESTful FHIR API].
 * The `ui` allows the SMART Web Messaging app to perform user-interface interactions such as closing the app or taking the clinician to another activity.
 
-#### app
-This role stands for the SMART app itself, that is interacting with the EHR `ui` using SMART Web Messaging. Interactions between multiple SMART apps simultaneously hosted within an EHR `ui` are currently not within the scope of this specification.
+#### `app` role
+This role represents the SMART app itself, that is interacting with the EHR `ui` using SMART Web Messaging. Interactions between multiple SMART apps simultaneously hosted within an EHR `ui` are currently not within the scope of this specification.
 
-#### fhir
+#### `fhir` role
+This role represents a Web Messaging proxy to the [RESTful FHIR API] that the EHR MAY expose to the `app`. This allows the SMART Web Messaging app to gain client side access to the [RESTful FHIR API] rather than having to make web service calls to the [RESTful FHIR API] directly.
+
+At this point of writing, this role is still only a proposal. We welcome connectathon feedback from implementers on the usefulness and specifics of this role. 
 
 
 ### SMART Web Messaging
