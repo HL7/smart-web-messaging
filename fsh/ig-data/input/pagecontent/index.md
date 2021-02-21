@@ -112,7 +112,7 @@ A [`window.postMessage`]-based messaging approach allows flexible, standards-bas
 
 Since [`window.postMessage`] only allows for uni-directional communication, a bi-directional communication model is created using two [`window.postMessage`] calls, one constituting a `request` from the requesting role to the recipient role, and a second constituting a `response` from the recipient role to the requesting role. Each individual message is prefixed with the name of the recipient role. An actor of any role MUST wait for a response on any previous request messages it sent to another role, before sending any new request messages.
 
-All response messages will contain a populated `responseToMessageId` field, which correlates to an initial `messageId` field sent in a request message.  See the following sections for more details.
+There SHALL be at most one `response` message for any given `request` message. All response messages will contain a populated `responseToMessageId` field, which correlates to an initial `messageId` field sent in a request message.  See the following sections for more details.
 
 Requests are currently all initiated by the `app`. There are currently no requests in this specification initiated by a role other than the `app`, but that maay change in the future.
 
