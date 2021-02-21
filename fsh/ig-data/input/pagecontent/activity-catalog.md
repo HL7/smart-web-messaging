@@ -57,5 +57,5 @@ This is the EHR activity where end users (usually clinicians) review the patient
 
 | Property             | Optionality | Type   | Description |
 | -------------------- | ----------- | ------ | ----------- |
-| `problemLocations` | OPTIONAL    | array of string  | Array of references to a pre-existing [FHIR Condition] resources to highlight to end user. |
+| `problemLocations` | OPTIONAL    | array of string  | Array of references to pre-existing [FHIR Condition] resources to highlight to end user. |
 {:.grid}
