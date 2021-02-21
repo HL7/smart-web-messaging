@@ -11,6 +11,7 @@
 *[EHRs]: Electronic Health Records
 *[OAuth]: An open standard for access delegation, commonly used as a way for Internet users to grant websites or applications access to their information on other websites but without giving them the passwords.
 *[UX]: User Experience
+*[JSON]: JavaScript Object Notation as described in RFC 8259
 
 {::comment}
 
