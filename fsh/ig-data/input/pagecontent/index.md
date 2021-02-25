@@ -531,6 +531,12 @@ SMART Web Messaging is not a context synchronization specification (see
 [FHIRCast]).  Rather, it's a collection of functions available to a web app
 embedded within an EHR which supports tight workflow integration.
 
+Implementers should be aware of the policies and rules affecting 
+[data provenance](https://www.hl7.org/fhir/provenance.html) for the resources
+which may be affected by SMART Web Messaging effects and actions, but this
+version of the specification remains silent on how provenance is to be
+addressed by implementers.
+
 ### Alternatives considered
 See [Alternatives Considered].
 
