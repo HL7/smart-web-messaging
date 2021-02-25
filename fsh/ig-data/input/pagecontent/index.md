@@ -1,12 +1,15 @@
 {::comment}
 
   COMMON TERMS, which will reveal a hover-text definition in the IG when viewed.
+  
+  NOTE: When adding an abbreviation to this list, also add the same abbreviation
+  to the List of Abbreviations section near the end of this IG.
 
 {:/comment}
 *[API]: Application Programming Interface
 *[CDS]: Clinical Decision Support
 *[CPOE]: Computerized Physician Order Entry
-*[CRUD]: Copy Read Update Delete
+*[CRUD]: Create Read Update Delete
 *[EHR]: Electronic Health Record
 *[EHRs]: Electronic Health Record
 *[OAuth]: An open standard for access delegation, commonly used as a way for Internet users to grant websites or applications access to their information on other websites but without giving them the passwords.
