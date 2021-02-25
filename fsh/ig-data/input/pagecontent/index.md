@@ -299,12 +299,6 @@ that all activities in the catalog are OPTIONAL.
 The `activityParameters` property conveys parameters specific to an activity
 type. See the SMART Web Messaging [Activity Catalog] for details.
 
-*Note:* A SMART app launched in the context of CDS Hooks should generally not
-need to specify an `activityType` or `activityParameters` with the `ui.done`
-message, because the EHR tracks the context in which the app was launched (e.g.,
-order entry) and can navigate to an appropriate follow-up screen based on this
-context.
-
 An example of a `ui.done` message from an app to the EHR is shown below:
 
 ```js
