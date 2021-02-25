@@ -532,6 +532,10 @@ SMART Web Messaging is not a context synchronization specification (see
 embedded within an EHR which supports tight workflow integration.
 
 ### Alternatives considered
+Several design approaches were considered when first designing this
+specification, and some of those candidate designs are captured for posterity 
+in the section linked below.
+
 See [Alternatives Considered].
 
 ### Open questions for ballot feedback
