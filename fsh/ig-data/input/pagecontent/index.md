@@ -425,7 +425,8 @@ targetWindow.postMessage({
 
 The EHR responds to all `scratchpad` message types with a payload that matches
 FHIR's [`Bundle.entry.response`] data model. The table below includes only
-the most commonly used fields; see the FHIR specification for full details.
+the most commonly used fields; for full details, see the
+[FHIR specification](https://hl7.org/fhir/bundle-definitions.html#Bundle.entry.response.location).
 
 | Property              | Optionality | Type   | Description |
 | --------------------- | ----------- | ------ | ----------- |
