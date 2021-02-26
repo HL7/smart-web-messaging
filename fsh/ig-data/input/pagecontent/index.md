@@ -337,19 +337,34 @@ targetWindow.postMessage({
 
 | Property  | Optionality | Type    | Description |
 | --------- | ----------- | ------- | ----------- |
-| `success` | REQUIRED    | boolean | `true` if the request has been accepted; `false` if it has been rejected. |
-| `details` | OPTIONAL    | string  | A human readable explanation of the outcome. |
+| `status`  | REQUIRED    | `ResponseStatusCode` | A code representing the status of the requested activity. |
+| `statusDetail` | OPTIONAL | [`FHIR Coding`] | Populated with a description of the response status code. |
+{:.grid}
+
+##### `ResponseStatusCode`
+
+| System | Version | Code | Display |
+| ------ | ------- | ---- | ------- |
+| https://hl7.org/fhir/uv/smart-web-messaging | from v0.1 | `success` | Success |
+| https://hl7.org/fhir/uv/smart-web-messaging | from v0.1 | `error`   | Error   |
 {:.grid}
 
 The EHR SHALL respond to all `ui` message types with a payload that includes a
-boolean `success` parameter and an optional `details` string:
+`status` parameter and an optional `statusDetail` coding:
 
 ```js
 clientAppWindow.postMessage({
   "messageId": "<some new uid>",
   "responseToMessageId": "<uid from the client's request>",
   "payload": {
-    "success": true,
+    "status": {
+      "code": {
+        "coding": [{
+          "system": "https://hl7.org/fhir/uv/smart-web-messaging",
+          "code": "success",
+        }]
+      }
+    }
     "details": "string explanation for user (optional)"
   }
 }, clientAppOrigin);
