@@ -1,4 +1,4 @@
-CodeSystem:     LaunchStatusCS
+CodeSystem:     LaunchStatusCode
 Id:             launch-status-code-system
 Title:          "LaunchStatusCode"
 Description:    "An enumerated set of launch result states."
