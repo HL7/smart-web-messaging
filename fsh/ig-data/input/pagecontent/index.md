@@ -1,12 +1,15 @@
 {::comment}
 
   COMMON TERMS, which will reveal a hover-text definition in the IG when viewed.
+  
+  NOTE: When adding an abbreviation to this list, also add the same abbreviation
+  to the List of Abbreviations section near the end of this IG.
 
 {:/comment}
 *[API]: Application Programming Interface
 *[CDS]: Clinical Decision Support
 *[CPOE]: Computerized Physician Order Entry
-*[CRUD]: Copy Read Update Delete
+*[CRUD]: Create Read Update Delete
 *[EHR]: Electronic Health Record
 *[EHRs]: Electronic Health Record
 *[OAuth]: An open standard for access delegation, commonly used as a way for Internet users to grant websites or applications access to their information on other websites but without giving them the passwords.
@@ -562,3 +565,18 @@ In the current proposal, we limit message types to `ui` and `scratchpad` for mes
 
 #### Independent maturity models for message types and activities
 FHIRCast and CDS Hooks specify their events (or hooks) in separate specifications, using their own maturity models and lifecycles.  Should the SMART Web Messaging adopt similar patterns for its message types and activities?
+
+### List of Abbreviations
+The following acronyms and abbreviations are used throughout the document and
+are provided here for the benefit of printed-copy IG implementers and readers.
+
+| Abbreviation | Meaning |
+| ------------ | ------- |
+| [API]   | Application Programming Interface |
+| [CDS]   | Clinical Decision Support |
+| [CPOE]  | Computerized Physician Order Entry |
+| [CRUD]  | Create Read Update Delete |
+| [EHR]   | Electronic Health Record |
+| [OAuth] | An open standard for access delegation, commonly used as a way for Internet users to grant websites or applications access to their information on other websites but without giving them the passwords. |
+| [UX]    | User Experience |
+{:.grid}
