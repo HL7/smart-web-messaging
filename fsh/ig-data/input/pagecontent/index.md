@@ -19,13 +19,14 @@
 {:/comment}
 [Activity Catalog]: ./activity-catalog.html
 [Alternatives Considered]: ./alternatives-considered.html
-[`Bundle.entry.response`]: http://hl7.org/fhir/bundle-definitions.html#Bundle.entry.response.location
+[`Bundle.entry.response`]: https://hl7.org/fhir/bundle-definitions.html#Bundle.entry.response.location
 [CDS Hooks]: https://cds-hooks.hl7.org/1.0
 [CDS Hooks Action]: https://cds-hooks.hl7.org/1.0/#action
 [FHIR]: https://hl7.org/fhir/
 [FHIR Coding]: https://www.hl7.org/fhir/datatypes.html#Coding
+[FHIR CodeableConcept]: https://hl7.org/fhir/datatypes.html#CodeableConcept
 [FHIR OperationOutcome]: https://www.hl7.org/fhir/operationoutcome.html
-[FHIRCast]: http://fhircast.org
+[FHIRCast]: https://fhircast.org
 [HTML5]: https://html.spec.whatwg.org/multipage
 [HTML5's Web Messaging]: https://html.spec.whatwg.org/multipage/web-messaging.html
 [JSON (RFC7159)]: https://tools.ietf.org/html/rfc7159
@@ -33,9 +34,9 @@
 [OAuth]: https://oauth.net/
 [OAuth 2.0]: https://oauth.net/2/
 [OAuth scopes]: https://oauth.net/2/scope/
-[RESTful FHIR API]: http://hl7.org/fhir/http.html
+[RESTful FHIR API]: https://hl7.org/fhir/http.html
 [RFC2119]: https://tools.ietf.org/html/rfc2119
-[SMART applications]: http://hl7.org/fhir/smart-app-launch/index.html
+[SMART applications]: https://hl7.org/fhir/smart-app-launch/index.html
 [`window.postMessage`]: https://html.spec.whatwg.org/multipage/web-messaging.html#posting-messages
 
 SMART Web Messaging enables tight UI integration between EHRs and embedded SMART apps via [HTML5's Web Messaging].  SMART Web Messaging allows applications to push unsigned orders, note snippets, risk scores, or UI suggestions directly to the clinician's EHR session.  Built on the browser's javascript [`window.postMessage`] function, SMART Web Messaging is a simple, native API for health apps embedded within the user's workflow.
@@ -337,8 +338,8 @@ targetWindow.postMessage({
 
 | Property  | Optionality | Type    | Description |
 | --------- | ----------- | ------- | ----------- |
-| `status`  | REQUIRED    | `ResponseStatusCode` | A code representing the status of the requested activity. |
-| `statusDetail` | OPTIONAL | [`FHIR Coding`] | Populated with a description of the response status code. |
+| `status`  | REQUIRED    | `code` | Either `success` or `failure`.  See [`ResponseStatusCode`](ResponseStatusCode.html) for details. |
+| `statusDetail` | OPTIONAL | `FHIR CodeableConcept` | Populated with a description of the response status code. |
 {:.grid}
 
 ##### `ResponseStatusCode`
@@ -348,6 +349,8 @@ targetWindow.postMessage({
 | https://hl7.org/fhir/uv/smart-web-messaging | from v0.1 | `success` | Success |
 | https://hl7.org/fhir/uv/smart-web-messaging | from v0.1 | `error`   | Error   |
 {:.grid}
+
+See more details [here](ResponseStatusCode.html).
 
 The EHR SHALL respond to all `ui` message types with a payload that includes a
 `status` parameter and an optional `statusDetail` coding:
