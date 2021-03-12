@@ -40,6 +40,6 @@ parameters:
 
 menu:
   Introduction: index.html
-  SMART Web Messaging: swm.html
+  SMART Web Messaging: smart-web-messaging.html
   Activity Catalog: activity-catalog.html
   TOC: toc.html
