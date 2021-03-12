@@ -35,17 +35,9 @@ history:
     sequence: STU 1
     current: false
 
-resources:
-  Patient/example:
-    exampleBoolean: true
-    name: Ignore
-    description: Ignore
-
 parameters:
   usage-stats-opt-out: true
 
 menu:
   IG Home: index.html
   TOC: toc.html
-
-
