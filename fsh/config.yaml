@@ -40,4 +40,6 @@ parameters:
 
 menu:
   IG Home: index.html
+  SMART Web Messaging: swm.html
+  Activity Catalog: activity-catalog.html
   TOC: toc.html
