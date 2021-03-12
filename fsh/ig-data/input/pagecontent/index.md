@@ -77,3 +77,4 @@ SMART Web Messaging builds on [HTML5's Web Messaging] specification, which allow
 <div>
   {%include post-message.svg%}
 </div>
+<img src="./image/post-message.svg">
