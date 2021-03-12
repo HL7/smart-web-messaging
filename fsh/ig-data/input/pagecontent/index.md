@@ -69,3 +69,8 @@ For these embedded apps, there are some key use cases that SMART and CDS Hooks d
 Additionally, SMART Web Messaging enables other interesting capabilities.  For example:
 * Saving app-specific session or state identifiers to the EHR for later retrieval (continuing sessions).
 * Interacting with the EHR's FHIR server through this messaging channel (enabling applications that cannot access the FHIR server directly, e.g. those hosted on the internet).
+
+### How
+SMART Web Messaging builds on [HTML5's Web Messaging] specification, which allows web pages to communicate across domains. In JavaScript, calls to [`window.postMessage`] pass [`MessageEvent`] objects between windows.
+
+<img src="./post-message.svg">
