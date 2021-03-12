@@ -339,7 +339,7 @@ targetWindow.postMessage({
 | Property  | Optionality | Type    | Description |
 | --------- | ----------- | ------- | ----------- |
 | `status`  | REQUIRED    | `code` | Either `success` or `failure`.  See [`ResponseStatusCode`](ResponseStatusCode.html) for details. |
-| `statusDetail` | OPTIONAL | `FHIR CodeableConcept` | Populated with a description of the response status code. |
+| `statusDetail` | OPTIONAL | [FHIR CodeableConcept] | Populated with a description of the response status code. |
 {:.grid}
 
 ##### `ResponseStatusCode`
@@ -353,7 +353,7 @@ targetWindow.postMessage({
 See more details [here](ResponseStatusCode.html).
 
 The EHR SHALL respond to all `ui` message types with a payload that includes a
-`status` parameter and an optional `statusDetail` coding:
+`status` parameter and an optional `statusDetail` [FHIR CodeableConcept]:
 
 ```js
 clientAppWindow.postMessage({
