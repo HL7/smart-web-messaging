@@ -338,7 +338,7 @@ targetWindow.postMessage({
 
 | Property  | Optionality | Type    | Description |
 | --------- | ----------- | ------- | ----------- |
-| `status`  | REQUIRED    | `code` | Either `success` or `failure`.  See [`ResponseStatusCode`](ResponseStatusCode.html) for details. |
+| `status`  | REQUIRED    | `code` | Either `success` or `failure`.  See [`ResponseStatusCode`](CodeSystem-launch-status-code-system.html) for details. |
 | `statusDetail` | OPTIONAL | [FHIR CodeableConcept] | Populated with a description of the response status code. |
 {:.grid}
 
@@ -347,10 +347,10 @@ targetWindow.postMessage({
 | System | Version | Code | Display |
 | ------ | ------- | ---- | ------- |
 | https://hl7.org/fhir/uv/smart-web-messaging | from v0.1 | `success` | Success |
-| https://hl7.org/fhir/uv/smart-web-messaging | from v0.1 | `error`   | Error   |
+| https://hl7.org/fhir/uv/smart-web-messaging | from v0.1 | `error`   | Failure |
 {:.grid}
 
-See more details [here](ResponseStatusCode.html).
+See more details [here](CodeSystem-launch-status-code-system.html).
 
 The EHR SHALL respond to all `ui` message types with a payload that includes a
 `status` parameter and an optional `statusDetail` [FHIR CodeableConcept]:
