@@ -44,34 +44,8 @@
 
 SMART Web Messaging enables tight UI integration between EHRs and embedded SMART apps via [HTML5's Web Messaging].  SMART Web Messaging allows applications to push unsigned orders, note snippets, risk scores, or UI suggestions directly to the clinician's EHR session.  Built on the browser's javascript [`window.postMessage`] function, SMART Web Messaging is a simple, native API for health apps embedded within the user's workflow.
 
-#### Conformance Language
+### Conformance Language
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this specification are to be interpreted as described in [RFC2119].
-
-#### Underlying Standards
-
-* [FHIR] 
-* [CDS Hooks]
-* [JSON (RFC7159)]
-* [HTML5]
-
-SMART Web Messaging is designed for compatibility with FHIR R4 and above.
-
-### Why
-Clinical workflow systems (such as EHRs) may be able to launch [SMART applications] in a few different ways: automatically at specific points in the workflow, by user interaction in the UI, or in response to a suggestion from a [CDS Hooks Service](https://cds-hooks.hl7.org/1.0/#cds-hooks-anatomy) (or *other* decision support service).  Once launched, web applications are often embedded within an iframe of the main UI.  In this model, the new application appears in close proximity to a patient's chart and can work with the EHR via [RESTful FHIR API].  These RESTful APIs are great for [CRUD](https://en.wikipedia.org/wiki/Create,_read,_update_and_delete) operations on a logical FHIR Server endpoint, but they don't enable tight workflow integration or access to draft FHIR resources that may only exist in memory on the EHR client.
-
-For these embedded apps, there are some key use cases that SMART and CDS Hooks don't address today:
-
-* Communicating a decision made by the clinician within the SMART app, such as:
-  * placing an order
-  * annotating a procedure with an appropriateness score or a radiation count
-  * transmitting a textual note snippet
-  * suggesting a diagnosis or a condition to the patient's chart
-* Interrogating the orders scratchpad / shopping cart, currently only known within the ordering provider's [CPOE](https://en.wikipedia.org/wiki/Computerized_physician_order_entry) session.
-* Allowing an app to communicate [UX](https://en.wikipedia.org/wiki/User_experience)-relevant results back to the EHR, for example, automatic navigation to a native EHR activity, or sending an "I'm done" signal.
-
-Additionally, SMART Web Messaging enables other interesting capabilities.  For example:
-* Saving app-specific session or state identifiers to the EHR for later retrieval (continuing sessions).
-* Interacting with the EHR's FHIR server through this messaging channel (enabling applications that cannot access the FHIR server directly, e.g. those hosted on the internet).
 
 #### Scratchpad
 Throughout this IG, references to a "scratchpad" refer to an EHR capability where FHIR-structured data can be stored without the expectation of being persisted "permanently" in a FHIR server. The scratchpad can be thought of as a shared memory area, consisting of "temporary" FHIR resources that can be accessed and modified by either an app or the EHR itself.  Each resource on the scratchpad has a temporary unique id (its scratchpad "location").
