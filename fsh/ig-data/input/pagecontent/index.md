@@ -360,15 +360,10 @@ clientAppWindow.postMessage({
   "messageId": "<some new uid>",
   "responseToMessageId": "<uid from the client's request>",
   "payload": {
-    "status": {
-      "code": {
-        "coding": [{
-          "system": "https://hl7.org/fhir/uv/smart-web-messaging",
-          "code": "success",
-        }]
-      }
+    "status": "success",
+    "statusDetail": {
+      "text": "string explanation for user (optional)"
     }
-    "details": "string explanation for user (optional)"
   }
 }, clientAppOrigin);
 ```
