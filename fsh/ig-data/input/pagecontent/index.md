@@ -335,11 +335,11 @@ targetWindow.postMessage({
 
 | Property  | Optionality | Type    | Description |
 | --------- | ----------- | ------- | ----------- |
-| `status`  | REQUIRED    | `code` | Either `success` or `failure`.  See [`ResponseStatusCode`](CodeSystem-launch-status-code-system.html) for details. |
+| `status`  | REQUIRED    | `code` | Either `success` or `failure`.  See [`LaunchStatusCode`](CodeSystem-launch-status-code-system.html) for details. |
 | `statusDetail` | OPTIONAL | [FHIR CodeableConcept] | Populated with a description of the response status code. |
 {:.grid}
 
-##### `ResponseStatusCode`
+##### `LaunchStatusCode`
 
 | System | Version | Code | Display |
 | ------ | ------- | ---- | ------- |
