@@ -1,4 +1,5 @@
 build
+/fsh-generated
 /input/
 /input-cache/
 /node_modules/
