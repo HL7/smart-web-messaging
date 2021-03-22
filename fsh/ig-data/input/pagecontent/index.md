@@ -74,6 +74,6 @@ Additionally, SMART Web Messaging enables other interesting capabilities.  For e
 SMART Web Messaging builds on [HTML5's Web Messaging] specification, which allows web pages to communicate across domains. In JavaScript, calls to [`window.postMessage`] pass [`MessageEvent`] objects between windows.
 
 <div>
-  {%include images/post-message.svg%}
+  {%include includes/post-message.svg%}
 </div>
-<img src="images/post-message.svg">
+<img src="includes/post-message.svg">
