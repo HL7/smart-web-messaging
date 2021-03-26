@@ -44,15 +44,6 @@
 
 SMART Web Messaging enables tight UI integration between EHRs and embedded SMART apps via [HTML5's Web Messaging].  SMART Web Messaging allows applications to push unsigned orders, note snippets, risk scores, or UI suggestions directly to the clinician's EHR session.  Built on the browser's javascript [`window.postMessage`] function, SMART Web Messaging is a simple, native API for health apps embedded within the user's workflow.
 
-### Underlying Standards
-
-* [FHIR] 
-* [CDS Hooks]
-* [JSON (RFC7159)]
-* [HTML5]
-
-SMART Web Messaging is designed for compatibility with FHIR R4 and above.
-
 ### Why
 Clinical workflow systems (such as EHRs) may be able to launch [SMART applications] in a few different ways: automatically at specific points in the workflow, by user interaction in the UI, or in response to a suggestion from a [CDS Hooks Service](https://cds-hooks.hl7.org/1.0/#cds-hooks-anatomy) (or *other* decision support service).  Once launched, web applications are often embedded within an iframe of the main UI.  In this model, the new application appears in close proximity to a patient's chart and can work with the EHR via [RESTful FHIR API].  These RESTful APIs are great for [CRUD](https://en.wikipedia.org/wiki/Create,_read,_update_and_delete) operations on a logical FHIR Server endpoint, but they don't enable tight workflow integration or access to draft FHIR resources that may only exist in memory on the EHR client.
 
@@ -73,7 +64,19 @@ Additionally, SMART Web Messaging enables other interesting capabilities.  For e
 ### How
 SMART Web Messaging builds on [HTML5's Web Messaging] specification, which allows web pages to communicate across domains. In JavaScript, calls to [`window.postMessage`] pass [`MessageEvent`] objects between windows.
 
+The following sequence diagram outlines several of the key events that take place leading up to a successful app invocation of an EHR launched activity via SMART Web Messaging messages.  For simplicity, the full details of the SMART App Launch sequence are abbreviated and the only details shown are the fields needed for conformant SMART Web Messaging.
+
 <div>
   {%include post-message.svg%}
 </div>
-<br clear="all" />
+
+Refer to the [SMART Web Messaging](./smart-web-messaging.html) technical documentation page for details on the specification.
+
+### Underlying Standards
+
+* [FHIR] 
+* [CDS Hooks]
+* [JSON (RFC7159)]
+* [HTML5]
+
+SMART Web Messaging is designed for compatibility with FHIR R4 and above.
