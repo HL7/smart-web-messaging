@@ -523,35 +523,12 @@ in the section linked below.
 
 See [Alternatives Considered].
 
-### Open questions for ballot feedback
-
-#### Discovery of server capabilities
-In the current proposal, we leave discovery out of band. For example, a client
-must consult server documentation to determine which message types a server
-supports.  We welcome ballot comments that consider whether we should define an
-in-band way to advertise which message types (and possibly which parameters) a
-server supports (e.g. via added details in a `.well-known/smart-configuration`).
-
-#### Handshake protocol
-In the current proposal, we omit any initial handshake; a client can submit a
-Web Messaging request at any point, and can determine whether a connection is
-working based on a combination of responses and/or timeout logic.  We welcome
-ballot comments that consider the utility of an explicit handshake, taking into
-account the fact that a initially working connection (e.g., at handshake time)
-can always degrade later.
-
-#### Security considerations
+### Security considerations
 In the current proposal, we provide infrastructure for servers to correlate Web
 Messaging requests with a specific SMART App Launch context, through the
-`smart_web_messaging_handle`. However we do not require that servers make use of
-this property.  We refer commenters to [discussion and rationale here](https://github.com/HL7/smart-web-messaging/pull/4)
-and welcome any additional feedback on this point.
-
-#### General FHIR API interactions
-In the current proposal, we limit message types to `ui` and `scratchpad` for messages sent from the app to the EHR client.  However, it might be convenient for apps if the SMART Web Messaging standard supported a `fhir` message type, which would signify messages meant to be relayed from the app, through the EHR client to the FHIR server.  We welcome ballot comments that speak to the merits or risks of this capability; based on feedback we will consider introducing  a `fhir.*` message type.
-
-#### Independent maturity models for message types and activities
-FHIRCast and CDS Hooks specify their events (or hooks) in separate specifications, using their own maturity models and lifecycles.  Should the SMART Web Messaging adopt similar patterns for its message types and activities?
+`smart_web_messaging_handle`.  However, we do not require that servers make use of
+this property.  Refer to the historical [discussion and rationale here](https://github.com/HL7/smart-web-messaging/pull/4)
+for background context.
 
 ### List of Abbreviations
 The following acronyms and abbreviations are used throughout the document and
