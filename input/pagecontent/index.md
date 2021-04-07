@@ -39,7 +39,7 @@
 [OAuth scopes]: https://oauth.net/2/scope/
 [RESTful FHIR API]: https://hl7.org/fhir/http.html
 [RFC2119]: https://tools.ietf.org/html/rfc2119
-[SMART Launch API]: https://hl7.org/fhir/smart-app-launch
+[SMART App Launch]: https://hl7.org/fhir/smart-app-launch
 [SMART applications]: https://hl7.org/fhir/smart-app-launch/index.html
 [`window.postMessage`]: https://html.spec.whatwg.org/multipage/web-messaging.html#posting-messages
 
@@ -79,6 +79,6 @@ Refer to the [SMART Web Messaging](./smart-web-messaging.html) technical documen
 * [FHIR] 
 * [HTML5]
 * [JSON (RFC7159)]
-* [SMART Launch API]
+* [SMART App Launch]
 
 SMART Web Messaging is designed for compatibility with FHIR R4 and above.
