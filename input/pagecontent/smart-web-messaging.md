@@ -145,7 +145,7 @@ window.addEventListener("message", function(event) {
   }
 
   //
-  // TODO: Handle the message here by using the contents of event.data.
+  // YOUR CODE HERE: Handle the message here by using the contents of event.data.
   //
 
   // Send a response back to the app.
@@ -186,7 +186,7 @@ window.addEventListener("message", function(event) {
   }
 
   //
-  // TODO: Handle the message here, using the contents of event.data.
+  // YOUR CODE HERE: Handle the message here, using the contents of event.data.
   //
 
   // Send a response back to the app.
