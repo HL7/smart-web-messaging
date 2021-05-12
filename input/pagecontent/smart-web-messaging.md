@@ -285,6 +285,7 @@ An example of a `ui.done` message from an app to the EHR is shown below:
 ```js
 targetWindow.postMessage({
   "messageId": "<some new uid>",
+  "messagingHandle": "<smart_web_messaging_handle> from SMART launch context",
   "messageType": "ui.done",
   "payload": {}
 }, targetOrigin);
@@ -296,6 +297,7 @@ navigation to a different activity *without* closing the app:
 ```js
 targetWindow.postMessage({
   "messageId": "<some new uid>",
+  "messagingHandle": "<smart_web_messaging_handle> from SMART launch context",
   "messageType": "ui.launchActivity",
   "payload": {
     "activityType": "problem-review",
@@ -377,6 +379,7 @@ The following example creates a new `ServiceRequest` in the EHR's scratchpad:
 ```js
 targetWindow.postMessage({
   "messageId": "<some new uid>",
+  "messagingHandle": "<smart_web_messaging_handle> from SMART launch context",
   "messageType": "scratchpad.create",
   "payload": {
     "resource": {
@@ -395,6 +398,7 @@ Hooks request:
 // Update to a better, cheaper alternative prescription
 targetWindow.postMessage({
   "messageId": "<some new uid>",
+  "messagingHandle": "<smart_web_messaging_handle> from SMART launch context",
   "messageType": "scratchpad.update",
   "payload": {
     "location": "MedicationRequest/123",
@@ -443,6 +447,7 @@ For the app to then delete `MedicationRequest/456` from the EHR's scratchpad, th
 ```js
 targetWindow.postMessage({
   "messageId": "<some new uid>",
+  "messagingHandle": "<smart_web_messaging_handle> from SMART launch context",
   "messageType": "scratchpad.delete",
   "payload": {
     "location": "MedicationRequest/456"
