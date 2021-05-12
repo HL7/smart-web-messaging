@@ -87,11 +87,11 @@ caller SHALL contain a JSON message object with the following properties:
 | `payload`         | REQUIRED     | object | The message content as specified by the `messageType`.  See below. |
 {:.grid}
 
-This message object MUST be passed to [`window.postMessage`] using a valid `targetOrigin` parameter.  The caller MUST provide the `smart_messaging_origin` property to the receiver in the initial SMART launch context alongside the `access_token`.  Callers SHOULD NOT use `"*"` for the `targetOrigin` parameter for [security reasons](https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage#Security_concerns).
+This message object MUST be passed to [`window.postMessage`] using a valid `targetOrigin` parameter.  The caller MUST provide the `smart_web_messaging_origin` property to the receiver in the initial SMART launch context alongside the `access_token`.  Callers SHOULD NOT use `"*"` for the `targetOrigin` parameter for [security reasons](https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage#Security_concerns).
 
 {::comment}
 
-  TODO: include an example of using the SMART app launch client here, and extracting the smart_messaging_origin from the launch context.  Link to the javascript FHIR client?
+  TODO: include an example of using the SMART app launch client here, and extracting the smart_web_messaging_origin from the launch context.  Link to the javascript FHIR client?
   See: https://github.com/HL7/smart-web-messaging/issues/18
 
 {:/comment}
@@ -121,9 +121,9 @@ An example call from an app to the EHR client is presented below.
 // In that case, window.opener will be the object receiving MessageEvents.
 const targetWindow = window.parent !== window.self ? window.parent : window.opener;
 
-// Read the smart_messaging_origin property from the launch context (alongside the access_token).
+// Read the smart_web_messaging_origin property from the launch context (alongside the access_token).
 // This value provides the app with the EHR client's expected target origin.
-const targetOrigin = "<smart_messaging_origin> from SMART launch context";
+const targetOrigin = "<smart_web_messaging_origin> from SMART launch context";
 
 // The smart_web_messaging_handle is a launch context property also alongside the access_token.
 const message = {
@@ -495,7 +495,7 @@ to implementer experience to determine whether we can standardize more granular 
 
 Following the [OAuth 2.0] handshake, the authorization server returns the
 authorized SMART launch parameters alongside the `access_token`.  Note the
-`scope`, `smart_web_messaging_handle`, and `smart_messaging_origin` values:
+`scope`, `smart_web_messaging_handle`, and `smart_web_messaging_origin` values:
 
 ```json
  {
@@ -504,7 +504,7 @@ authorized SMART launch parameters alongside the `access_token`.  Note the
   "expires_in": 3600,
   "scope": "patient/Observation.read patient/Patient.read messaging/ui.launchActivity",
   "smart_web_messaging_handle": "bws8YCbyBtCYi5mWVgUDRqX8xcjiudCo",
-  "smart_messaging_origin": "https://ehr.example.org",
+  "smart_web_messaging_origin": "https://ehr.example.org",
   "state": "98wrghuwuogerg97",
   "patient":  "123",
   "encounter": "456"
