@@ -28,5 +28,7 @@ parameters:
   usage-stats-opt-out: true
 
 menu:
-  IG Home: index.html
+  Introduction: index.html
+  SMART Web Messaging: smart-web-messaging.html
+  Activity Catalog: activity-catalog.html
   TOC: toc.html

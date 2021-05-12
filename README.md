@@ -1,5 +1,5 @@
 # SMART Web Messaging Implementation Guide
-The SMART Web Messaging Implementation Guide content has moved from this README to [fsh/ig-data/input/pagecontent/index.md](https://github.com/HL7/smart-web-messaging/blob/master/fsh/ig-data/input/pagecontent/index.md).  This document is used to feed the IG autopublisher, which populates: <https://build.fhir.org/ig/HL7/smart-web-messaging/>
+The SMART Web Messaging Implementation Guide content has moved from this README to [input/pagecontent/index.md](https://github.com/HL7/smart-web-messaging/blob/master/input/pagecontent/index.md).  This document is used to feed the IG autopublisher, which populates: <https://build.fhir.org/ig/HL7/smart-web-messaging/>
 
 # Published Content
 The IG autobuilder automatically publishes on pushes to the main branch of this repo via a GitHub Webhook.  It typically takes a few minutes for the build to detect changes and run.
