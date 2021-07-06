@@ -493,27 +493,29 @@ The resulting response from the EHR might look like this:
   "responseToMessageId": "<the id of the request message>",
   "messageId": "<some new uid>",
   "payload": {
-    "resourceType": "Bundle",
-    "id": "scratchpad-read-all-example",
-    "type": "searchset",
-    "total": 2,
-    "status": "200 OK",
-    "entry": [
-      {
-        "resource": {
-          "resourceType": "ServiceRequest",
-          "id": 1,
-          "status": "draft"
+    "scratchpad": {
+      "resourceType": "Bundle",
+      "id": "scratchpad-read-all-example",
+      "type": "searchset",
+      "total": 2,
+      "status": "200 OK",
+      "entry": [
+        {
+          "resource": {
+            "resourceType": "ServiceRequest",
+            "id": 1,
+            "status": "draft"
+          },
         },
-      },
-      {
-        "resource": {
-          "resourceType": "MedicationRequest",
-          "id": 1,
-          "status": "draft"
+        {
+          "resource": {
+            "resourceType": "MedicationRequest",
+            "id": 1,
+            "status": "draft"
+          }
         }
-      }
-    ]
+      ]
+    }
   }
 }
 ```
