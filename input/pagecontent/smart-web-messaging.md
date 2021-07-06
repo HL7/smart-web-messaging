@@ -362,6 +362,7 @@ can create a list of SMART Web Messaging API calls:
 
 * [CDS Hooks Action] `type` is used to populate the response `messageType`
   * `create`→ `scratchpad.create`
+  * `read`→ `scratchpad.read`
   * `update`→ `scratchpad.update`
   * `delete`→ `scratchpad.delete`
 * [CDS Hooks Action] `resource`: used to populate the `payload.resource`
@@ -371,7 +372,7 @@ can create a list of SMART Web Messaging API calls:
 | Property              | Optionality  | Type   | Description |
 | --------------------- | ------------ | ------ | ----------- |
 | `resource`            | REQUIRED for `scratchpad.create` and `scratchpad.update`, PROHIBITED for `scratchpad.delete`  | object | Conveys resource content as per CDS Hooks Action's `payload.resource`. |
-| `location`            | REQUIRED for `scratchpad.delete` and `scratchpad.update`,  PROHIBITED for `scratchpad.create`  | string | When used for updates, the id in the `location` value SHALL match the id in the supplied resource. |
+| `location`            | REQUIRED for `scratchpad.delete` and `scratchpad.update`,  PROHIBITED for `scratchpad.create`, OPTIONAL for `scratchpad.read`  | string | When used for updates, the id in the `location` value SHALL match the id in the supplied resource. When used for a read, the returned resource SHALL match the provided value; however, if no value is provided the response may contain any subset of the scratchpad contents. |
 {:.grid}
 
 The following example creates a new `ServiceRequest` in the EHR's scratchpad:
@@ -412,6 +413,17 @@ targetWindow.postMessage({
 }, targetOrigin);
 ```
 
+This example shows how an app might inspect the entire contents of the scratchpad.
+
+```js
+targetWindow.postMessage({
+  "messageId": "<some new uid>",
+  "messagingHandle": "<smart_web_messaging_handle> from SMART launch context",
+  "messageType": "scratchpad.read",
+  "payload": {}
+}, targetOrigin);
+```
+
 #### Response payload for `scratchpad.*`
 
 The EHR responds to all `scratchpad` message types with a payload that matches
@@ -442,7 +454,7 @@ clientAppWindow.postMessage({
 }, clientAppOrigin);
 ```
 
-For the app to then delete `MedicationRequest/456` from the EHR's scratchpad, the app sould issue this message:
+For the app to then delete `MedicationRequest/456` from the EHR's scratchpad, the app should issue this message:
 
 ```js
 targetWindow.postMessage({
@@ -453,6 +465,57 @@ targetWindow.postMessage({
     "location": "MedicationRequest/456"
   }
 }, targetOrigin);
+```
+
+If an app were to request the entire contents of the scratchpad by submitting a
+`scratchpad.read` without specifying a `location` parameter, the EHR might respond with
+a bundle containing multiple resources.
+
+Assuming the scratchpad contained an object like this:
+
+```json
+{
+  "ServiceRequest/1": {
+    "resourceType": "ServiceRequest",
+    "status": "draft"
+  },
+  "MedicationRequest/1": {
+    "resourceType": "MedicationRequest",
+    "status": "draft"
+  }
+}
+```
+
+The resulting response from the EHR might look like this:
+
+```js
+{
+  "responseToMessageId": "<the id of the request message>",
+  "messageId": "<some new uid>",
+  "payload": {
+    "resourceType": "Bundle",
+    "id": "scratchpad-read-all-example",
+    "type": "searchset",
+    "total": 2,
+    "status": "200 OK",
+    "entry": [
+      {
+        "resource": {
+          "resourceType": "ServiceRequest",
+          "id": 1,
+          "status": "draft"
+        },
+      },
+      {
+        "resource": {
+          "resourceType": "MedicationRequest",
+          "id": 1,
+          "status": "draft"
+        }
+      }
+    ]
+  }
+}
 ```
 
 ### Authorization with SMART Scopes
