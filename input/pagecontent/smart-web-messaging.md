@@ -372,7 +372,7 @@ can create a list of SMART Web Messaging API calls:
 | Property              | Optionality  | Type   | Description |
 | --------------------- | ------------ | ------ | ----------- |
 | `resource`            | REQUIRED for `scratchpad.create` and `scratchpad.update`, PROHIBITED for `scratchpad.delete`  | object | Conveys resource content as per CDS Hooks Action's `payload.resource`. |
-| `location`            | REQUIRED for `scratchpad.delete` and `scratchpad.update`,  PROHIBITED for `scratchpad.create`, OPTIONAL for `scratchpad.read`  | string | When used for updates, the id in the `location` value SHALL match the id in the supplied resource. When used for a read, the returned resource SHALL match the provided value; however, if no value is provided the response may contain any subset of the scratchpad contents. |
+| `location`            | REQUIRED for `scratchpad.delete` and `scratchpad.update`,  PROHIBITED for `scratchpad.create`, OPTIONAL for `scratchpad.read`  | string | Takes the form `ResourceType/Id`.  When used for updates, the id in the `location` value SHALL match the id in the supplied resource.  When used for a read, the returned resource SHALL match the provided value; however, if no value is provided the response bundle may contain any subset of the scratchpad contents. |
 {:.grid}
 
 The following example creates a new `ServiceRequest` in the EHR's scratchpad:
