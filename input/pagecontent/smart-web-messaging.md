@@ -471,24 +471,11 @@ If an app were to request the entire contents of the scratchpad by submitting a
 `scratchpad.read` without specifying a `location` parameter, the EHR might respond with
 a bundle containing multiple resources.
 
-Assuming the scratchpad contained an object like this:
+For example, if the scratchpad contained a `ServiceRequest` and a `MedicationRequest`, the resulting
+response of a `scratchpad.read` with no `location` parameter specified might return a bundle like
+this:
 
 ```json
-{
-  "ServiceRequest/1": {
-    "resourceType": "ServiceRequest",
-    "status": "draft"
-  },
-  "MedicationRequest/1": {
-    "resourceType": "MedicationRequest",
-    "status": "draft"
-  }
-}
-```
-
-The resulting response from the EHR might look like this:
-
-```js
 {
   "responseToMessageId": "<the id of the request message>",
   "messageId": "<some new uid>",
@@ -496,22 +483,35 @@ The resulting response from the EHR might look like this:
     "scratchpad": {
       "resourceType": "Bundle",
       "id": "scratchpad-read-all-example",
-      "type": "searchset",
-      "total": 2,
-      "status": "200 OK",
+      "type": "collection",
       "entry": [
         {
+          "fullUrl": "http://example.com/ServiceRequest/1",
           "resource": {
             "resourceType": "ServiceRequest",
-            "id": 1,
-            "status": "draft"
-          },
+            "id": "1",
+            "status": "draft",
+            "intent": "proposal",
+            "subject": {
+              "reference": "http://example.com/Patient/123"
+            }
+          }
         },
         {
+          "fullUrl": "http://example.com/MedicationRequest/1",
           "resource": {
             "resourceType": "MedicationRequest",
-            "id": 1,
-            "status": "draft"
+            "id": "1",
+            "status": "draft",
+            "intent": "proposal",
+            "medication": {
+              "reference": {
+                "reference": "http://example.com/Medication/123"
+              }
+            },
+            "subject": {
+              "reference": "http://example.com/Patient/123"
+            }
           }
         }
       ]
