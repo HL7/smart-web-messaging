@@ -369,11 +369,32 @@ can create a list of SMART Web Messaging API calls:
 
 #### Request payload for `scratchpad.*`
 
-| Property              | Optionality  | Type   | Description |
-| --------------------- | ------------ | ------ | ----------- |
-| `resource`            | REQUIRED for `scratchpad.create` and `scratchpad.update`, PROHIBITED for `scratchpad.delete`  | object | Conveys resource content as per CDS Hooks Action's `payload.resource`. |
-| `location`            | REQUIRED for `scratchpad.delete` and `scratchpad.update`,  PROHIBITED for `scratchpad.create`, OPTIONAL for `scratchpad.read`  | string | Takes the form `ResourceType/Id`.  When used for updates, the id in the `location` value SHALL match the id in the supplied resource.  When used for a read, the returned resource SHALL match the provided value; however, if no value is provided the response bundle may contain any subset of the scratchpad contents. |
+| Property              | Optionality | Type   | Description |
+| --------------------- | ----------- | ------ | ----------- |
+| `resource`            | See [Optionality Matrix](#parameter-optionality-matrix) below.  | object | Conveys resource content as per CDS Hooks Action's `payload.resource`. |
+| `location`            | See [Optionality Matrix](#parameter-optionality-matrix) below.  | string | Takes the form `ResourceType/Id`.  See [errata](#errata) below. |
 {:.grid}
+
+##### Parameter Optionality Matrix
+
+| Property   | `create`   | `read`     | `update` | `delete`   |
+| ---------- | ---------- | ---------- | -------- | ---------- |
+| `resource` | REQUIRED   | PROHIBITED | REQUIRED | PROHIBITED |
+| `location` | PROHIBITED | REQUIRED   | REQUIRED | REQUIRED   |
+{:.grid}
+
+
+##### Errata
+
+###### `scratchpad.read`
+
+Any resource returned in a response SHALL contain a `location` value which matches the value specified in the request `location` field; however, if no value was provided in the request, the response bundle MAY contain any subset of the scratchpad contents and no restrictions apply to the response `location` values.
+
+###### `scratchpad.update`
+
+The `location` value, when parsed for `ResourceType` and `Id`, SHALL match the corresponding `ResourceType` and `Id` fields present in the `resource` property.
+
+##### Examples
 
 The following example creates a new `ServiceRequest` in the EHR's scratchpad:
 
