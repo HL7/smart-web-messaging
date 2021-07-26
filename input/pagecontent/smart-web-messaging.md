@@ -362,39 +362,42 @@ can create a list of SMART Web Messaging API calls:
 
 * [CDS Hooks Action] `type` is used to populate the response `messageType`
   * `create`→ `scratchpad.create`
-  * `read`→ `scratchpad.read`
   * `update`→ `scratchpad.update`
   * `delete`→ `scratchpad.delete`
 * [CDS Hooks Action] `resource`: used to populate the `payload.resource`
 
-#### Request payload for `scratchpad.*`
+#### `scratchpad` operations
+
+Scratchpad operations are conducted through an exchange of a *request* from an
+application and a *response* from an EHR.  The EHR responds to all `scratchpad`
+message types with a payload that matches FHIR's [`Bundle.entry.response`] data model.
+
+The sections below detail the request and response payload requirements.
+
+##### `scratchpad.create`
+
+###### Request payload
 
 | Property              | Optionality | Type   | Description |
 | --------------------- | ----------- | ------ | ----------- |
-| `resource`            | See [Optionality Matrix](#parameter-optionality-matrix) below.  | object | Conveys resource content as per CDS Hooks Action's `payload.resource`. |
-| `location`            | See [Optionality Matrix](#parameter-optionality-matrix) below.  | string | Takes the form `ResourceType/Id`.  See [errata](#errata) below. |
+| `resource`            | REQUIRED    | object | Conveys resource content as per CDS Hooks Action's `payload.resource`. |
 {:.grid}
 
-##### Parameter Optionality Matrix
+###### Response payload
 
-| Property   | `create`   | `read`     | `update` | `delete`   |
-| ---------- | ---------- | ---------- | -------- | ---------- |
-| `resource` | REQUIRED   | PROHIBITED | REQUIRED | PROHIBITED |
-| `location` | PROHIBITED | REQUIRED   | REQUIRED | REQUIRED   |
+The EHR responds to all `scratchpad` message types with a payload that matches
+FHIR's [`Bundle.entry.response`] data model. The table below includes only
+the most commonly used fields; for full details, see the
+[FHIR specification](https://hl7.org/fhir/bundle-definitions.html#Bundle.entry.response.location).
+
+| Property              | Optionality | Type   | Description |
+| --------------------- | ----------- | ------ | ----------- |
+| `status`              | REQUIRED    | string | An HTTP response code (i.e. "200 OK"). |
+| `location`            | REQUIRED if a new resource has been added to the scratchapd. | string | Conveys a relative resource URL for the new resource. |
+| `outcome`             | OPTIONAL    | object | [FHIR OperationOutcome] resulting from the message action. |
 {:.grid}
 
-
-##### Errata
-
-###### `scratchpad.read`
-
-Any resource returned in a response SHALL contain a `location` value which matches the value specified in the request `location` field; however, if no value was provided in the request, the response bundle MAY contain any subset of the scratchpad contents and no restrictions apply to the response `location` values.
-
-###### `scratchpad.update`
-
-The `location` value, when parsed for `ResourceType` and `Id`, SHALL match the corresponding `ResourceType` and `Id` fields present in the `resource` property.
-
-##### Examples
+###### Examples
 
 The following example creates a new `ServiceRequest` in the EHR's scratchpad:
 
@@ -412,6 +415,84 @@ targetWindow.postMessage({
   }
 }, targetOrigin);
 ```
+
+##### `scratchpad.read`
+
+###### Request payload
+
+| Property              | Optionality | Type   | Description |
+| --------------------- | ----------- | ------ | ----------- |
+| `location`            | OPTIONAL    | string | Takes the form `ResourceType/Id` when provided.  |
+{:.grid}
+
+###### Response payload
+
+TODO: insert a table showing the response payload
+
+Any resource returned in a response SHALL contain a `location` value which matches the value specified in the request `location` field; however, if no value was provided in the request, the response bundle SHALL contain the *full* scratchpad contents.
+
+###### Examples
+
+####### Read one scratchpad entry
+
+This example shows how an app might request the contents of a single resource
+from the scratchpad, `ServiceRequest/123`.
+
+```js
+targetWindow.postMessage({
+  "messageId": "<some new uid>",
+  "messagingHandle": "<smart_web_messaging_handle> from SMART launch context",
+  "messageType": "scratchpad.read",
+  "payload": {
+    "location": "ServiceRequest/123"
+  }
+}, targetOrigin);
+```
+
+####### Read full scratchpad contents
+
+This example shows how an app might inspect the entire contents of the scratchpad.
+
+```js
+targetWindow.postMessage({
+  "messageId": "<some new uid>",
+  "messagingHandle": "<smart_web_messaging_handle> from SMART launch context",
+  "messageType": "scratchpad.read"
+}, targetOrigin);
+```
+
+##### `scratchpad.update`
+###### Request payload
+
+| Property              | Optionality | Type   | Description |
+| --------------------- | ----------- | ------ | ----------- |
+| `resource`            | REQUIRED    | object | Conveys resource content as per CDS Hooks Action's `payload.resource`. |
+| `location`            | REQUIRED    | string | Takes the form `ResourceType/Id`.  |
+{:.grid}
+
+The `location` value, when parsed for `ResourceType` and `Id`, SHALL match the corresponding `ResourceType` and `Id` fields present in the `resource` property.
+
+###### Response payload
+
+TODO: add a table for the response payload
+
+###### Examples
+##### `scratchpad.delete`
+###### Request payload
+
+| Property              | Optionality | Type   | Description |
+| --------------------- | ----------- | ------ | ----------- |
+| `location`            | REQUIRED    | string | Takes the form `ResourceType/Id`.  |
+{:.grid}
+
+###### Response payload
+###### Examples
+
+
+##### Examples
+###### Create
+###### Read
+###### Update
 
 This example shows an update to a draft prescription in the context of a CDS
 Hooks request:
@@ -431,17 +512,6 @@ targetWindow.postMessage({
       // additional details as needed
     }
   }
-}, targetOrigin);
-```
-
-This example shows how an app might inspect the entire contents of the scratchpad.
-
-```js
-targetWindow.postMessage({
-  "messageId": "<some new uid>",
-  "messagingHandle": "<smart_web_messaging_handle> from SMART launch context",
-  "messageType": "scratchpad.read",
-  "payload": {}
 }, targetOrigin);
 ```
 
