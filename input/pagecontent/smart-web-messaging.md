@@ -441,8 +441,8 @@ appWindow.postMessage({
 
 | Property              | Optionality | Type   | Description |
 | --------------------- | ----------- | ------ | ----------- |
-| `status`              | REQUIRED    | string | An HTTP response code (i.e. "200 OK"). |
-| `resources`           | REQUIRED    | object | [FHIR Bundle] containing zero or more resources matching the requested `location`. |
+| `status`              | REQUIRED    | string | An HTTP response code (i.e. "200 OK" or "404 NOT FOUND"). |
+| `resources`           | OPTIONAL    | object | [FHIR Bundle] containing zero or more resources matching the requested `location`. |
 | `outcome`             | OPTIONAL    | object | [FHIR OperationOutcome] resulting from the message action. |
 {:.grid}
 
@@ -450,6 +450,10 @@ All resources included in the response `resources` bundle SHALL contain a
 `location` value which matches the value specified in the request `location`
 field; however, if no value was provided in the request, the response bundle
 SHALL contain the *full* scratchpad contents.
+
+If a `location` was specified in a request but not found in the EHR,
+or if there are no entries in the scratchpad, the `resources` property may be
+omitted from the response.
 
 ###### Examples
 
@@ -489,7 +493,11 @@ appWindow.postMessage({
           "resource": {
             "resourceType": "ServiceRequest",
             "id": "123",
-            "...": "other features omitted for brevity"
+            "status": "draft",
+            "intent": "proposal",
+            "subject": {
+              "reference": "http://example.com/Patient/123"
+            }
           }
         }
       ]
@@ -500,17 +508,128 @@ appWindow.postMessage({
 
 ####### Read full scratchpad contents
 
-This example shows how an app might inspect the entire contents of the scratchpad.
+This example shows how an app might inspect the entire contents of the
+scratchpad.
 
 ```js
-targetWindow.postMessage({
+// From app -> EHR
+ehrWindow.postMessage({
   "messageId": "<some new uid>",
   "messagingHandle": "<smart_web_messaging_handle> from SMART launch context",
   "messageType": "scratchpad.read"
-}, targetOrigin);
+}, ehrOrigin);
 ```
 
-TODO: include the response with multiple resources in the bundle
+The EHR could then respond with the full contents of the scratchpad in one
+bundle.
+
+```js
+// From EHR -> app
+appWindow.postMessage({
+  "messageId": "<some new uid>",
+  "responseToMessageId": "<corresponding request messageId>",
+  "payload": {
+    "status": "200 OK",
+    "resources": {
+      "id": "<some new uid>",
+      "resourceType": "Bundle",
+      "type": "collection",
+      "entry": [
+        {
+          "fullUrl": "http://example.com/ServiceRequest/1",
+          "resource": {
+            "resourceType": "ServiceRequest",
+            "id": "1",
+            "status": "draft",
+            "intent": "proposal",
+            "subject": {
+              "reference": "http://example.com/Patient/123"
+            }
+          }
+        },
+        {
+          "fullUrl": "http://example.com/MedicationRequest/1",
+          "resource": {
+            "resourceType": "MedicationRequest",
+            "id": "1",
+            "status": "draft",
+            "intent": "proposal",
+            "medicationCodeableConcept": {
+              "coding": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "108761006",
+                  "display": "Capecitabine-containing product"
+                }
+              ]
+            },
+            "subject": {
+              "reference": "http://example.com/Patient/123"
+            }
+          }
+        }
+      ]
+    }
+  }
+}, appOrigin);
+```
+
+####### Read full contents of an empty scratchpad
+
+This example shows how an app might inspect the entire contents of the
+scratchpad.
+
+```js
+// From app -> EHR
+ehrWindow.postMessage({
+  "messageId": "<some new uid>",
+  "messagingHandle": "<smart_web_messaging_handle> from SMART launch context",
+  "messageType": "scratchpad.read"
+}, ehrOrigin);
+```
+
+Assuming the scratchpad is empty, the EHR can respond to the app with:
+
+```js
+// From EHR -> app
+appWindow.postMessage({
+  "messageId": "<some new uid>",
+  "responseToMessageId": "<corresponding request messageId>",
+  "payload": {
+    "status": "200 OK"
+  }
+}, appOrigin);
+```
+
+####### Error; no matching resource found
+
+This example shows how an app might request the contents of a single resource
+from the scratchpad, `ServiceRequest/321`.
+
+```js
+// From app -> EHR
+ehrWindow.postMessage({
+  "messageId": "<some new uid>",
+  "messagingHandle": "<smart_web_messaging_handle> from SMART launch context",
+  "messageType": "scratchpad.read",
+  "payload": {
+    "location": "ServiceRequest/321"
+  }
+}, ehrOrigin);
+```
+
+Assuming the resource does *not* exist, the EHR could return the following:
+
+```js
+// From EHR -> app
+appWindow.postMessage({
+  "messageId": "<some new uid>",
+  "responseToMessageId": "<corresponding request messageId>",
+  "payload": {
+    "status": "404 NOT FOUND"
+  }
+}, appOrigin);
+```
 
 ##### `scratchpad.update`
 
