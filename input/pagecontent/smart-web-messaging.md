@@ -457,7 +457,7 @@ omitted from the response.
 
 ###### Examples
 
-####### Read one scratchpad entry
+---
 
 This example shows how an app might request the contents of a single resource
 from the scratchpad, `ServiceRequest/123`.
@@ -506,7 +506,7 @@ appWindow.postMessage({
 }, appOrigin);
 ```
 
-####### Read full scratchpad contents
+---
 
 This example shows how an app might inspect the entire contents of the
 scratchpad.
@@ -574,7 +574,7 @@ appWindow.postMessage({
 }, appOrigin);
 ```
 
-####### Read full contents of an empty scratchpad
+---
 
 This example shows how an app might inspect the entire contents of the
 scratchpad.
@@ -588,7 +588,7 @@ ehrWindow.postMessage({
 }, ehrOrigin);
 ```
 
-Assuming the scratchpad is empty, the EHR can respond to the app with:
+Assuming the scratchpad is empty, the EHR could respond to the app with:
 
 ```js
 // From EHR -> app
@@ -601,7 +601,7 @@ appWindow.postMessage({
 }, appOrigin);
 ```
 
-####### Error; no matching resource found
+---
 
 This example shows how an app might request the contents of a single resource
 from the scratchpad, `ServiceRequest/321`.
