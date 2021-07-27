@@ -485,11 +485,11 @@ appWindow.postMessage({
     "status": "200 OK",
     "resources": {
       "id": "<some new uid>",
-      "resourceType": "ResourceBundle",
+      "resourceType": "Bundle",
       "type": "collection",
       "entry": [
         {
-          "fullUrl": "http://example.com/ServiceRequest/123",
+          "fullUrl": "ServiceRequest/123",
           "resource": {
             "resourceType": "ServiceRequest",
             "id": "123",
@@ -536,7 +536,7 @@ appWindow.postMessage({
       "type": "collection",
       "entry": [
         {
-          "fullUrl": "http://example.com/ServiceRequest/1",
+          "fullUrl": "ServiceRequest/1",
           "resource": {
             "resourceType": "ServiceRequest",
             "id": "1",
@@ -548,7 +548,7 @@ appWindow.postMessage({
           }
         },
         {
-          "fullUrl": "http://example.com/MedicationRequest/1",
+          "fullUrl": "MedicationRequest/1",
           "resource": {
             "resourceType": "MedicationRequest",
             "id": "1",
