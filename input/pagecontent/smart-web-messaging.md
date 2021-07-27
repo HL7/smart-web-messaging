@@ -367,12 +367,13 @@ can create a list of SMART Web Messaging API calls:
 * [CDS Hooks Action] `resource`: used to populate the `payload.resource`
 
 #### `scratchpad` operations
-
 Scratchpad operations are conducted through an exchange of a *request* from an
-application and a *response* from an EHR.  The EHR responds to all `scratchpad`
-message types with a payload that matches FHIR's [`Bundle.entry.response`] data model.
+application and a *response* from an EHR.
 
-The sections below detail the request and response payload requirements.
+The sections below detail the request and response payload requirements.  For
+each of the response section below, the provided table includes only
+the most commonly used response payload fields; for full details, see the
+[FHIR specification](https://hl7.org/fhir/bundle-definitions.html#Bundle.entry.response).
 
 ##### `scratchpad.create`
 
@@ -380,20 +381,15 @@ The sections below detail the request and response payload requirements.
 
 | Property              | Optionality | Type   | Description |
 | --------------------- | ----------- | ------ | ----------- |
-| `resource`            | REQUIRED    | object | Conveys resource content as per CDS Hooks Action's `payload.resource`. |
+| `resource`            | REQUIRED    | object | Conveys resource content as per the [CDS Hooks Action] `payload.resource`. |
 {:.grid}
 
 ###### Response payload
 
-The EHR responds to all `scratchpad` message types with a payload that matches
-FHIR's [`Bundle.entry.response`] data model. The table below includes only
-the most commonly used fields; for full details, see the
-[FHIR specification](https://hl7.org/fhir/bundle-definitions.html#Bundle.entry.response.location).
-
 | Property              | Optionality | Type   | Description |
 | --------------------- | ----------- | ------ | ----------- |
 | `status`              | REQUIRED    | string | An HTTP response code (i.e. "200 OK"). |
-| `location`            | REQUIRED if a new resource has been added to the scratchapd. | string | Conveys a relative resource URL for the new resource. |
+| `location`            | REQUIRED if a new resource has been added to the scratchapd. | string | Takes the form `ResourceType/Id`. |
 | `outcome`             | OPTIONAL    | object | [FHIR OperationOutcome] resulting from the message action. |
 {:.grid}
 
@@ -402,7 +398,8 @@ the most commonly used fields; for full details, see the
 The following example creates a new `ServiceRequest` in the EHR's scratchpad:
 
 ```js
-targetWindow.postMessage({
+// From app -> EHR
+ehrWindow.postMessage({
   "messageId": "<some new uid>",
   "messagingHandle": "<smart_web_messaging_handle> from SMART launch context",
   "messageType": "scratchpad.create",
@@ -413,7 +410,22 @@ targetWindow.postMessage({
       // additional details as needed
     }
   }
-}, targetOrigin);
+}, ehrOrigin);
+```
+
+The EHR then performs the requested operation, creating an object in an internal
+scratchpad and assigning it id `123` before finally responding with:
+
+```js
+// From EHR -> app
+appWindow.postMessage({
+  "messageId": "<some new uid>",
+  "responseToMessageId": "<corresponding request messageId>",
+  "payload": {
+    "status": "200 OK",
+    "location": "ServiceRequest/123"
+  }
+}, appOrigin);
 ```
 
 ##### `scratchpad.read`
@@ -427,9 +439,17 @@ targetWindow.postMessage({
 
 ###### Response payload
 
-TODO: insert a table showing the response payload
+| Property              | Optionality | Type   | Description |
+| --------------------- | ----------- | ------ | ----------- |
+| `status`              | REQUIRED    | string | An HTTP response code (i.e. "200 OK"). |
+| `resources`           | REQUIRED    | object | [FHIR Bundle] containing zero or more resources matching the requested `location`. |
+| `outcome`             | OPTIONAL    | object | [FHIR OperationOutcome] resulting from the message action. |
+{:.grid}
 
-Any resource returned in a response SHALL contain a `location` value which matches the value specified in the request `location` field; however, if no value was provided in the request, the response bundle SHALL contain the *full* scratchpad contents.
+All resources included in the response `resources` bundle SHALL contain a
+`location` value which matches the value specified in the request `location`
+field; however, if no value was provided in the request, the response bundle
+SHALL contain the *full* scratchpad contents.
 
 ###### Examples
 
@@ -439,14 +459,43 @@ This example shows how an app might request the contents of a single resource
 from the scratchpad, `ServiceRequest/123`.
 
 ```js
-targetWindow.postMessage({
+// From app -> EHR
+ehrWindow.postMessage({
   "messageId": "<some new uid>",
   "messagingHandle": "<smart_web_messaging_handle> from SMART launch context",
   "messageType": "scratchpad.read",
   "payload": {
     "location": "ServiceRequest/123"
   }
-}, targetOrigin);
+}, ehrOrigin);
+```
+
+Assuming the resource exists, the EHR could return it to the app like this:
+
+```js
+// From EHR -> app
+appWindow.postMessage({
+  "messageId": "<some new uid>",
+  "responseToMessageId": "<corresponding request messageId>",
+  "payload": {
+    "status": "200 OK",
+    "resources": {
+      "id": "<some new uid>",
+      "resourceType": "ResourceBundle",
+      "type": "collection",
+      "entry": [
+        {
+          "fullUrl": "http://example.com/ServiceRequest/123",
+          "resource": {
+            "resourceType": "ServiceRequest",
+            "id": "123",
+            "...": "other features omitted for brevity"
+          }
+        }
+      ]
+    }
+  }
+}, appOrigin);
 ```
 
 ####### Read full scratchpad contents
@@ -461,7 +510,10 @@ targetWindow.postMessage({
 }, targetOrigin);
 ```
 
+TODO: include the response with multiple resources in the bundle
+
 ##### `scratchpad.update`
+
 ###### Request payload
 
 | Property              | Optionality | Type   | Description |
