@@ -446,7 +446,7 @@ appWindow.postMessage({
 | `outcome`             | OPTIONAL    | object | [FHIR OperationOutcome] resulting from the message action. |
 {:.grid}
 
-All resources included in the response `resources` bundle SHALL contain a
+All resources included in the response `resources` Bundle SHALL contain a
 `location` value which matches the value specified in the request `location`
 field; however, if no value was provided in the request, the response bundle
 SHALL contain the *full* scratchpad contents.
