@@ -422,7 +422,7 @@ appWindow.postMessage({
   "messageId": "<some new uid>",
   "responseToMessageId": "<corresponding request messageId>",
   "payload": {
-    "status": "201 CREATED",
+    "status": "201 Created",
     "location": "ServiceRequest/123"
   }
 }, appOrigin);
