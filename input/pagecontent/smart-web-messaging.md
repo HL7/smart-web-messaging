@@ -722,7 +722,7 @@ ehrWindow.postMessage({
 }, ehrOrigin);
 ```
 
-Assuming the delete operation completed, the EHR could respon with:
+Assuming the delete operation completed, the EHR could respond with:
 
 ```js
 // From EHR -> app
