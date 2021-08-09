@@ -430,6 +430,11 @@ appWindow.postMessage({
 
 ##### `scratchpad.read`
 
+The `scratchpad.read` operation allows for selection of either a single resource
+from the scratchpad by requesting its `location` handle, or for selection of the
+*entire* contents of the scratchpad by omitting `location` from the operation
+parameter list.
+
 ###### Request `payload`
 
 | Property              | Optionality | Type   | Description |
@@ -441,19 +446,19 @@ appWindow.postMessage({
 
 | Property              | Optionality | Type   | Description |
 | --------------------- | ----------- | ------ | ----------- |
-| `status`              | REQUIRED    | string | An HTTP response code (i.e. "200 OK" or "404 NOT FOUND"). |
 | `resources`           | OPTIONAL    | object | [FHIR Bundle] containing zero or more resources matching the requested `location`. |
 | `outcome`             | OPTIONAL    | object | [FHIR OperationOutcome] resulting from the message action. |
 {:.grid}
 
-All resources included in the response `resources` Bundle SHALL contain a
-`location` value which matches the value specified in the request `location`
-field; however, if no value was provided in the request, the response Bundle
-SHALL contain the *full* scratchpad contents.
+Because the scratchpad may contain ephemeral objects that are not persisted to
+a FHIR server at all, there are no expectations that a returned bundle entry
+`fullUrl` field references a real resource, or be included in the bundle entry
+at all.
 
-If a `location` was specified in a request but not found in the scratchpad,
-or if there are no entries in the scratchpad, the `resources` property may be
-omitted from the response payload.
+The value of the scratchpad `location` of any Resource accessible through the
+scratchpad can be determined by concatenating the `resourceType` and `id`
+fields, delimiting them with a forward slash.  All resources returned from
+a `scratchpad.read` operation SHALL include both `resourceType` and `id` values.
 
 ###### Examples
 
@@ -482,14 +487,13 @@ appWindow.postMessage({
   "messageId": "<some new uid>",
   "responseToMessageId": "<corresponding request messageId>",
   "payload": {
-    "status": "200 OK",
     "resources": {
       "id": "<some new uid>",
       "resourceType": "Bundle",
       "type": "collection",
       "entry": [
         {
-          "fullUrl": "ServiceRequest/123",
+          "fullUrl": "http://example.com/ServiceRequest/123",
           "resource": {
             "resourceType": "ServiceRequest",
             "id": "123",
@@ -529,14 +533,13 @@ appWindow.postMessage({
   "messageId": "<some new uid>",
   "responseToMessageId": "<corresponding request messageId>",
   "payload": {
-    "status": "200 OK",
     "resources": {
       "id": "<some new uid>",
       "resourceType": "Bundle",
       "type": "collection",
       "entry": [
         {
-          "fullUrl": "ServiceRequest/1",
+          "fullUrl": "https://example.com/ServiceRequest/1",
           "resource": {
             "resourceType": "ServiceRequest",
             "id": "1",
@@ -548,7 +551,7 @@ appWindow.postMessage({
           }
         },
         {
-          "fullUrl": "MedicationRequest/1",
+          "fullUrl": "https://example.com/MedicationRequest/1",
           "resource": {
             "resourceType": "MedicationRequest",
             "id": "1",
@@ -596,38 +599,21 @@ appWindow.postMessage({
   "messageId": "<some new uid>",
   "responseToMessageId": "<corresponding request messageId>",
   "payload": {
-    "status": "200 OK"
+    "resources": {}
   }
 }, appOrigin);
 ```
 
----
-
-This example shows how an app might request the contents of a single resource
-from the scratchpad, `ServiceRequest/321`.
-
-```js
-// From app -> EHR
-ehrWindow.postMessage({
-  "messageId": "<some new uid>",
-  "messagingHandle": "<smart_web_messaging_handle> from SMART launch context",
-  "messageType": "scratchpad.read",
-  "payload": {
-    "location": "ServiceRequest/321"
-  }
-}, ehrOrigin);
-```
-
-Assuming the resource does *not* exist, the EHR could return the following:
+To simplify the previous example further, since the returned `resources` Bundle
+is empty and an optional attribute - can can be omitted.  Applying the same
+logic to the `payload` attribute results in the following equivalent response
+from the EHR.
 
 ```js
 // From EHR -> app
 appWindow.postMessage({
   "messageId": "<some new uid>",
-  "responseToMessageId": "<corresponding request messageId>",
-  "payload": {
-    "status": "404 NOT FOUND"
-  }
+  "responseToMessageId": "<corresponding request messageId>"
 }, appOrigin);
 ```
 
