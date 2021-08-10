@@ -446,14 +446,20 @@ parameter list.
 
 | Property              | Optionality | Type   | Description |
 | --------------------- | ----------- | ------ | ----------- |
-| `resources`           | OPTIONAL    | object | Zero or more resources matching the requested `location`. |
+| `resource`            | OPTIONAL    | object | A resource matching the requested `location`. |
+| `resources`           | OPTIONAL    | object | Zero or more resources from the scratchpad. |
 | `outcome`             | OPTIONAL    | object | [FHIR OperationOutcome] resulting from the message action. |
 {:.grid}
 
+A response payload SHALL NOT populate both the `resource` and `resources`
+attribute - their inclusion in the response is mutually exclusive.
+
 The value of the scratchpad `location` of any Resource accessible through the
 scratchpad can be determined by concatenating the `resourceType` and `id`
-fields, delimiting them with a forward slash.  All resources returned from
-a `scratchpad.read` operation SHALL include both `resourceType` and `id` values.
+fields, delimiting them with a forward slash.
+
+All resources returned from a `scratchpad.read` operation SHALL include both
+`resourceType` and `id` values.
 
 ###### Examples
 
@@ -482,17 +488,15 @@ appWindow.postMessage({
   "messageId": "<some new uid>",
   "responseToMessageId": "<corresponding request messageId>",
   "payload": {
-    "resources": [
-      {
-        "resourceType": "ServiceRequest",
-        "id": "123",
-        "status": "draft",
-        "intent": "proposal",
-        "subject": {
-          "reference": "http://example.com/Patient/123"
-        }
+    "resource": {
+      "resourceType": "ServiceRequest",
+      "id": "123",
+      "status": "draft",
+      "intent": "proposal",
+      "subject": {
+        "reference": "http://example.com/Patient/123"
       }
-    ]
+    }
   }
 }, appOrigin);
 ```
@@ -575,7 +579,7 @@ appWindow.postMessage({
   "messageId": "<some new uid>",
   "responseToMessageId": "<corresponding request messageId>",
   "payload": {
-    "resources": {}
+    "resources": []
   }
 }, appOrigin);
 ```
