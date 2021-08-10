@@ -446,14 +446,9 @@ parameter list.
 
 | Property              | Optionality | Type   | Description |
 | --------------------- | ----------- | ------ | ----------- |
-| `resources`           | OPTIONAL    | object | [FHIR Bundle] containing zero or more resources matching the requested `location`. |
+| `resources`           | OPTIONAL    | object | Zero or more resources matching the requested `location`. |
 | `outcome`             | OPTIONAL    | object | [FHIR OperationOutcome] resulting from the message action. |
 {:.grid}
-
-Because the scratchpad may contain ephemeral objects that are not persisted to
-a FHIR server at all, there are no expectations that a returned bundle entry
-`fullUrl` field references a real resource, or be included in the bundle entry
-at all.
 
 The value of the scratchpad `location` of any Resource accessible through the
 scratchpad can be determined by concatenating the `resourceType` and `id`
@@ -487,25 +482,17 @@ appWindow.postMessage({
   "messageId": "<some new uid>",
   "responseToMessageId": "<corresponding request messageId>",
   "payload": {
-    "resources": {
-      "id": "<some new uid>",
-      "resourceType": "Bundle",
-      "type": "collection",
-      "entry": [
-        {
-          "fullUrl": "http://example.com/ServiceRequest/123",
-          "resource": {
-            "resourceType": "ServiceRequest",
-            "id": "123",
-            "status": "draft",
-            "intent": "proposal",
-            "subject": {
-              "reference": "http://example.com/Patient/123"
-            }
-          }
+    "resources": [
+      {
+        "resourceType": "ServiceRequest",
+        "id": "123",
+        "status": "draft",
+        "intent": "proposal",
+        "subject": {
+          "reference": "http://example.com/Patient/123"
         }
-      ]
-    }
+      }
+    ]
   }
 }, appOrigin);
 ```
@@ -525,7 +512,7 @@ ehrWindow.postMessage({
 ```
 
 The EHR could then respond with the full contents of the scratchpad in one
-bundle.
+array.
 
 ```js
 // From EHR -> app
@@ -533,46 +520,35 @@ appWindow.postMessage({
   "messageId": "<some new uid>",
   "responseToMessageId": "<corresponding request messageId>",
   "payload": {
-    "resources": {
-      "id": "<some new uid>",
-      "resourceType": "Bundle",
-      "type": "collection",
-      "entry": [
-        {
-          "fullUrl": "https://example.com/ServiceRequest/1",
-          "resource": {
-            "resourceType": "ServiceRequest",
-            "id": "1",
-            "status": "draft",
-            "intent": "proposal",
-            "subject": {
-              "reference": "http://example.com/Patient/123"
-            }
-          }
-        },
-        {
-          "fullUrl": "https://example.com/MedicationRequest/1",
-          "resource": {
-            "resourceType": "MedicationRequest",
-            "id": "1",
-            "status": "draft",
-            "intent": "proposal",
-            "medicationCodeableConcept": {
-              "coding": [
-                {
-                  "system": "http://snomed.info/sct",
-                  "code": "108761006",
-                  "display": "Capecitabine-containing product"
-                }
-              ]
-            },
-            "subject": {
-              "reference": "http://example.com/Patient/123"
-            }
-          }
+    "resources": [
+      {
+        "resourceType": "ServiceRequest",
+        "id": "1",
+        "status": "draft",
+        "intent": "proposal",
+        "subject": {
+          "reference": "http://example.com/Patient/123"
         }
-      ]
-    }
+      },
+      {
+        "resourceType": "MedicationRequest",
+        "id": "1",
+        "status": "draft",
+        "intent": "proposal",
+        "medicationCodeableConcept": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "108761006",
+              "display": "Capecitabine-containing product"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "http://example.com/Patient/123"
+        }
+      }
+    ]
   }
 }, appOrigin);
 ```
@@ -604,8 +580,8 @@ appWindow.postMessage({
 }, appOrigin);
 ```
 
-To simplify the previous example further, since the returned `resources` Bundle
-is empty and an optional attribute - can can be omitted.  Applying the same
+To simplify the previous example further, since the returned `resources` array
+is empty and is an optional attribute - it can be omitted.  Applying the same
 logic to the `payload` attribute results in the following equivalent response
 from the EHR.
 
@@ -627,7 +603,8 @@ appWindow.postMessage({
 | `location`            | REQUIRED    | string | Takes the form `ResourceType/Id`.  |
 {:.grid}
 
-The `location` value, when parsed for `ResourceType` and `Id`, SHALL match the corresponding `ResourceType` and `Id` fields present in the `resource` property.
+The `location` value, when parsed for `ResourceType` and `Id`, SHALL match the
+corresponding `ResourceType` and `Id` fields present in the `resource` property.
 
 ###### Response `payload`
 
