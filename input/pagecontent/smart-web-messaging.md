@@ -447,11 +447,11 @@ parameter list.
 | Property              | Optionality | Type   | Description |
 | --------------------- | ----------- | ------ | ----------- |
 | `resource`            | OPTIONAL    | object | A resource matching the requested `location`. |
-| `resources`           | OPTIONAL    | object | Zero or more resources from the scratchpad. |
+| `scratchpad`          | OPTIONAL    | object | Zero or more resources from the scratchpad. |
 | `outcome`             | OPTIONAL    | object | [FHIR OperationOutcome] resulting from the message action. |
 {:.grid}
 
-A response payload SHALL NOT populate both the `resource` and `resources`
+A response payload SHALL NOT populate both the `resource` and `scratchpad`
 attribute - their inclusion in the response is mutually exclusive.
 
 The value of the scratchpad `location` of any Resource accessible through the
@@ -524,7 +524,7 @@ appWindow.postMessage({
   "messageId": "<some new uid>",
   "responseToMessageId": "<corresponding request messageId>",
   "payload": {
-    "resources": [
+    "scratchpad": [
       {
         "resourceType": "ServiceRequest",
         "id": "1",
@@ -579,12 +579,12 @@ appWindow.postMessage({
   "messageId": "<some new uid>",
   "responseToMessageId": "<corresponding request messageId>",
   "payload": {
-    "resources": []
+    "scratchpad": []
   }
 }, appOrigin);
 ```
 
-To simplify the previous example further, since the returned `resources` array
+To simplify the previous example further, since the returned `scratchpad` array
 is empty and is an optional attribute - it can be omitted.  Applying the same
 logic to the `payload` attribute results in the following equivalent response
 from the EHR.
