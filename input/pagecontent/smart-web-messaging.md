@@ -446,8 +446,8 @@ parameter list.
 
 | Property              | Optionality | Type   | Description |
 | --------------------- | ----------- | ------ | ----------- |
-| `resource`            | OPTIONAL    | object | A resource matching the requested `location`. |
-| `scratchpad`          | OPTIONAL    | object | Zero or more resources from the scratchpad. |
+| `resource`            | OPTIONAL    | object | A single Resource returned when a `scratchpad.read` request specifies a `location`. |
+| `scratchpad`          | OPTIONAL    | object | A list of Resources returned when a `scratchpad.read` request specifies no `location`, requesting all resources on the scratchpad. |
 | `outcome`             | OPTIONAL    | object | [FHIR OperationOutcome] resulting from the message action. |
 {:.grid}
 
