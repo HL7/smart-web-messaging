@@ -366,18 +366,40 @@ can create a list of SMART Web Messaging API calls:
   * `delete`→ `scratchpad.delete`
 * [CDS Hooks Action] `resource`: used to populate the `payload.resource`
 
-#### Request payload for `scratchpad.*`
+#### `scratchpad` operations
+Scratchpad operations are conducted through an exchange of a *request* from an
+application and a *response* from an EHR.
 
-| Property              | Optionality  | Type   | Description |
-| --------------------- | ------------ | ------ | ----------- |
-| `resource`            | REQUIRED for `scratchpad.create` and `scratchpad.update`, PROHIBITED for `scratchpad.delete`  | object | Conveys resource content as per CDS Hooks Action's `payload.resource`. |
-| `location`            | REQUIRED for `scratchpad.delete` and `scratchpad.update`,  PROHIBITED for `scratchpad.create`  | string | When used for updates, the id in the `location` value SHALL match the id in the supplied resource. |
+The sections below detail the request and response payload requirements.  For
+each of the response section below, the provided table includes only
+the most commonly used response payload fields; for full details, see the
+[FHIR specification](https://hl7.org/fhir/bundle-definitions.html#Bundle.entry.response).
+
+##### `scratchpad.create`
+
+###### Request `payload`
+
+| Property              | Optionality | Type   | Description |
+| --------------------- | ----------- | ------ | ----------- |
+| `resource`            | REQUIRED    | object | Conveys resource content as per the [CDS Hooks Action] `payload.resource`. |
 {:.grid}
+
+###### Response `payload`
+
+| Property              | Optionality | Type   | Description |
+| --------------------- | ----------- | ------ | ----------- |
+| `status`              | REQUIRED    | string | An HTTP response code (i.e. "200 OK"). |
+| `location`            | REQUIRED if a new resource has been added to the scratchapd. | string | Takes the form `ResourceType/Id`. |
+| `outcome`             | OPTIONAL    | object | [FHIR OperationOutcome] resulting from the message action. |
+{:.grid}
+
+###### Examples
 
 The following example creates a new `ServiceRequest` in the EHR's scratchpad:
 
 ```js
-targetWindow.postMessage({
+// From app -> EHR
+ehrWindow.postMessage({
   "messageId": "<some new uid>",
   "messagingHandle": "<smart_web_messaging_handle> from SMART launch context",
   "messageType": "scratchpad.create",
@@ -388,15 +410,222 @@ targetWindow.postMessage({
       // additional details as needed
     }
   }
-}, targetOrigin);
+}, ehrOrigin);
 ```
+
+The EHR then performs the requested operation, creating an object in an internal
+scratchpad and assigning it id `123` before finally responding with:
+
+```js
+// From EHR -> app
+appWindow.postMessage({
+  "messageId": "<some new uid>",
+  "responseToMessageId": "<corresponding request messageId>",
+  "payload": {
+    "status": "201 Created",
+    "location": "ServiceRequest/123"
+  }
+}, appOrigin);
+```
+
+##### `scratchpad.read`
+
+The `scratchpad.read` operation allows for selection of either a single resource
+from the scratchpad by requesting its `location` handle, or for selection of the
+*entire* contents of the scratchpad by omitting `location` from the operation
+parameter list.
+
+###### Request `payload`
+
+| Property              | Optionality | Type   | Description |
+| --------------------- | ----------- | ------ | ----------- |
+| `location`            | OPTIONAL    | string | Takes the form `ResourceType/Id` when provided.  |
+{:.grid}
+
+###### Response `payload`
+
+| Property              | Optionality | Type   | Description |
+| --------------------- | ----------- | ------ | ----------- |
+| `resource`            | OPTIONAL    | object | A single Resource returned when a `scratchpad.read` request specifies a `location`. |
+| `scratchpad`          | OPTIONAL    | object | A list of Resources returned when a `scratchpad.read` request specifies no `location`, requesting all resources on the scratchpad. |
+| `outcome`             | OPTIONAL    | object | [FHIR OperationOutcome] resulting from the message action. |
+{:.grid}
+
+A response payload SHALL NOT populate both the `resource` and `scratchpad`
+attribute - their inclusion in the response is mutually exclusive.
+
+The value of the scratchpad `location` of any Resource accessible through the
+scratchpad can be determined by concatenating the `resourceType` and `id`
+fields, delimiting them with a forward slash.
+
+All resources returned from a `scratchpad.read` operation SHALL include both
+`resourceType` and `id` values.
+
+###### Examples
+
+---
+
+This example shows how an app might request the contents of a single resource
+from the scratchpad, `ServiceRequest/123`.
+
+```js
+// From app -> EHR
+ehrWindow.postMessage({
+  "messageId": "<some new uid>",
+  "messagingHandle": "<smart_web_messaging_handle> from SMART launch context",
+  "messageType": "scratchpad.read",
+  "payload": {
+    "location": "ServiceRequest/123"
+  }
+}, ehrOrigin);
+```
+
+Assuming the resource exists, the EHR could return it to the app like this:
+
+```js
+// From EHR -> app
+appWindow.postMessage({
+  "messageId": "<some new uid>",
+  "responseToMessageId": "<corresponding request messageId>",
+  "payload": {
+    "resource": {
+      "resourceType": "ServiceRequest",
+      "id": "123",
+      "status": "draft",
+      "intent": "proposal",
+      "subject": {
+        "reference": "http://example.com/Patient/123"
+      }
+    }
+  }
+}, appOrigin);
+```
+
+---
+
+This example shows how an app might inspect the entire contents of the
+scratchpad.
+
+```js
+// From app -> EHR
+ehrWindow.postMessage({
+  "messageId": "<some new uid>",
+  "messagingHandle": "<smart_web_messaging_handle> from SMART launch context",
+  "messageType": "scratchpad.read"
+}, ehrOrigin);
+```
+
+The EHR could then respond with the full contents of the scratchpad in one
+array.
+
+```js
+// From EHR -> app
+appWindow.postMessage({
+  "messageId": "<some new uid>",
+  "responseToMessageId": "<corresponding request messageId>",
+  "payload": {
+    "scratchpad": [
+      {
+        "resourceType": "ServiceRequest",
+        "id": "1",
+        "status": "draft",
+        "intent": "proposal",
+        "subject": {
+          "reference": "http://example.com/Patient/123"
+        }
+      },
+      {
+        "resourceType": "MedicationRequest",
+        "id": "1",
+        "status": "draft",
+        "intent": "proposal",
+        "medicationCodeableConcept": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "108761006",
+              "display": "Capecitabine-containing product"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "http://example.com/Patient/123"
+        }
+      }
+    ]
+  }
+}, appOrigin);
+```
+
+---
+
+This example shows how an app might inspect the entire contents of the
+scratchpad.
+
+```js
+// From app -> EHR
+ehrWindow.postMessage({
+  "messageId": "<some new uid>",
+  "messagingHandle": "<smart_web_messaging_handle> from SMART launch context",
+  "messageType": "scratchpad.read"
+}, ehrOrigin);
+```
+
+Assuming the scratchpad is empty, the EHR could respond to the app with:
+
+```js
+// From EHR -> app
+appWindow.postMessage({
+  "messageId": "<some new uid>",
+  "responseToMessageId": "<corresponding request messageId>",
+  "payload": {
+    "scratchpad": []
+  }
+}, appOrigin);
+```
+
+To simplify the previous example further, since the returned `scratchpad` array
+is empty and is an optional attribute - it can be omitted.  Applying the same
+logic to the `payload` attribute results in the following equivalent response
+from the EHR.
+
+```js
+// From EHR -> app
+appWindow.postMessage({
+  "messageId": "<some new uid>",
+  "responseToMessageId": "<corresponding request messageId>"
+}, appOrigin);
+```
+
+##### `scratchpad.update`
+
+###### Request `payload`
+
+| Property              | Optionality | Type   | Description |
+| --------------------- | ----------- | ------ | ----------- |
+| `resource`            | REQUIRED    | object | Conveys resource content as per CDS Hooks Action's `payload.resource`. |
+| `location`            | REQUIRED    | string | Takes the form `ResourceType/Id`.  |
+{:.grid}
+
+The `location` value, when parsed for `ResourceType` and `Id`, SHALL match the
+corresponding `ResourceType` and `Id` fields present in the `resource` property.
+
+###### Response `payload`
+
+| Property              | Optionality | Type   | Description |
+| --------------------- | ----------- | ------ | ----------- |
+| `status`              | REQUIRED    | string | An HTTP response code (i.e. "200 OK"). |
+| `outcome`             | OPTIONAL    | object | [FHIR OperationOutcome] resulting from the message action. |
+{:.grid}
+
+###### Examples
 
 This example shows an update to a draft prescription in the context of a CDS
 Hooks request:
 
 ```js
-// Update to a better, cheaper alternative prescription
-targetWindow.postMessage({
+// app -> EHR: Update to a better, cheaper alternative prescription
+ehrWindow.postMessage({
   "messageId": "<some new uid>",
   "messagingHandle": "<smart_web_messaging_handle> from SMART launch context",
   "messageType": "scratchpad.update",
@@ -409,50 +638,69 @@ targetWindow.postMessage({
       // additional details as needed
     }
   }
-}, targetOrigin);
+}, ehrOrigin);
 ```
 
-#### Response payload for `scratchpad.*`
+The EHR then performs the requested update, modifying an object in the
+scratchpad before finally responding with:
 
-The EHR responds to all `scratchpad` message types with a payload that matches
-FHIR's [`Bundle.entry.response`] data model. The table below includes only
-the most commonly used fields; for full details, see the
-[FHIR specification](https://hl7.org/fhir/bundle-definitions.html#Bundle.entry.response.location).
+```js
+// From EHR -> app
+appWindow.postMessage({
+  "messageId": "<some new uid>",
+  "responseToMessageId": "<corresponding request messageId>",
+  "payload": {
+    "status": "200 OK",
+    "location": "MedicationRequest/123"
+  }
+}, appOrigin);
+```
+
+##### `scratchpad.delete`
+
+###### Request `payload`
+
+| Property              | Optionality | Type   | Description |
+| --------------------- | ----------- | ------ | ----------- |
+| `location`            | REQUIRED    | string | Takes the form `ResourceType/Id`.  |
+{:.grid}
+
+###### Response `payload`
 
 | Property              | Optionality | Type   | Description |
 | --------------------- | ----------- | ------ | ----------- |
 | `status`              | REQUIRED    | string | An HTTP response code (i.e. "200 OK"). |
-| `location`            | REQUIRED if a new resource has been added to the scratchapd. | string | Conveys a relative resource URL for the new resource. |
 | `outcome`             | OPTIONAL    | object | [FHIR OperationOutcome] resulting from the message action. |
 {:.grid}
 
-As described above, the EHR responds to all `scratchpad` message types with a
-payload that matches FHIR's [`Bundle.entry.response`] data model.  For instance,
-the response to a `scratchpad.create` that adds a new prescription to the
-scratchpad (and assigns id `456` to this draft resource) might look like:
+###### Examples
+
+For the app to delete `MedicationRequest/456` from the EHR's scratchpad, the app should issue this message:
 
 ```js
-clientAppWindow.postMessage({
-  "messageId": "<some new uid>",
-  "responseToMessageId": "<uid from the client's request>",
-  "payload": {
-    "status": "200 OK",
-    "location": "MedicationRequest/456"
-  }
-}, clientAppOrigin);
-```
-
-For the app to then delete `MedicationRequest/456` from the EHR's scratchpad, the app sould issue this message:
-
-```js
-targetWindow.postMessage({
+// app -> EHR
+ehrWindow.postMessage({
   "messageId": "<some new uid>",
   "messagingHandle": "<smart_web_messaging_handle> from SMART launch context",
   "messageType": "scratchpad.delete",
   "payload": {
     "location": "MedicationRequest/456"
   }
-}, targetOrigin);
+}, ehrOrigin);
+```
+
+Assuming the delete operation completed, the EHR could respond with:
+
+```js
+// From EHR -> app
+appWindow.postMessage({
+  "messageId": "<some new uid>",
+  "responseToMessageId": "<corresponding request messageId>",
+  "payload": {
+    "status": "200 OK",
+    "location": "MedicationRequest/456"
+  }
+}, appOrigin);
 ```
 
 ### Authorization with SMART Scopes
