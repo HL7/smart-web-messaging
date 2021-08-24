@@ -774,7 +774,7 @@ authorized SMART launch parameters alongside the `access_token`.  Note the
   "access_token": "i8hweunweunweofiwweoijewiwe",
   "token_type": "bearer",
   "expires_in": 3600,
-  "scope": "patient/Observation.read patient/Patient.read messaging/ui.launchActivity",
+  "scope": "patient/Observation.read patient/Patient.read messaging/ui",
   "smart_web_messaging_handle": "bws8YCbyBtCYi5mWVgUDRqX8xcjiudCo",
   "smart_web_messaging_origin": "https://ehr.example.org",
   "state": "98wrghuwuogerg97",
