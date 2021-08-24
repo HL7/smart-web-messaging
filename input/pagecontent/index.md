@@ -63,7 +63,8 @@ Additionally, SMART Web Messaging enables other interesting capabilities.  For e
 * Interacting with the EHR's FHIR server through this messaging channel (enabling applications that cannot access the FHIR server directly, e.g. those hosted on the internet).
 
 ### How
-SMART Web Messaging builds on [HTML5's Web Messaging] specification, which allows web pages to communicate across domains. In JavaScript, calls to [`window.postMessage`] pass [`MessageEvent`] objects between windows.
+SMART Web Messaging builds on [HTML5's Web Messaging] specification, which allows web pages to communicate across domains. In JavaScript, calls to
+[`window.postMessage`] can pass data between windows by dispatching [`MessageEvent`] objects.
 
 The following sequence diagram outlines several of the key events that take place leading up to a successful app invocation of an EHR launched activity via SMART Web Messaging messages.  For simplicity, the full details of the SMART App Launch sequence are abbreviated and the only details shown are the fields needed for conformant SMART Web Messaging.
 
