@@ -64,7 +64,9 @@ embedding a web application.
 Messages, often in the form or request/response, can originate from an
 application to the EHR client.  Messages initiated from the EHR to an
 application is currently out of scope, but is planned for inclusion in a
-future version of this specification.
+future version of this specification.  The exception to this rule is the
+`status.handshake` message, which can originate from either the EHR or
+the application.
 
 Requesters SHALL be capable of receiving at most one response message to an
 initial request message.  All response messages will contain a populated
@@ -103,7 +105,7 @@ The purpose of the handshake is to allow apps and EHRs to determine, just after
 launch time, if web messaging is enabled in the other; and possibly to discover
 what capabilities the other supports.
 
-Either an app, or the EHR, MAY initiate an OPTIONAL handshake message sequence,
+Either an app, or the EHR, MAY initiate a handshake message sequence,
 using the value `status.handshake` as the value for the `messageType` and an
 empty object for the `payload`.  The receiver of a handshake request message
 SHOULD respond with an appropriate handshake response message, and MAY provide
