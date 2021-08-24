@@ -669,8 +669,7 @@ appWindow.postMessage({
   "messageId": "<some new uid>",
   "responseToMessageId": "<corresponding request messageId>",
   "payload": {
-    "status": "200 OK",
-    "location": "MedicationRequest/123"
+    "status": "200 OK"
   }
 }, appOrigin);
 ```
@@ -716,8 +715,7 @@ appWindow.postMessage({
   "messageId": "<some new uid>",
   "responseToMessageId": "<corresponding request messageId>",
   "payload": {
-    "status": "200 OK",
-    "location": "MedicationRequest/456"
+    "status": "200 OK"
   }
 }, appOrigin);
 ```
