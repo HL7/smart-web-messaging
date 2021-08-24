@@ -623,11 +623,9 @@ appWindow.postMessage({
 | Property              | Optionality | Type   | Description |
 | --------------------- | ----------- | ------ | ----------- |
 | `resource`            | REQUIRED    | object | Conveys resource content as per CDS Hooks Action's `payload.resource`. |
-| `location`            | REQUIRED    | string | Takes the form `ResourceType/Id`.  |
 {:.grid}
 
-The `location` value, when parsed for `ResourceType` and `Id`, SHALL match the
-corresponding `ResourceType` and `Id` fields present in the `resource` property.
+The `resource` SHALL specify a `resourceType` and an `id`.
 
 ###### Response `payload`
 
@@ -649,7 +647,6 @@ ehrWindow.postMessage({
   "messagingHandle": "<smart_web_messaging_handle> from SMART launch context",
   "messageType": "scratchpad.update",
   "payload": {
-    "location": "MedicationRequest/123",
     "resource": {
       "resourceType": "MedicationRequest",
       "id": "123",
