@@ -83,7 +83,13 @@ caller SHALL contain a JSON message object with the following properties:
 | `payload`         | REQUIRED     | object | The message content as specified by the `messageType`.  See below. |
 {:.grid}
 
-This message object MUST be passed to [`window.postMessage`] using a valid `targetOrigin` parameter.  The caller MUST provide the `smart_web_messaging_origin` property to the receiver in the initial SMART launch context alongside the `access_token`.  Callers SHOULD NOT use `"*"` for the `targetOrigin` parameter for [security reasons](https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage#Security_concerns).
+The caller SHALL pass this message object to [`window.postMessage`] using a
+valid `targetOrigin` parameter.
+The `targetOrigin` of the EHR is provided to the app during the SMART launch
+sequence in the launch context parameter `smart_web_messaging_origin`.  The EHR
+is provided with the `targetOrigin` of the app when the app is registered with
+the EHR during app configuration.
+Callers SHOULD NOT use `"*"` for the `targetOrigin` parameter for [security reasons](https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage#Security_concerns).
 
 {::comment}
 
