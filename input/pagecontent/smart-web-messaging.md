@@ -576,37 +576,7 @@ appWindow.postMessage({
 }, appOrigin);
 ```
 
----
-
-This example shows how an app might inspect the entire contents of the
-scratchpad.
-
-```js
-// From app -> EHR
-ehrWindow.postMessage({
-  "messageId": "<some new uid>",
-  "messagingHandle": "<smart_web_messaging_handle> from SMART launch context",
-  "messageType": "scratchpad.read"
-}, ehrOrigin);
-```
-
-Assuming the scratchpad is empty, the EHR could respond to the app with:
-
-```js
-// From EHR -> app
-appWindow.postMessage({
-  "messageId": "<some new uid>",
-  "responseToMessageId": "<corresponding request messageId>",
-  "payload": {
-    "scratchpad": []
-  }
-}, appOrigin);
-```
-
-To simplify the previous example further, since the returned `scratchpad` array
-is empty and is an optional attribute - it can be omitted.  Applying the same
-logic to the `payload` attribute results in the following equivalent response
-from the EHR.
+Or, if the scratchpad had no entries, the EHR could respond with this:
 
 ```js
 // From EHR -> app
@@ -615,6 +585,9 @@ appWindow.postMessage({
   "responseToMessageId": "<corresponding request messageId>"
 }, appOrigin);
 ```
+
+---
+
 
 ##### `scratchpad.update`
 
