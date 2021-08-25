@@ -115,8 +115,9 @@ Extensions MAY be used for handshake requests and responses, and MAY be used to
 advertise capabilities.
 
 
-#### Example Request
-An example call from an app to the EHR client is presented below.
+#### Example Handshake Sequence
+
+An example handshake request from an app to the EHR client is presented below.
 
 ```js
 // When a SMART app is launched embedded in an iframe, window.parent and window.self
@@ -133,30 +134,35 @@ const targetOrigin = "<smart_web_messaging_origin> from SMART launch context";
 const message = {
   "messagingHandle": "<smart_web_messaging_handle> from SMART launch context",
   "messageId":       "<some new uid>",
-  "messageType":     "scratchpad.create",
+  "messageType":     "status.handshake",
   "payload":         {}  // See below.
 };
 
 targetWindow.postMessage(message, targetOrigin);
 ```
 
-In the EHR, the message is received and is handled as shown below.
+The message is received in the EHR and handled as shown below.
 
 ```js
 window.addEventListener("message", function(event) {
-  if (event.origin !== "<the app's expected origin>") {
+  if (event.origin !== "<the expected app origin>") {
     return;  // Ignore unknown origins.
   }
 
-  //
-  // YOUR CODE HERE: Handle the message here by using the contents of event.data.
-  //
+  // Verify the provided messaging handle is valid.
+  if (!messagingHandleIsValid(event.data.messagingHandle)) {
+    return;  // Or handle the error some other way.
+  }
 
-  // Send a response back to the app.
-  const response = {
-    ...  // See below for more details on the response properties.
-  };
-  event.source.postMessage(response, event.origin);
+  // Handle a status.handshake request.
+  if (event.data.messageType === "status.handshake") {
+    event.source.postMessage({
+      messageId: "<some new uid>",
+      responseToMessageId: event.data.messageId,
+      payload: {},
+    }, event.origin);
+  }
+//...
 });
 ```
 
@@ -175,61 +181,10 @@ The response message `payload` properties will vary based on the request `messag
 
 #### Response Target Origin
 It is assumed that the EHR already knows the set of allowed web origins for each
-app, to be used in Web Messaging.  After launching an app, EHR SHOULD NOT process
+app, to be used in Web Messaging.  After launching an app, the EHR SHOULD NOT process
 Web Messages originating from an origin outside this set.  If the app navigates
 users to an origin outside of this set, it SHOULD NOT depend on Web Messages
 reaching the EHR.
-
-#### Detailed Example Response
-In a more detailed example response, the EHR may send one return message like:
-
-```js
-window.addEventListener("message", function(event) {
-  if (event.origin != "<the app's expected origin>") {
-    return;  // Ignore unknown origins.
-  }
-
-  //
-  // YOUR CODE HERE: Handle the message here, using the contents of event.data.
-  //
-
-  // Send a response back to the app.
-  const response = {
-    "responseToMessageId": event.data.messageId,
-    "messageId": "<some new uid>",
-    // The response payload is modeled after Bundle.entry.response.
-    // See: https://www.hl7.org/fhir/bundle-definitions.html#Bundle.entry.response
-    "payload": {
-      "location": "Example/123",
-      // For errors encountered handling the request, the EHR can add an
-      // OperationOutcome to contain additional information.
-      // See: https://www.hl7.org/fhir/operationoutcome.html
-      "outcome": {},
-      "status": "200 OK",
-    }
-  };
-  event.source.postMessage(response, event.origin);
-});
-```
-
-Then, back in the app, the message response is received and handled as shown in
-this example.
-
-```js
-window.addEventListener("message", function(event) {
-  if (event.origin != "<the EHR's origin>") {
-    return;  // Ignore unknown origins.
-  }
-
-  const requestId = event.data.responseToMessageId;
-
-  if (event.data.payload.status == "200 OK") {
-    // Success!
-  } else {
-    // Error handling.
-  }
-});
-```
 
 #### Workflow Summary
 This mechanism enables a full request/response pattern.
