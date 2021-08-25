@@ -121,7 +121,8 @@ An example handshake request from an app to the EHR client is presented below.
 
 ```js
 // When a SMART app is launched embedded in an iframe, window.parent and window.self
-// are different objects, with window.parent being the recipient of MessageEvents.
+// are different objects, with window.parent being the recipient that the SMART app
+// needs to reach via SMART Web Messaging.
 // When a SMART app is launched standalone, window.parent and window.self are the same.
 // In that case, window.opener will be the recipient that the SMART app needs to address.
 const targetWindow = window.parent !== window.self ? window.parent : window.opener;
