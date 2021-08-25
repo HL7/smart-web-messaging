@@ -123,7 +123,7 @@ An example handshake request from an app to the EHR client is presented below.
 // When a SMART app is launched embedded in an iframe, window.parent and window.self
 // are different objects, with window.parent being the recipient of MessageEvents.
 // When a SMART app is launched standalone, window.parent and window.self are the same.
-// In that case, window.opener will be the object receiving MessageEvents.
+// In that case, window.opener will be the recipient that the SMART app needs to address.
 const targetWindow = window.parent !== window.self ? window.parent : window.opener;
 
 // Read the smart_web_messaging_origin property from the launch context (alongside the access_token).
