@@ -354,7 +354,7 @@ the most commonly used response payload fields; for full details, see the
 | Property              | Optionality | Type   | Description |
 | --------------------- | ----------- | ------ | ----------- |
 | `status`              | REQUIRED    | string | An HTTP response code (i.e. "200 OK"). |
-| `location`            | REQUIRED if a new resource has been added to the scratchapd. | string | Takes the form `ResourceType/Id`. |
+| `location`            | REQUIRED if a new resource has been added to the scratchapd. | string | Takes the form `resourceType/id`. |
 | `outcome`             | OPTIONAL    | object | [FHIR OperationOutcome] resulting from the message action. |
 {:.grid}
 
@@ -404,7 +404,7 @@ parameter list.
 
 | Property              | Optionality | Type   | Description |
 | --------------------- | ----------- | ------ | ----------- |
-| `location`            | OPTIONAL    | string | Takes the form `ResourceType/Id` when provided.  |
+| `location`            | OPTIONAL    | string | Takes the form `resourceType/id` when provided.  |
 {:.grid}
 
 ###### Response `payload`
@@ -596,7 +596,7 @@ appWindow.postMessage({
 
 | Property              | Optionality | Type   | Description |
 | --------------------- | ----------- | ------ | ----------- |
-| `location`            | REQUIRED    | string | Takes the form `ResourceType/Id`.  |
+| `location`            | REQUIRED    | string | Takes the form `resourceType/id`.  |
 {:.grid}
 
 ###### Response `payload`
