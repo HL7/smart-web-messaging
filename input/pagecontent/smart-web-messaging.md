@@ -636,6 +636,14 @@ appWindow.postMessage({
 }, appOrigin);
 ```
 
+### FHIR API Messaging
+
+* TODO: introduce the idea of the fhir.* messages.  use cases?
+* TODO: propose a vocabulary for the .* portion of the messages
+* TODO: specify that the target fhir server will be the one specified by the AUD parameter
+* TODO: give an example request & response
+* TODO: clarify that this is an experimental and optional feature for servers to support
+
 ### Authorization with SMART Scopes
 SMART Web Messaging enables capabilities that can be authorized via
 [OAuth scopes], within the `messaging/` category.  Authorization is at the level
