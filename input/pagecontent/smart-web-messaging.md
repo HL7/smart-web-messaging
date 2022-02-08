@@ -45,20 +45,16 @@
 
 SMART Web Messaging enables tight UI integration between EHRs and embedded SMART apps via [HTML5's Web Messaging].  SMART Web Messaging allows applications to push unsigned orders, note snippets, risk scores, or UI suggestions directly to the clinician's EHR session.  Built on the browser's javascript [`window.postMessage`] function, SMART Web Messaging is a simple, native API for health apps embedded within the user's workflow.
 
-Refer to the [Introduction] page for a overview, if needed.
+Refer to the [Introduction] page for an overview, if needed.
 
 ### Conformance Language
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this specification are to be interpreted as described in [RFC2119].
 
-#### Scratchpad
-Throughout this IG, references to a "scratchpad" refer to an EHR capability where FHIR-structured data can be stored without the expectation of being persisted "permanently" in a FHIR server. The scratchpad can be thought of as a shared memory area, consisting of "temporary" FHIR resources that can be accessed and modified by either an app or the EHR itself.  Each resource on the scratchpad has a temporary unique id (its scratchpad "location").
-
-A common use of the scratchpad is to hold the contents of a clinician's "shopping cart" -- i.e., data that only exist during the clinician's session and may not have been finalized or made available through in the EHR's FHIR API. At the end of a user's session, selected data from the scratchpad can be persisted to the EHR's FHIR server (e.g., a "checkout" experience, following the shopping cart metaphor).
-
 ### SMART Web Messaging
 SMART Web Messaging builds on [HTML5's Web Messaging] specification, which
 allows web pages to communicate across domains.  In JavaScript, calls to
-[`window.postMessage`] pass [`MessageEvent`] objects between windows.
+[`window.postMessage`] can pass data between windows by dispatching
+[`MessageEvent`] objects.
 
 A [`window.postMessage`]-based messaging approach allows flexible,
 standards-based integration that works across windows, frames and domains, and
@@ -68,7 +64,9 @@ embedding a web application.
 Messages, often in the form or request/response, can originate from an
 application to the EHR client.  Messages initiated from the EHR to an
 application is currently out of scope, but is planned for inclusion in a
-future version of this specification.
+future version of this specification.  The exception to this rule is the
+`status.handshake` message, which can originate from either the EHR or
+the application.
 
 Requesters SHALL be capable of receiving at most one response message to an
 initial request message.  All response messages will contain a populated
@@ -87,7 +85,13 @@ caller SHALL contain a JSON message object with the following properties:
 | `payload`         | REQUIRED     | object | The message content as specified by the `messageType`.  See below. |
 {:.grid}
 
-This message object MUST be passed to [`window.postMessage`] using a valid `targetOrigin` parameter.  The caller MUST provide the `smart_web_messaging_origin` property to the receiver in the initial SMART launch context alongside the `access_token`.  Callers SHOULD NOT use `"*"` for the `targetOrigin` parameter for [security reasons](https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage#Security_concerns).
+The caller SHALL pass this message object to [`window.postMessage`] using a
+valid `targetOrigin` parameter.
+The `targetOrigin` of the EHR is provided to the app during the SMART launch
+sequence in the launch context parameter `smart_web_messaging_origin`.  The EHR
+is provided with the `targetOrigin` of the app when the app is registered with
+the EHR during app configuration.
+Callers SHOULD NOT use `"*"` for the `targetOrigin` parameter for [security reasons](https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage#Security_concerns).
 
 {::comment}
 
@@ -101,7 +105,7 @@ The purpose of the handshake is to allow apps and EHRs to determine, just after
 launch time, if web messaging is enabled in the other; and possibly to discover
 what capabilities the other supports.
 
-Either an app, or the EHR, MAY initiate an OPTIONAL handshake message sequence,
+Either an app, or the EHR, MAY initiate a handshake message sequence,
 using the value `status.handshake` as the value for the `messageType` and an
 empty object for the `payload`.  The receiver of a handshake request message
 SHOULD respond with an appropriate handshake response message, and MAY provide
@@ -111,14 +115,16 @@ Extensions MAY be used for handshake requests and responses, and MAY be used to
 advertise capabilities.
 
 
-#### Example Request
-An example call from an app to the EHR client is presented below.
+#### Example Handshake Sequence
+
+An example handshake request from an app to the EHR client is presented below.
 
 ```js
 // When a SMART app is launched embedded in an iframe, window.parent and window.self
-// are different objects, with window.parent being the recipient of MessageEvents.
+// are different objects, with window.parent being the recipient that the SMART app
+// needs to reach via SMART Web Messaging.
 // When a SMART app is launched standalone, window.parent and window.self are the same.
-// In that case, window.opener will be the object receiving MessageEvents.
+// In that case, window.opener will be the recipient that the SMART app needs to address.
 const targetWindow = window.parent !== window.self ? window.parent : window.opener;
 
 // Read the smart_web_messaging_origin property from the launch context (alongside the access_token).
@@ -129,30 +135,35 @@ const targetOrigin = "<smart_web_messaging_origin> from SMART launch context";
 const message = {
   "messagingHandle": "<smart_web_messaging_handle> from SMART launch context",
   "messageId":       "<some new uid>",
-  "messageType":     "scratchpad.create",
+  "messageType":     "status.handshake",
   "payload":         {}  // See below.
 };
 
 targetWindow.postMessage(message, targetOrigin);
 ```
 
-In the EHR, the message is received and is handled as shown below.
+The message is received in the EHR and handled as shown below.
 
 ```js
 window.addEventListener("message", function(event) {
-  if (event.origin !== "<the app's expected origin>") {
+  if (event.origin !== "<the expected app origin>") {
     return;  // Ignore unknown origins.
   }
 
-  //
-  // YOUR CODE HERE: Handle the message here by using the contents of event.data.
-  //
+  // Verify the provided messaging handle is valid.
+  if (!messagingHandleIsValid(event.data.messagingHandle)) {
+    return;  // Or handle the error some other way.
+  }
 
-  // Send a response back to the app.
-  const response = {
-    ...  // See below for more details on the response properties.
-  };
-  event.source.postMessage(response, event.origin);
+  // Handle a status.handshake request.
+  if (event.data.messageType === "status.handshake") {
+    event.source.postMessage({
+      messageId: "<some new uid>",
+      responseToMessageId: event.data.messageId,
+      payload: {},
+    }, event.origin);
+  }
+//...
 });
 ```
 
@@ -171,61 +182,10 @@ The response message `payload` properties will vary based on the request `messag
 
 #### Response Target Origin
 It is assumed that the EHR already knows the set of allowed web origins for each
-app, to be used in Web Messaging.  After launching an app, EHR SHOULD NOT process
+app, to be used in Web Messaging.  After launching an app, the EHR SHOULD NOT process
 Web Messages originating from an origin outside this set.  If the app navigates
 users to an origin outside of this set, it SHOULD NOT depend on Web Messages
 reaching the EHR.
-
-#### Detailed Example Response
-In a more detailed example response, the EHR may send one return message like:
-
-```js
-window.addEventListener("message", function(event) {
-  if (event.origin != "<the app's expected origin>") {
-    return;  // Ignore unknown origins.
-  }
-
-  //
-  // YOUR CODE HERE: Handle the message here, using the contents of event.data.
-  //
-
-  // Send a response back to the app.
-  const response = {
-    "responseToMessageId": event.data.messageId,
-    "messageId": "<some new uid>",
-    // The response payload is modeled after Bundle.entry.response.
-    // See: https://www.hl7.org/fhir/bundle-definitions.html#Bundle.entry.response
-    "payload": {
-      "location": "Example/123",
-      // For errors encountered handling the request, the EHR can add an
-      // OperationOutcome to contain additional information.
-      // See: https://www.hl7.org/fhir/operationoutcome.html
-      "outcome": {},
-      "status": "200 OK",
-    }
-  };
-  event.source.postMessage(response, event.origin);
-});
-```
-
-Then, back in the app, the message response is received and handled as shown in
-this example.
-
-```js
-window.addEventListener("message", function(event) {
-  if (event.origin != "<the EHR's origin>") {
-    return;  // Ignore unknown origins.
-  }
-
-  const requestId = event.data.responseToMessageId;
-
-  if (event.data.payload.status == "200 OK") {
-    // Success!
-  } else {
-    // Error handling.
-  }
-});
-```
 
 #### Workflow Summary
 This mechanism enables a full request/response pattern.
@@ -314,19 +274,9 @@ targetWindow.postMessage({
 
 | Property  | Optionality | Type    | Description |
 | --------- | ----------- | ------- | ----------- |
-| `status`  | REQUIRED    | `code` | Either `success` or `failure`.  See [`LaunchStatusCode`](CodeSystem-launch-status-code-system.html) for details. |
+| `status`  | REQUIRED    | `code` | Either `success` or `failure`.  Details link: [`LaunchStatusCode`](CodeSystem-launch-status-code-system.html) |
 | `statusDetail` | OPTIONAL | [FHIR CodeableConcept] | Populated with a description of the response status code. |
 {:.grid}
-
-##### `LaunchStatusCode`
-
-| System | Version | Code | Display |
-| ------ | ------- | ---- | ------- |
-| https://hl7.org/fhir/uv/smart-web-messaging | from v0.1 | `success` | Success |
-| https://hl7.org/fhir/uv/smart-web-messaging | from v0.1 | `error`   | Failure |
-{:.grid}
-
-See more details [here](CodeSystem-launch-status-code-system.html).
 
 The EHR SHALL respond to all `ui` message types with a payload that includes a
 `status` parameter and an optional `statusDetail` [FHIR CodeableConcept]:
@@ -343,6 +293,21 @@ clientAppWindow.postMessage({
   }
 }, clientAppOrigin);
 ```
+
+### Scratchpad
+Throughout this IG, references to a "scratchpad" refer to an EHR capability
+where FHIR-structured data can be stored without the expectation of being
+persisted "permanently" in a FHIR server. The scratchpad can be thought of as a
+shared memory area, consisting of "temporary" FHIR resources that can be
+accessed and modified by either an app or the EHR itself.  Each resource on the
+scratchpad has a temporary unique id (its scratchpad "location").
+
+A common use of the scratchpad is to hold the contents of a clinician's 
+"shopping cart" -- i.e., data that only exist during the clinician's session
+and may not have been finalized or made available through in the EHR's FHIR
+API. At the end of a user's session, selected data from the scratchpad can be
+persisted to the EHR's FHIR server (e.g., a "checkout" experience, following
+the shopping cart metaphor).
 
 ### EHR Scratchpad Interactions: `scratchpad.*` message type
 While interacting with an embedded SMART app, a clinician may make decisions
@@ -389,7 +354,7 @@ the most commonly used response payload fields; for full details, see the
 | Property              | Optionality | Type   | Description |
 | --------------------- | ----------- | ------ | ----------- |
 | `status`              | REQUIRED    | string | An HTTP response code (i.e. "200 OK"). |
-| `location`            | REQUIRED if a new resource has been added to the scratchapd. | string | Takes the form `ResourceType/Id`. |
+| `location`            | REQUIRED if a new resource has been added to the scratchapd. | string | Takes the form `resourceType/id`. |
 | `outcome`             | OPTIONAL    | object | [FHIR OperationOutcome] resulting from the message action. |
 {:.grid}
 
@@ -439,15 +404,15 @@ parameter list.
 
 | Property              | Optionality | Type   | Description |
 | --------------------- | ----------- | ------ | ----------- |
-| `location`            | OPTIONAL    | string | Takes the form `ResourceType/Id` when provided.  |
+| `location`            | OPTIONAL    | string | Takes the form `resourceType/id` when provided.  |
 {:.grid}
 
 ###### Response `payload`
 
 | Property              | Optionality | Type   | Description |
 | --------------------- | ----------- | ------ | ----------- |
-| `resource`            | OPTIONAL    | object | A single Resource returned when a `scratchpad.read` request specifies a `location`. |
-| `scratchpad`          | OPTIONAL    | object | A list of Resources returned when a `scratchpad.read` request specifies no `location`, requesting all resources on the scratchpad. |
+| `resource`            | CONDITIONAL | object | A single Resource returned when a `scratchpad.read` request specifies a `location`. |
+| `scratchpad`          | CONDITIONAL | object | A list of Resources returned when a `scratchpad.read` request specifies no `location`, requesting all resources on the scratchpad. |
 | `outcome`             | OPTIONAL    | object | [FHIR OperationOutcome] resulting from the message action. |
 {:.grid}
 
@@ -557,37 +522,7 @@ appWindow.postMessage({
 }, appOrigin);
 ```
 
----
-
-This example shows how an app might inspect the entire contents of the
-scratchpad.
-
-```js
-// From app -> EHR
-ehrWindow.postMessage({
-  "messageId": "<some new uid>",
-  "messagingHandle": "<smart_web_messaging_handle> from SMART launch context",
-  "messageType": "scratchpad.read"
-}, ehrOrigin);
-```
-
-Assuming the scratchpad is empty, the EHR could respond to the app with:
-
-```js
-// From EHR -> app
-appWindow.postMessage({
-  "messageId": "<some new uid>",
-  "responseToMessageId": "<corresponding request messageId>",
-  "payload": {
-    "scratchpad": []
-  }
-}, appOrigin);
-```
-
-To simplify the previous example further, since the returned `scratchpad` array
-is empty and is an optional attribute - it can be omitted.  Applying the same
-logic to the `payload` attribute results in the following equivalent response
-from the EHR.
+Or, if the scratchpad had no entries, the EHR could respond with this:
 
 ```js
 // From EHR -> app
@@ -597,6 +532,9 @@ appWindow.postMessage({
 }, appOrigin);
 ```
 
+---
+
+
 ##### `scratchpad.update`
 
 ###### Request `payload`
@@ -604,11 +542,9 @@ appWindow.postMessage({
 | Property              | Optionality | Type   | Description |
 | --------------------- | ----------- | ------ | ----------- |
 | `resource`            | REQUIRED    | object | Conveys resource content as per CDS Hooks Action's `payload.resource`. |
-| `location`            | REQUIRED    | string | Takes the form `ResourceType/Id`.  |
 {:.grid}
 
-The `location` value, when parsed for `ResourceType` and `Id`, SHALL match the
-corresponding `ResourceType` and `Id` fields present in the `resource` property.
+The `resource` SHALL specify a `resourceType` and an `id`.
 
 ###### Response `payload`
 
@@ -630,7 +566,6 @@ ehrWindow.postMessage({
   "messagingHandle": "<smart_web_messaging_handle> from SMART launch context",
   "messageType": "scratchpad.update",
   "payload": {
-    "location": "MedicationRequest/123",
     "resource": {
       "resourceType": "MedicationRequest",
       "id": "123",
@@ -650,8 +585,7 @@ appWindow.postMessage({
   "messageId": "<some new uid>",
   "responseToMessageId": "<corresponding request messageId>",
   "payload": {
-    "status": "200 OK",
-    "location": "MedicationRequest/123"
+    "status": "200 OK"
   }
 }, appOrigin);
 ```
@@ -662,7 +596,7 @@ appWindow.postMessage({
 
 | Property              | Optionality | Type   | Description |
 | --------------------- | ----------- | ------ | ----------- |
-| `location`            | REQUIRED    | string | Takes the form `ResourceType/Id`.  |
+| `location`            | REQUIRED    | string | Takes the form `resourceType/id`.  |
 {:.grid}
 
 ###### Response `payload`
@@ -697,8 +631,7 @@ appWindow.postMessage({
   "messageId": "<some new uid>",
   "responseToMessageId": "<corresponding request messageId>",
   "payload": {
-    "status": "200 OK",
-    "location": "MedicationRequest/456"
+    "status": "200 OK"
   }
 }, appOrigin);
 ```
@@ -755,7 +688,7 @@ authorized SMART launch parameters alongside the `access_token`.  Note the
   "access_token": "i8hweunweunweofiwweoijewiwe",
   "token_type": "bearer",
   "expires_in": 3600,
-  "scope": "patient/Observation.read patient/Patient.read messaging/ui.launchActivity",
+  "scope": "patient/Observation.read patient/Patient.read messaging/ui",
   "smart_web_messaging_handle": "bws8YCbyBtCYi5mWVgUDRqX8xcjiudCo",
   "smart_web_messaging_origin": "https://ehr.example.org",
   "state": "98wrghuwuogerg97",
