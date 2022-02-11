@@ -125,7 +125,7 @@ An example handshake request from an app to the EHR client is presented below.
 // needs to reach via SMART Web Messaging.
 // When a SMART app is launched standalone, window.parent and window.self are the same.
 // In that case, window.opener will be the recipient that the SMART app needs to address.
-const targetWindow = window.parent !== window.self ? window.parent : window.opener;
+const ehrWindow = window.parent !== window.self ? window.parent : window.opener;
 
 // Read the smart_web_messaging_origin property from the launch context (alongside the access_token).
 // This value provides the app with the EHR client's expected target origin.
@@ -139,7 +139,7 @@ const message = {
   "payload":         {}  // See below.
 };
 
-targetWindow.postMessage(message, targetOrigin);
+ehrWindow.postMessage(message, targetOrigin);
 ```
 
 The message is received in the EHR and handled as shown below.
@@ -243,7 +243,7 @@ type. See the SMART Web Messaging [Activity Catalog] for details.
 An example of a `ui.done` message from an app to the EHR is shown below:
 
 ```js
-targetWindow.postMessage({
+ehrWindow.postMessage({
   "messageId": "<some new uid>",
   "messagingHandle": "<smart_web_messaging_handle> from SMART launch context",
   "messageType": "ui.done",
@@ -255,7 +255,7 @@ A SMART app can use the `ui.launchActivity` message type to request
 navigation to a different activity *without* closing the app:
 
 ```js
-targetWindow.postMessage({
+ehrWindow.postMessage({
   "messageId": "<some new uid>",
   "messagingHandle": "<smart_web_messaging_handle> from SMART launch context",
   "messageType": "ui.launchActivity",
