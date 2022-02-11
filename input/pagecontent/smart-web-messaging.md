@@ -115,13 +115,6 @@ reaching the EHR.
 Extensions MAY appear at any point in Request Payload or Response Payload. Extensions use the same syntax and semantics as in the FHIR Core specification. That is, an `extension[]` array containing FHIR Extension elements MAY be included on any element (including extensions on primitives).
 
 
-#### Workflow Summary
-This mechanism enables a full request/response pattern.
-
-NOTE: A broadcast-type pattern which involves notification messages without an initial request
-message is currently out of scope, even though it could be implemented with SMART Web Messaging
-technology.
-
 ### Establish connection status: `status.*` message type
 
 #### Handshake
