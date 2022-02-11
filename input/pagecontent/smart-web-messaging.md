@@ -676,7 +676,7 @@ to implementer experience to determine whether we can standardize more granular 
   client_id=app-client-id&
   redirect_uri=https%3A%2F%2Fapp%2Fafter-auth&
   launch=xyz123&
-  scope=+launch+patient%2FMedicationRequest.read+messaging%2Fui.launchActivity+openid+profile&
+  scope=launch+patient%2FMedicationRequest.read+messaging%2Fui+openid+profile&
   state=98wrghuwuogerg97&
   aud=https://ehr/fhir
 ```
