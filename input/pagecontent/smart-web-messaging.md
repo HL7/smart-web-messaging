@@ -666,7 +666,7 @@ EHR implementations MAY include additional constraints on authorization beyond t
 coarse-grained scopes.  We encourage further experimentation in this direction, and will look
 to implementer experience to determine whether we can standardize more granular controls.
 
-*Note on security goals: We include a `smart_web_messaging_handle` in the request to ensure that a SMART app launch has been completed prior to any SMART Web Messaging API calls.  Requiring this parameter is part of a defense-in-depth strategoy to mitigate some cross-site-scripting (XSS) attacks.*
+*Note on security goals: We include a `smart_web_messaging_handle` in the request to ensure that a SMART app launch has been completed prior to any SMART Web Messaging API calls.  Requiring this parameter is part of a defense-in-depth strategy to mitigate some cross-site-scripting (XSS) attacks.*
 
 #### Scope examples
 
