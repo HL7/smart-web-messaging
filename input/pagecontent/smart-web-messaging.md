@@ -29,6 +29,7 @@
 [FHIR Coding]: https://www.hl7.org/fhir/datatypes.html#Coding
 [FHIR CodeableConcept]: https://hl7.org/fhir/datatypes.html#CodeableConcept
 [FHIR OperationOutcome]: https://www.hl7.org/fhir/operationoutcome.html
+[FHIR batch/transaction interaction]:  https://www.hl7.org/fhir/http.html#transaction
 [FHIRCast]: https://fhircast.org
 [HTML5]: https://html.spec.whatwg.org/multipage
 [HTML5's Web Messaging]: https://html.spec.whatwg.org/multipage/web-messaging.html
@@ -290,21 +291,6 @@ clientAppWindow.postMessage({
 }, clientAppOrigin);
 ```
 
-### Scratchpad
-Throughout this IG, references to a "scratchpad" refer to an EHR capability
-where FHIR-structured data can be stored without the expectation of being
-persisted "permanently" in a FHIR server. The scratchpad can be thought of as a
-shared memory area, consisting of "temporary" FHIR resources that can be
-accessed and modified by either an app or the EHR itself.  Each resource on the
-scratchpad has a temporary unique id (its scratchpad "location").
-
-A common use of the scratchpad is to hold the contents of a clinician's 
-"shopping cart" -- i.e., data that only exist during the clinician's session
-and may not have been finalized or made available through in the EHR's FHIR
-API. At the end of a user's session, selected data from the scratchpad can be
-persisted to the EHR's FHIR server (e.g., a "checkout" experience, following
-the shopping cart metaphor).
-
 ### EHR Scratchpad Interactions: `scratchpad.*` message type
 While interacting with an embedded SMART app, a clinician may make decisions
 that should be implemented in the EHR with minimal clicks.  SMART Web Messaging
@@ -326,6 +312,23 @@ can create a list of SMART Web Messaging API calls:
   * `update`→ `scratchpad.update`
   * `delete`→ `scratchpad.delete`
 * [CDS Hooks Action] `resource`: used to populate the `payload.resource`
+
+#### What is a scratchpad?
+
+References to a "scratchpad" refer to an EHR capability
+where FHIR-structured data can be stored without the expectation of being
+persisted "permanently" in a FHIR server. The scratchpad can be thought of as a
+shared memory area, consisting of "temporary" FHIR resources that can be
+accessed and modified by either an app or the EHR itself.  Each resource on the
+scratchpad has a temporary unique id (its scratchpad "location").
+
+A common use of the scratchpad is to hold the contents of a clinician's 
+"shopping cart" -- i.e., data that only exist during the clinician's session
+and may not have been finalized or made available through in the EHR's FHIR
+API. At the end of a user's session, selected data from the scratchpad can be
+persisted to the EHR's FHIR server (e.g., a "checkout" experience, following
+the shopping cart metaphor).
+
 
 #### `scratchpad` operations
 Scratchpad operations are conducted through an exchange of a *request* from an
@@ -632,6 +635,102 @@ appWindow.postMessage({
   "responseToMessageId": "<corresponding request messageId>",
   "payload": {
     "status": "200 OK"
+  }
+}, appOrigin);
+```
+
+
+### EHR FHIR Server Interactions: `fhir.http` message type
+
+In many cases, apps will be able to establish a direct HTTPS connections to an
+EHR's FHIR server. Such connections provide a widely supported mechanism for
+apps to interact with non-ephemeral state in the EHR. In some circumstances,
+however, Web Messaging may be available even when direct HTTPS connections are
+unavailable. In such cases, SMART Web Messaging requests with the `fhir.http`
+message type can be used as an alternative to direct HTTPS connections.
+
+A `fhir.http` request message can invoke any FHIR interaction that the EHR
+supports. The semantics are identical to those defined in the core [FHIR
+batch/transaction interaction].  That is, a SMART Web Messaging request with the
+`fhir.http` type behaves like an HTTP POST to the EHR FHIR Server's
+batch/transaction endpoint.  With this message type, apps can submit CRUDS
+requests or other FHIR interaction requests to the EHR by assembling an
+appropriate request `Bundle`.
+
+The EHR SHALL respond exactly once to each `fhir.http` request message.
+
+##### `fhir.http`
+
+###### Request `payload`
+
+| Property              | Optionality | Type   | Description |
+| --------------------- | ----------- | ------ | ----------- |
+| `bundle`            | REQUIRED    | object | FHIR Bundle with one or more entries that include `Bundle.entry.request`. Request semantics for batch and transaction bundles are as defined in the core [FHIR batch/transaction interaction].|
+{:.grid}
+
+###### Response `payload`
+
+
+| Property              | Optionality | Type   | Description |
+| --------------------- | ----------- | ------ | ----------- |
+| `bundle`            | CONDITONAL    | object | REQUIRED if no `outcome` is supplied. FHIR Bundle with one or more entries that include `Bundle.entry.response`. Response semantics for batch and transaction bundles are as defined in the core [FHIR batch/transaction interaction].|
+| `outcome`             | OPTIONAL    | object | [FHIR OperationOutcome] explaining why the request could not be processed. |
+{:.grid}
+
+##### Example
+
+This example shows a request to create a new Patient record directly in an EHR's
+FHIR server. Note that a batch request is used even though there is only a
+single Patient being created; this is because `batch`-type Bundles provide a
+consistent and general-purpose way to describe any FHIR HTTP interaction.
+
+```js
+// app -> EHR: Create a new patient
+ehrWindow.postMessage({
+  "messageId": "<some new uid>",
+  "messagingHandle": "<smart_web_messaging_handle> from SMART launch context",
+  "messageType": "fhir.http",
+  "payload": {
+    "bundle": {
+      "resourceType": "Bundle",
+      "type": "batch",
+      "entry": [{
+        "request": {
+          "method": "POST",
+          "url": "Patient"
+        },
+        "resource": {
+          "birthDate": "1974-12-25",
+          "gender": "male",
+          "name": [{
+            "family": "Chalmers",
+            "given": ["Peter", "James"]
+          }]
+        }
+      }]
+    }
+  }
+}, ehrOrigin);
+```
+
+The EHR then processes the request, storing a new patient record before finally responding with:
+
+```js
+// From EHR -> app
+appWindow.postMessage({
+  "messageId": "<some new uid>",
+  "responseToMessageId": "<corresponding request messageId>",
+  "payload": {
+    "bundle": {
+      "resourceType": "Bundle",
+      "type": "batch-response",
+      "entry": [{
+        "response": {
+          "status": "201 Created",
+          "location": "Patient/123"
+        }
+      }]
+    }
   }
 }, appOrigin);
 ```
