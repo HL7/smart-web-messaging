@@ -1,28 +1,24 @@
 id: hl7.fhir.uv.smart-web-messaging
 canonical: https://hl7.org/fhir/uv/smart-web-messaging
-version: 0.1.0
-fhirVersion: 4.0.1
-license: Apache-2.0
-copyrightYear: 2020+
-releaseLabel: Build CI
-status: active
-jurisdiction: http://unstats.un.org/unsd/methods/m49/m49.htm#001 "World"
-
 name: SmartWebMessaging
 title: "SMART Web Messaging Implementation Guide: STU1"
+status: active
+version: 1.0.0
+fhirVersion: 4.0.1
+copyrightYear: 2022+
+releaseLabel: trial-use #ci-build|draft|qa-preview|ballot|trial-use|release|release|update|normative+trial-use
+date: 2022-03-08
+license: Apache-2.0
+
+jurisdiction: http://unstats.un.org/unsd/methods/m49/m49.htm#001 "World"
+publisher:
+  name: HL7 International - FHIR Infrastructure WG
+  url: https://hl7.org/Special/committees/fiwg
+  email: fhir@lists.HL7.org
+
 description: The SMART Web Messaging Implementation Guide enables
   SMART-launched apps a standard way to communicate with the fixture that
   launched the app.
-
-publisher:
-  name: HL7 FHIR Infrastructure
-  url: http://hl7.org/Special/committees/fiwg/index.cfm
-
-contact:
-  - name: Carl Anderson
-    telecom:
-      - system: email
-        value: mailto:carl.anderson@microsoft.com
 
 parameters:
   usage-stats-opt-out: true
