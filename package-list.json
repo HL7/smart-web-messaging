@@ -1,0 +1,34 @@
+{
+  "package-id": "hl7.fhir.uv.smart-web-messaging",
+  "title": "SMART Web Messaging Implementation Guide",
+  "canonical": "https://hl7.org/fhir/uv/smart-web-messaging",
+  "list": [
+    {
+      "version": "current",
+      "date": "n/a",
+      "desc": "Continuous Integration Build (latest in version control)",
+      "path": "http://build.fhir.org/ig/HL7/smart-web-messaging/",
+      "status": "ci-build"
+    },
+    {
+      "version": "1.0.0",
+      "date": "2022-03-08",
+      "desc": "STU 1",
+      "path": "http://hl7.org/fhir/uv/smart-web-messaging/STU1/",
+      "sequence": "STU 1",
+      "fhirversion": "4.0.1",
+      "status": "trial-use",
+      "current": true
+    },
+    {
+      "version": "0.1.0",
+      "date": "2020-08-11",
+      "desc": "STU 1 Ballot",
+      "path": "http://hl7.org/fhir/uv/smart-web-messaging/2020Sep/",
+      "sequence": "STU 1",
+      "fhirversion": "4.0.1",
+      "status": "ballot"
+    }
+  ],
+  "category": "EHR Access"
+}
