@@ -14,7 +14,7 @@
       "version": "1.0.0",
       "date": "2022-03-08",
       "desc": "STU 1",
-      "path": "http://hl7.org/fhir/uv/smart-web-messaging/STU1/",
+      "path": "https://hl7.org/fhir/uv/smart-web-messaging",
       "sequence": "STU 1",
       "fhirversion": "4.0.1",
       "status": "trial-use",
