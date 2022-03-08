@@ -1,7 +1,7 @@
 id: hl7.fhir.uv.smart-web-messaging
 canonical: https://hl7.org/fhir/uv/smart-web-messaging
 name: SmartWebMessaging
-title: "SMART Web Messaging Implementation Guide: STU1"
+title: "SMART Web Messaging"
 status: active
 version: 1.0.0
 fhirVersion: 4.0.1
