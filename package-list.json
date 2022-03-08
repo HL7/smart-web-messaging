@@ -7,7 +7,7 @@
       "version": "current",
       "date": "n/a",
       "desc": "Continuous Integration Build (latest in version control)",
-      "path": "http://build.fhir.org/ig/HL7/smart-web-messaging/",
+      "path": "http://build.fhir.org/ig/HL7/smart-web-messaging",
       "status": "ci-build"
     },
     {
@@ -24,7 +24,7 @@
       "version": "0.1.0",
       "date": "2020-08-11",
       "desc": "STU 1 Ballot",
-      "path": "http://hl7.org/fhir/uv/smart-web-messaging/2020Sep/",
+      "path": "http://hl7.org/fhir/uv/smart-web-messaging/2020Sep",
       "sequence": "STU 1",
       "fhirversion": "4.0.1",
       "status": "ballot"
