@@ -1,7 +1,7 @@
 
 In deciding on `postMessage`, we considered several alternative techniques:
 
-#### `window.postMessage` (**selected option**)
+### `window.postMessage` (**selected option**)
 Details: Message channel abstraction built on `postMessage`; see proposal above.
 
 * **Pros**
@@ -13,7 +13,7 @@ Details: Message channel abstraction built on `postMessage`; see proposal above.
   * IE<=10 [may be broken](https://stackoverflow.com/questions/16226924/is-cross-origin-postmessage-broken-in-ie10) with apps in new tabs -- but iframed apps probably work fine
 
 
-#### Redirect to an "I'm done" URL
+### Redirect to an "I'm done" URL
 Details: This is how the pre-1.0 CDS Hooks specification worked, and how the original sandbox worked
 
 * **Pros**
@@ -28,8 +28,8 @@ Details: This is how the pre-1.0 CDS Hooks specification worked, and how the ori
   * doesn't allow EHR to send messages to the app (one-way channel only)
 
 
-#### Pass along JS or decorate web browser control with a method
-Details: For example, the access token response coudl include a values like
+### Pass along JS or decorate web browser control with a method
+Details: For example, the access token response could include a values like
 `"js_to_load": "https://otherdomain.example.org/ehr/actionPerformer.js"`, and the app would create a  `<script
 src="https://otherdomain.example.org/ehr/actionPerformer.js"/>` tag to load the relevant code. Then the app would have access to `smartMessaging.send()`, with a list of functions and contracts...
 
@@ -42,7 +42,7 @@ src="https://otherdomain.example.org/ehr/actionPerformer.js"/>` tag to load the 
   * Nobody wants to get security review for this.
 
 
-#### EHR hosts a HTTP API endpoint
+### EHR hosts a HTTP API endpoint
 Details: This is effectively a standalone REST API endpoint for managing messages
 
 * **Pros**
@@ -55,7 +55,7 @@ Details: This is effectively a standalone REST API endpoint for managing message
   * EHR can't easily send messages back to the app; it's a one-way channel unless you add in (long) polling
 
 
-#### EHR hosts a Web Socket endpoint
+### EHR hosts a Web Socket endpoint
 Details: This is similar to the standalone REST API endpoint option
 
 * **Pros**
@@ -67,7 +67,7 @@ Details: This is similar to the standalone REST API endpoint option
   * Inconsistent/spotty browser support (?)
 
 
-#### SignalR, `socket.io`
+### SignalR, `socket.io`
 Details: Rely on a full-fledged library that supports multiple modalities of exchange with fallbacks
 
 * **Pros**
@@ -77,7 +77,7 @@ Details: Rely on a full-fledged library that supports multiple modalities of exc
   * not a standard; this pushes implementation details that we can't control
 
 
-#### FHIRCast
+### FHIRCast
 Details: Same tech as HTTP API (+experimental Websockets)
 
 * **Pros**
