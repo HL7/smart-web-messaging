@@ -9,9 +9,9 @@
 [FHIR Bundle]: https://www.hl7.org/fhir/bundle.html
 [FHIR Condition]: https://www.hl7.org/fhir/condition.html
 
-These activites serve as navigation targets for `ui.launchActivity` messages.
+These activities serve as navigation targets for `ui.launchActivity` messages.
 They are designed to describe navigation points within an EHR environment. We
-focus on defining common activites that are likely to exist across multiple EHR
+focus on defining common activities that are likely to exist across multiple EHR
 systems, rather than creating a fine-grained EHR-specific workflow model. It's
 important to note that this is an extensible set; while we define a set of
 standardized activities using "bare" keywords like `order-sign`, any EHR may
@@ -28,33 +28,33 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD",
 be interpreted as described in RFC2119.
 
 
-## `appointment-book`
+### `appointment-book`
 See [CDS Hooks `appointment-book`]
 
 
-### Parameters
+#### Parameters
 
 | Name                   | Optionality | Description |
 | ---------------------- | ----------- | ----------- |
 | `appointmentLocations` | REQUIRED    | [FHIR Bundle] of [FHIR Appointment] resource locations in draft status, and any other supporting data. |
 {:.grid}
 
-## `order-review`
+### `order-review`
 See [CDS Hooks `order-sign`] for a similar operation.
 
 
-### Parameters
+#### Parameters
 
 | Name                  | Optionality | Description |
 | --------------------- | ----------- | ----------- |
 | `draftOrderLocations` | REQUIRED    | array of draft order locations (references to) already existing in the scratchpad. See the `scratchpad.*` operations. |
 {:.grid}
 
-## `problem-review`
-Allow the EHR user to add a new problem to the patieint's problem list.
+### `problem-review`
+Allow the EHR user to add a new problem to the patient's problem list.
 
 
-### Parameters
+#### Parameters
 
 | Name              | Optionality | Description |
 | ----------------- | ----------- | ----------- |
