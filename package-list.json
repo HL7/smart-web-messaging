@@ -2,7 +2,7 @@
   "package-id": "hl7.fhir.uv.smart-web-messaging",
   "title": "SMART Web Messaging",
   "canonical": "https://hl7.org/fhir/uv/smart-web-messaging",
-  "introduction": "This IG provides detailed guidance that helps implementers to use SMART Web Messaging to enable tight UI integration between EHRs and embedded SMART apps via HTML5’s Web Messaging. SMART Web Messaging allows applications to push unsigned orders, note snippets, risk scores, or UI suggestions directly to the clinician’s EHR session. Built on the browser’s javascript window.postMessage function, SMART Web Messaging is a simple, native API for health apps embedded within the user’s workflow."
+  "introduction": "This IG provides detailed guidance that helps implementers to use SMART Web Messaging to enable tight UI integration between EHRs and embedded SMART apps via HTML5’s Web Messaging. SMART Web Messaging allows applications to push unsigned orders, note snippets, risk scores, or UI suggestions directly to the clinician’s EHR session. Built on the browser’s javascript window.postMessage function, SMART Web Messaging is a simple, native API for health apps embedded within the user’s workflow.",
   "list": [
     {
       "version": "current",
