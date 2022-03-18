@@ -13,7 +13,7 @@
     {
       "version": "1.0.0",
       "date": "2022-03-17",
-      "desc": "STU 1 Release.",
+      "desc": "STU 1 Release.  For a list of changes applied to this version see the SMART Web Messaging STU1 trackers at https://jira.hl7.org/issues/?filter=16804# (log in required)",
       "path": "https://hl7.org/fhir/uv/smart-web-messaging/STU1",
       "sequence": "STU1",
       "fhirversion": "4.0.1",
@@ -24,7 +24,7 @@
       "version": "0.1.0",
       "date": "2020-08-11",
       "desc": "STU 1 Ballot",
-      "path": "https://hl7.org/fhir/uv/smart-web-messaging/2020Sep",
+      "path": "http://hl7.org/fhir/uv/smart-web-messaging/2020Sep",
       "sequence": "STU1",
       "fhirversion": "4.0.1",
       "status": "ballot"
