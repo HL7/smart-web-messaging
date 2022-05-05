@@ -1,5 +1,5 @@
 id: hl7.fhir.uv.smart-web-messaging
-canonical: https://hl7.org/fhir/uv/smart-web-messaging
+canonical: http://hl7.org/fhir/uv/smart-web-messaging
 name: SmartWebMessaging
 title: "SMART Web Messaging"
 status: active
