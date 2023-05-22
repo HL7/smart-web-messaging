@@ -89,6 +89,10 @@ is provided with the `targetOrigin` of the app when the app is registered with
 the EHR during app configuration.
 Callers SHOULD NOT use `"*"` for the `targetOrigin` parameter for [security reasons](https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage#Security_concerns).
 
+#### MessageType
+
+MessageType names are unique so creators SHOULD take care to ensure newly proposed messageTypes do not conflict with an existing messageType name. MessageType creators SHALL name their messageTypes with reverse domain notation (e.g. org.example.patient-transmogrify) if the messageType is specific to an organization. Reverse domain notation SHALL not be used by a standard messageType catalog.
+
 #### Response Properties
 The receiver SHALL send a response message with the following properties:
 
@@ -113,7 +117,6 @@ reaching the EHR.
 #### Extensions
 
 Extensions MAY appear at any point in Request Payload or Response Payload. Extensions use the same syntax and semantics as in the FHIR Core specification. That is, an `extension[]` array containing FHIR Extension elements MAY be included on any element (including extensions on primitives).
-
 
 ### Establish Connection Status: `status.*` Message Type
 
